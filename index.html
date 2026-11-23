@@ -452,8 +452,8 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div class="goalbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
    <p class="muted small" style="margin:0">${pct>=100?"Xong mục tiêu hôm nay. Làm thêm là cộng điểm thưởng.":"Khoảng 15 phút mỗi ngày là đủ để giữ chuỗi."}</p>
   </div>
-  ${SAMPLE?`<div class="hero stack">
-   <div class="label" style="color:inherit;opacity:.8">Luyện nói với AI</div>
+  ${true?`<div class="hero stack">
+   <div class="label" style="color:inherit;opacity:.8">${SAMPLE?"Luyện nói với AI":"Luyện nói với gia sư"}</div>
    <h2 style="color:inherit">Sam đang chờ bạn. Nói vài câu nhé?</h2>
    <div class="row" style="flex-wrap:nowrap"><button class="btn mark big" id="qCall" style="flex:1">${IC.phone}Gọi thoại</button><button class="btn mark big" id="qTalk" style="flex:1">${IC.chat}Trò chuyện</button></div>
    <div class="qgrid">
@@ -471,7 +471,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
  </div>`;
  document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else if(x.mode)openMode(x.mode);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
  $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
- if(SAMPLE){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
+ if(true){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
   $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>openMode("photo")}}
 function todayChar(){return CHARS[dayIndex()%CHARS.length]}
 function todayDeb(){return DEBATES[dayIndex()%DEBATES.length]}
@@ -637,7 +637,7 @@ function vLearn(){
  if(learnMode==="photo")return vPhoto();
  if(learnMode==="abc")return vABC();
  if(learnMode==="num")return vNum();
- const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg>${m.ai&&!SAMPLE?`<span class="pill">Cần Claude</span>`:""}</div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
+ const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg></div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
  $("#view").innerHTML=`<div class="stack"><h1>Chế độ học</h1>
   <div class="modes">${MODES.filter(m=>!m.g).map(card).join("")}</div>
   <h2 style="margin-top:8px">Nền tảng</h2>
@@ -645,7 +645,7 @@ function vLearn(){
   </div>`;
  document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>openMode(b.dataset.m))}
 function openMode(m){
- if(m==="chat"||m==="call"){if(!SAMPLE){toast("Chế độ này cần mạng và chạy trong app trên Claude");return}callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
+ if(m==="chat"||m==="call"){callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
  else if(m==="role"){chatScen=null;callMode=false;learnMode="role"}
  else{learnMode=m;sentTopic=null;wordSel=null;vtTopic=null;vtSel=null;lsn=null;phScene=null;phRes=null}
  if(TAB!=="learn")go("learn");else{vLearn();window.scrollTo(0,0)}}
@@ -936,39 +936,207 @@ const DEBATES=[
  ["d6","AI will create more jobs than it destroys.","AI sẽ tạo ra nhiều việc làm hơn là lấy đi"]
 ].map(([id,t,vi])=>({id,kind:"debate",title:vi,vi:t,role:`a friendly debate partner who politely takes the OPPOSITE side of whatever the learner argues on the topic "${t}". Each turn: react briefly, give one clear counter-argument, then ask the learner to respond or give an example`,open:`Today's topic is: "${t}" Do you agree or disagree? Tell me why.`}));
 const PHOTO={id:"photo",kind:"photo",title:"Mô tả ảnh",vi:"Tả lại bức ảnh bằng tiếng Anh, Claude hỏi thêm chi tiết và dạy từ mới",role:"a friendly English tutor looking at the attached photo together with the learner. First let them describe it, then ask follow-up questions about details (people, places, actions, colors, feelings) and naturally introduce 1 useful new word that fits the photo",open:"Let's look at your photo together. Can you describe what you see?"};
+// ===== Offline tutor engine (works without Claude) =====
+// Each question: [en, vi, sample answer, chip1, chip2]
+const OFF_TOPICS=[
+ {k:"day",kw:/\b(day|today|morning|routine)\b/,vt:18,q:[
+  ["How are you today?","Hôm nay bạn thế nào?","I'm pretty good, thanks. I slept well last night.","I'm good, thanks!","A bit tired, actually."],
+  ["What did you do this morning?","Sáng nay bạn đã làm gì?","I got up at six, had breakfast and went to work.","I went to work.","I had coffee."],
+  ["What time do you usually get up?","Bạn thường dậy lúc mấy giờ?","I usually get up at half past six on weekdays.","At six o'clock.","Quite early."],
+  ["What is the best part of your day?","Khoảng thời gian bạn thích nhất trong ngày là gì?","The best part of my day is the evening, when I relax with my family.","The evening.","Lunch time!"],
+  ["What are you going to do tonight?","Tối nay bạn định làm gì?","I'm going to study English for twenty minutes and watch a movie.","Study English.","Just relax at home."]]},
+ {k:"work",kw:/\b(work|job|office|company|boss|career)\b/,vt:3,q:[
+  ["What do you do for a living?","Bạn làm nghề gì?","I work as an office worker at a small company in Hanoi.","I'm an engineer.","I work in an office."],
+  ["Do you enjoy your job? Why?","Bạn có thích công việc của mình không? Vì sao?","Yes, I do, because my colleagues are friendly and I learn new things every day.","Yes, I love it.","It's OK, but stressful."],
+  ["How do you get to work?","Bạn đi làm bằng gì?","I ride my motorbike to work. It takes about twenty minutes.","By motorbike.","I take the bus."],
+  ["What is the hardest part of your work?","Phần khó nhất trong công việc của bạn là gì?","The hardest part is meeting deadlines when we have too many projects.","The deadlines.","Talking to clients."],
+  ["Why do you need English for your work?","Vì sao bạn cần tiếng Anh cho công việc?","I need English to write emails and talk to foreign customers.","To write emails.","To get a better job."]]},
+ {k:"food",kw:/\b(food|eat|cook|dish|restaurant|pho|meal|drink)\b/,vt:9,q:[
+  ["What's your favorite food?","Món ăn yêu thích của bạn là gì?","My favorite food is pho, especially beef pho in the morning.","I love pho.","Seafood!"],
+  ["Can you cook? What can you make?","Bạn có biết nấu ăn không? Bạn nấu được món gì?","Yes, I can cook a few simple dishes like fried rice and sour soup.","Yes, a little.","No, not really."],
+  ["What did you have for lunch today?","Trưa nay bạn ăn gì?","I had broken rice with grilled pork near my office.","Broken rice.","Just a sandwich."],
+  ["Do you prefer eating at home or eating out?","Bạn thích ăn ở nhà hay ăn ngoài hơn?","I prefer eating at home because it's healthier and cheaper.","Eating at home.","Eating out."],
+  ["What Vietnamese dish should a foreigner try first?","Người nước ngoài nên thử món Việt nào đầu tiên?","They should try bun cha. It's grilled pork with noodles and it's delicious.","Bun cha!","Banh mi."]]},
+ {k:"hobby",kw:/\b(hobby|hobbies|free time|sport|music|movie|game|book|read)\b/,vt:13,q:[
+  ["What do you like doing in your free time?","Lúc rảnh bạn thích làm gì?","In my free time I like playing badminton and watching movies.","Watching movies.","Playing sports."],
+  ["How often do you play sports?","Bạn chơi thể thao thường xuyên không?","I play badminton twice a week with my friends.","Twice a week.","Not very often."],
+  ["What kind of music do you listen to?","Bạn nghe loại nhạc nào?","I usually listen to pop music and sometimes Vietnamese ballads.","Pop music.","All kinds of music."],
+  ["What's a good movie you watched recently?","Gần đây bạn xem phim nào hay?","I watched an action movie last weekend and it was really exciting.","An action movie.","I can't remember."],
+  ["Is there a new hobby you want to try?","Có sở thích mới nào bạn muốn thử không?","I want to try swimming because it's good for my health.","Swimming.","Learning the guitar."]]},
+ {k:"travel",kw:/\b(travel|trip|holiday|vacation|beach|country|visit)\b/,vt:6,q:[
+  ["Do you like traveling?","Bạn có thích đi du lịch không?","Yes, I love traveling, especially to the beach.","Yes, I love it.","Sometimes."],
+  ["Where did you go on your last trip?","Chuyến đi gần nhất bạn đã đi đâu?","I went to Da Nang with my family last summer.","Da Nang.","Da Lat."],
+  ["What did you like most about that place?","Bạn thích điều gì nhất ở nơi đó?","I liked the beautiful beach and the fresh seafood.","The beach.","The food."],
+  ["Which country do you want to visit, and why?","Bạn muốn đến nước nào, vì sao?","I want to visit Japan because I love its culture and food.","Japan.","Korea."],
+  ["Do you prefer traveling alone or with friends?","Bạn thích đi một mình hay đi cùng bạn bè?","I prefer traveling with friends because it's more fun.","With friends.","Alone."]]},
+ {k:"family",kw:/\b(family|parents|wife|husband|kids|children|brother|sister)\b/,vt:1,q:[
+  ["Tell me about your family.","Kể cho tôi về gia đình bạn.","There are four people in my family: my parents, my sister and me.","There are four of us.","I have a small family."],
+  ["Who are you closest to in your family?","Bạn thân với ai nhất trong gia đình?","I'm closest to my mother because she always listens to me.","My mother.","My sister."],
+  ["What do you usually do together?","Gia đình bạn thường làm gì cùng nhau?","We usually have dinner together and talk about our day.","We have dinner together.","We watch TV."],
+  ["Do you live with your parents?","Bạn có sống cùng bố mẹ không?","No, I don't. I live in the city, but I visit them every month.","Yes, I do.","No, I live alone."],
+  ["What's a family tradition you love?","Truyền thống gia đình nào bạn thích?","I love Tet, when the whole family gets together and eats special food.","Tet holiday.","Sunday lunch."]]},
+ {k:"weekend",kw:/\b(weekend|saturday|sunday|plan)\b/,vt:10,q:[
+  ["What did you do last weekend?","Cuối tuần trước bạn đã làm gì?","Last weekend I visited my grandparents and went to a cafe with friends.","I stayed at home.","I met my friends."],
+  ["What are your plans for this weekend?","Cuối tuần này bạn có kế hoạch gì?","I'm going to clean my house and go to the cinema on Sunday.","Nothing special.","Go to the cinema."],
+  ["What's your ideal weekend?","Cuối tuần lý tưởng của bạn là gì?","My ideal weekend is sleeping late, eating good food and going for a walk.","Sleeping late!","A short trip."],
+  ["Do you work on weekends?","Bạn có làm việc vào cuối tuần không?","Sometimes I work on Saturday morning, but I always rest on Sunday.","Sometimes.","Never!"],
+  ["Where do you like to go in your city?","Bạn thích đi đâu trong thành phố của mình?","I like going to the lake and the coffee shops near my house.","Coffee shops.","The park."]]},
+ {k:"english",kw:/\b(english|learn|study|language|speak)\b/,vt:4,q:[
+  ["Why are you learning English?","Vì sao bạn học tiếng Anh?","I'm learning English because I want to talk to foreigners and get a better job.","For my job.","To travel."],
+  ["What is the hardest thing about English for you?","Điều khó nhất trong tiếng Anh với bạn là gì?","The hardest thing is speaking quickly and understanding native speakers.","Speaking.","Pronunciation."],
+  ["How do you practice English every day?","Bạn luyện tiếng Anh hằng ngày thế nào?","I use this app every morning and watch English videos at night.","I use this app.","I watch videos."],
+  ["Have you ever talked with a foreigner?","Bạn đã từng nói chuyện với người nước ngoài chưa?","Yes, I have. I helped a tourist find the way to the Old Quarter.","Yes, once.","Not yet."],
+  ["What's your English goal this year?","Mục tiêu tiếng Anh năm nay của bạn là gì?","My goal is to speak confidently in meetings by the end of the year.","Speak confidently.","Get IELTS 6.5."]]},
+ {k:"health",kw:/\b(health|healthy|sleep|exercise|gym|sick|tired)\b/,vt:8,q:[
+  ["What do you do to stay healthy?","Bạn làm gì để giữ sức khỏe?","I try to eat more vegetables and go jogging three times a week.","I exercise.","I eat healthy food."],
+  ["How many hours do you sleep every night?","Mỗi đêm bạn ngủ bao nhiêu tiếng?","I usually sleep about seven hours, but sometimes less.","About seven hours.","Not enough!"],
+  ["How do you relax when you're stressed?","Bạn thư giãn thế nào khi căng thẳng?","When I'm stressed, I listen to music or take a long walk.","I listen to music.","I sleep."],
+  ["Do you drink enough water?","Bạn có uống đủ nước không?","Not really. I often forget, so I want to drink more water.","Yes, I do.","Not really."],
+  ["What's one healthy habit you want to start?","Bạn muốn bắt đầu thói quen tốt nào?","I want to stop using my phone before bed so I can sleep better.","Go to bed early.","Exercise more."]]},
+ {k:"tech",kw:/\b(phone|technology|internet|app|computer|ai|social media)\b/,vt:12,q:[
+  ["How much time do you spend on your phone each day?","Mỗi ngày bạn dùng điện thoại bao lâu?","I spend about four hours a day on my phone, mostly for work and chatting.","Too much!","About three hours."],
+  ["Which app do you use the most?","Bạn dùng ứng dụng nào nhiều nhất?","I use Zalo the most because I chat with my family and colleagues there.","Zalo.","Facebook."],
+  ["Do you think social media is good or bad?","Bạn nghĩ mạng xã hội tốt hay xấu?","I think it's both. It helps us connect, but it can waste a lot of time.","Both.","Mostly good."],
+  ["Have you ever used AI to help you?","Bạn đã từng dùng AI để giúp mình chưa?","Yes, I use AI to practice English and to check my emails.","Yes, every day.","Not much."],
+  ["Could you live without the internet for a week?","Bạn có thể sống không có Internet một tuần không?","I don't think so. I need the internet for work and for news.","No way!","Maybe."]]}
+];
+const OFF_CHAR={
+ h1:[["What's the status of the project?","Dự án đang thế nào rồi?","We're on track. We finished the design and we're testing now.","We're on track.","We're a bit behind."],["Any problems I should know about?","Có vấn đề gì tôi cần biết không?","One problem is that the client changed some requirements last week.","No big problems.","Yes, one issue."],["When can you send me the report?","Khi nào bạn gửi báo cáo cho tôi được?","I can send it to you by Friday afternoon.","By Friday.","Tomorrow morning."],["What do you need from me?","Bạn cần tôi hỗ trợ gì?","I need your approval for the new budget.","Your approval.","More time."],["Great. Anything else before we wrap up?","Tốt. Còn gì nữa trước khi kết thúc không?","No, that's all. Thanks for your time.","That's all, thanks.","One more thing."]],
+ h2:[["What's the best thing about Vietnam?","Điều tuyệt nhất ở Việt Nam là gì?","The best thing is the food. It's cheap and delicious everywhere.","The food!","The people."],["What should I eat in Hanoi?","Tôi nên ăn gì ở Hà Nội?","You should try pho, bun cha and egg coffee.","Try pho.","Egg coffee!"],["Is it easy to get around by motorbike?","Đi lại bằng xe máy có dễ không?","It's convenient, but the traffic can be crazy, so be careful.","Yes, but be careful.","Grab is easier."],["Have you ever been to England?","Bạn đã đến Anh bao giờ chưa?","No, I haven't, but I'd love to visit London one day.","Not yet.","I'd love to."],["Where would you take me in your hometown?","Bạn sẽ đưa tôi đi đâu ở quê bạn?","I'd take you to the local market and a quiet lake.","The market.","A nice cafe."]],
+ h3:[["How long have you had these symptoms?","Bạn bị triệu chứng này bao lâu rồi?","I've had a headache and a sore throat for three days.","For three days.","Since yesterday."],["Do you have a fever?","Bạn có bị sốt không?","Yes, I had a slight fever last night.","Yes, a little.","No, I don't."],["Are you taking any medicine?","Bạn có đang uống thuốc gì không?","I'm only taking some painkillers.","Just painkillers.","No, nothing."],["Do you have any allergies?","Bạn có bị dị ứng gì không?","No, I don't have any allergies.","No, I don't.","Yes, to seafood."],["Please rest and drink plenty of water. Any questions?","Hãy nghỉ ngơi và uống nhiều nước. Bạn có câu hỏi gì không?","How many times a day should I take this medicine?","How often should I take it?","No, thank you."]],
+ h4:[["How was your week, man?","Tuần này của bạn thế nào?","Pretty busy, but good. I worked a lot.","Busy but good.","Pretty tiring."],["What's your workout today?","Hôm nay bạn tập gì?","Today is leg day, so squats and lunges.","Leg day.","Just cardio."],["What do you eat after the gym?","Sau khi tập bạn ăn gì?","I usually have chicken and rice after the gym.","Chicken and rice.","A protein shake."],["Any fun plans for the weekend?","Cuối tuần có kế hoạch gì vui không?","I'm going to watch a football match with my friends.","Watch football.","Nothing yet."],["Wanna train together next time?","Lần sau tập chung không?","Sure! How about Thursday evening?","Sure!","Sounds good."]],
+ h5:[["Do you work or are you a student?","Bạn đi làm hay đang là sinh viên?","I work as an accountant for a trading company.","I work.","I'm a student."],["What do you like about your hometown?","Bạn thích điều gì ở quê mình?","I like my hometown because it's peaceful and the people are friendly.","It's peaceful.","The food."],["How do you usually spend your evenings?","Buổi tối bạn thường làm gì?","I usually cook dinner, then read or study for an hour.","I relax at home.","I study."],["Do you prefer reading books or watching films?","Bạn thích đọc sách hay xem phim hơn?","I prefer watching films because they help me relax after work.","Watching films.","Reading books."],["Describe a place you would like to visit. You have one minute.","Hãy mô tả một nơi bạn muốn đến. Bạn có một phút.","I'd like to visit Kyoto in Japan. It has old temples and beautiful gardens, and I want to see it in autumn.","Kyoto, Japan.","Paris."]],
+ h6:[["So what are you going to do about it?","Vậy bạn sẽ xử lý thế nào?","I'm really sorry. We can send you a new item for free today.","I'm so sorry.","We'll fix it."],["How long will that take?","Mất bao lâu?","It should arrive within two days.","Two days.","Tomorrow."],["And what about the damaged box?","Còn cái hộp bị hỏng thì sao?","You can keep it, and we'll give you a ten percent discount.","You'll get a discount.","Please send a photo."],["Can I get a refund instead?","Tôi được hoàn tiền thay thế không?","Of course. We can refund you within three working days.","Yes, of course.","Let me check."],["OK, thank you. I feel better now.","Được rồi, cảm ơn. Tôi thấy dễ chịu hơn rồi.","You're welcome. Thank you for your patience.","You're welcome.","Thanks for your patience."]]
+};
+// Debates: pro = arguments FOR the statement, con = AGAINST. [en, vi]
+const OFF_DEB={
+ d1:{pro:[["You save time and money because you don't commute.","Bạn tiết kiệm thời gian và tiền vì không phải đi lại."],["Many people focus better in a quiet home.","Nhiều người tập trung tốt hơn ở nhà yên tĩnh."],["You can spend more time with your family.","Bạn có nhiều thời gian hơn cho gia đình."]],con:[["It's harder to work as a team when nobody is in the same room.","Làm việc nhóm khó hơn khi không ai ở cùng phòng."],["At home there are many distractions, like TV and housework.","Ở nhà có nhiều thứ gây xao nhãng như TV và việc nhà."],["People can feel lonely without colleagues around.","Mọi người có thể thấy cô đơn khi không có đồng nghiệp."]]},
+ d2:{pro:[["Many young people spend hours scrolling instead of sleeping.","Nhiều người trẻ lướt mạng hàng giờ thay vì ngủ."],["Fake news spreads very fast on social media.","Tin giả lan rất nhanh trên mạng xã hội."],["People compare themselves to others and feel unhappy.","Mọi người so sánh mình với người khác và thấy buồn."]],con:[["It helps us stay in touch with friends far away.","Nó giúp ta giữ liên lạc với bạn ở xa."],["Small businesses can find customers for free.","Doanh nghiệp nhỏ tìm được khách hàng miễn phí."],["You can learn a lot, even English, from social media.","Bạn học được nhiều thứ, cả tiếng Anh, từ mạng xã hội."]]},
+ d3:{pro:[["Young children copy sounds very easily.","Trẻ nhỏ bắt chước âm rất dễ."],["Starting early gives them more years of practice.","Bắt đầu sớm cho trẻ nhiều năm luyện tập hơn."],["English opens more opportunities in the future.","Tiếng Anh mở ra nhiều cơ hội trong tương lai."]],con:[["Children should master their mother tongue first.","Trẻ nên giỏi tiếng mẹ đẻ trước."],["Too many classes can make kids stressed.","Học quá nhiều lớp có thể làm trẻ căng thẳng."],["Adults can learn faster because they study on purpose.","Người lớn có thể học nhanh hơn vì học có mục đích."]]},
+ d4:{pro:[["Money pays for good healthcare and education.","Tiền trả cho y tế và giáo dục tốt."],["Without money, people worry every day.","Không có tiền, người ta lo lắng mỗi ngày."],["Money lets you travel and enjoy new experiences.","Tiền giúp bạn du lịch và trải nghiệm điều mới."]],con:[["Many rich people are still lonely and unhappy.","Nhiều người giàu vẫn cô đơn và không hạnh phúc."],["Family and friends matter more than money.","Gia đình và bạn bè quan trọng hơn tiền."],["After a certain point, more money doesn't make you happier.","Đến một mức nào đó, nhiều tiền hơn không làm bạn vui hơn."]]},
+ d5:{pro:[["Cities have more jobs and better salaries.","Thành phố có nhiều việc làm và lương cao hơn."],["Hospitals and schools are better in the city.","Bệnh viện và trường học ở thành phố tốt hơn."],["There is always something fun to do.","Luôn có điều gì đó vui để làm."]],con:[["The air in the countryside is much cleaner.","Không khí ở nông thôn sạch hơn nhiều."],["Life is cheaper and less stressful there.","Cuộc sống ở đó rẻ hơn và ít áp lực hơn."],["People in small towns know and help each other.","Người ở thị trấn nhỏ biết và giúp đỡ nhau."]]},
+ d6:{pro:[["New technology always creates new kinds of jobs.","Công nghệ mới luôn tạo ra loại việc làm mới."],["AI does boring tasks so people can do creative work.","AI làm việc nhàm chán để con người làm việc sáng tạo."],["Companies need people to build and manage AI.","Các công ty cần người xây dựng và quản lý AI."]],con:[["Many office jobs can be done by AI very cheaply.","Nhiều công việc văn phòng AI làm được rất rẻ."],["Older workers may not have time to learn new skills.","Người lao động lớn tuổi có thể không kịp học kỹ năng mới."],["New jobs need high skills, so not everyone can get them.","Việc mới cần kỹ năng cao nên không phải ai cũng làm được."]]}
+};
+const OFF_REACT={
+ pos:[["That sounds great!","Nghe tuyệt đấy!"],["Nice! I like that.","Hay quá! Mình thích điều đó."],["Wow, that's cool.","Ồ, hay thật."]],
+ neg:[["Oh, I'm sorry to hear that.","Ồ, mình rất tiếc khi nghe vậy."],["That sounds tough.","Nghe có vẻ vất vả nhỉ."],["I understand. That happens sometimes.","Mình hiểu. Chuyện đó đôi khi vẫn xảy ra."]],
+ why:[["That's a good reason.","Lý do hợp lý đấy."],["That makes sense.","Nghe rất hợp lý."]],
+ def:[["I see.","Mình hiểu rồi."],["That's interesting!","Thú vị đấy!"],["Got it.","Mình hiểu."],["Oh, really?","Ồ, thật à?"],["Cool!","Hay đấy!"]],
+ short:[["Can you tell me a bit more?","Bạn kể thêm chút được không?"]]
+};
+const POSW=/\b(love|like|enjoy|great|good|happy|fun|nice|amazing|exciting|delicious|beautiful|best|awesome|interesting|wonderful)\b/i,NEGW=/\b(tired|sad|bad|busy|hate|stress|stressed|stressful|sick|boring|bored|difficult|hard|angry|worried|not really|don't like|terrible|lonely)\b/i;
+const V3={go:"goes",do:"does",have:"has",watch:"watches",study:"studies",try:"tries",fix:"fixes",wash:"washes",teach:"teaches",finish:"finishes",miss:"misses"};
+const PAST={go:"went",eat:"ate",have:"had",see:"saw",do:"did",buy:"bought",meet:"met",visit:"visited",play:"played",watch:"watched",get:"got",make:"made",take:"took",come:"came",drink:"drank",sleep:"slept",stay:"stayed",work:"worked",cook:"cooked",read:"read",feel:"felt",spend:"spent",travel:"traveled",talk:"talked",study:"studied"};
+const BASEV="go|do|have|like|love|want|work|live|play|eat|watch|need|think|study|get|make|take|come|drink|sleep|read|know|say|try|teach|finish|feel|look|cook|walk|drive|ride|speak";
+// [regex, replacer, Vietnamese note]
+const OFF_RULES=[
+ [/\b(i|you|we|they|he|she)\s+(am|is|are|was|were)\s+agree\b/i,(m,s)=>`${s} agree`,"“agree” đã là động từ, không cần am/is/are: I agree."],
+ [/\b(he|she|it|my (?:mother|father|mom|dad|wife|husband|brother|sister|boss|friend|son|daughter))\s+(don't|do not)\b/i,(m,s)=>`${s} doesn't`,"Ngôi he/she/it dùng doesn't, không dùng don't."],
+ [new RegExp(`(?<!\\b(?:did|does|do|will|would|can|could|should|must|may|might|let|make|makes|help|helps|to|and|or|when|if)\\s)\\b(he|she|it|my (?:mother|father|mom|dad|wife|husband|brother|sister|boss|friend|son|daughter))\\s+(${BASEV})\\b`,"i"),(m,s,v)=>`${s} ${V3[v.toLowerCase()]||v+"s"}`,"Với he/she/it ở thì hiện tại đơn, động từ thêm -s/-es (goes, has, works)."],
+ [/\bi\s+very\s+(like|love|want|enjoy)\b/i,(m,v)=>`I really ${v}`,"Không nói “I very like”. Dùng “I really like” hoặc “I like … very much”."],
+ [/\bpeople\s+is\b/i,()=>"people are","“people” là số nhiều nên dùng are."],
+ [/\b(i)\s+(is|are)\b/i,()=>"I am","Với I dùng am: I am / I'm."],
+ [/\b(he|she|it)\s+are\b/i,(m,s)=>`${s} is`,"Với he/she/it dùng is."],
+ [/\b(we|they|you)\s+is\b/i,(m,s)=>`${s} are`,"Với we/they/you dùng are."],
+ [/\b(can|could|should|must|will|would)\s+to\s+(\w+)/i,(m,a,v)=>`${a} ${v}`,"Sau can/should/will… dùng động từ nguyên mẫu, không có “to”."],
+ [/\bdiscuss\s+about\b/i,()=>"discuss","“discuss” không đi với “about”: discuss the plan."],
+ [/\bexplain\s+me\b/i,()=>"explain to me","Nói “explain to me”, không nói “explain me”."],
+ [/\bmore\s+(better|easier|bigger|cheaper|faster|happier|worse)\b/i,(m,a)=>a,"Từ so sánh hơn đã có nghĩa “hơn”, bỏ “more”."],
+ [/\bmarried\s+with\b/i,()=>"married to","Nói “married to someone”."],
+ [/\bi\s+have\s+(\d+|\w+ty(?:-\w+)?)\s+years?\s+old\b/i,(m,n)=>`I am ${n} years old`,"Nói tuổi dùng “be”: I am 30 years old."],
+ [/\b(go|went|come|came|get|got)\s+to\s+home\b/i,(m,v)=>`${v} home`,"“home” không cần “to”: go home."],
+ [/\bsame\s+like\b/i,()=>"same as","Nói “the same as”."],
+ [/\bin\s+the\s+weekend\b/i,()=>"on the weekend","Nói “on the weekend” (Mỹ) hoặc “at the weekend” (Anh)."],
+ [/\bi\s+am\s+(boring)\b/i,()=>"I am bored","“I am boring” nghĩa là “tôi là người nhàm chán”. Cảm thấy chán thì nói “I am bored”."],
+ [/^\s*(is|was)\s+(very|so|really|quite|too|good|bad|nice|great|ok|okay|fine|hot|cold|delicious|beautiful|expensive|cheap|difficult|easy)\b/i,(m,b,a)=>`It ${b.toLowerCase()} ${a}`,"Câu tiếng Anh cần chủ ngữ: “It is very good”, không nói “Is very good”."],
+ [/\bi\s+(go|work|study|live|eat)ing\b/i,(m,v)=>`I'm ${v}ing`,"Thì tiếp diễn cần “am”: I'm working."]
+];
+const PAST_RX=new RegExp(`\\b(yesterday|last (?:week|night|year|month|weekend|summer|sunday|saturday)|ago)\\b`,"i");
+function offCheck(text){let t=text.trim(),notes=[];
+ for(const [rx,fn,vi] of OFF_RULES){if(rx.test(t)){t=t.replace(rx,fn);notes.push(vi)}}
+ if(PAST_RX.test(t)){const rx=new RegExp(`\\b(I|we|they|you|he|she|my \\w+)\\s+(${Object.keys(PAST).join("|")})s?\\b`,"i");
+  if(rx.test(t)){t=t.replace(rx,(m,s,v)=>`${s} ${PAST[v.toLowerCase()]}`);notes.push("Có “yesterday/last…/ago” thì dùng thì quá khứ (went, ate, had…).")}}
+ t=t.replace(/(^|[\s.!?])i(?=[\s'’]|$)/g,(m,a)=>a+"I");
+ if(t&&/[a-z]/.test(t[0]))t=t[0].toUpperCase()+t.slice(1);
+ const changed=notes.length>0;return{better:changed?t:"",notes}}
+function offPick(a,seed){return a[(seed|0)%a.length]}
+function offWords(t){return(t.match(/[A-Za-z']+/g)||[])}
+function offTopicByText(t){return OFF_TOPICS.findIndex(x=>x.kw.test(t))}
+// state kept on chatScen-specific object
+let OFS=null;
+function offStart(s){OFS={i:0,ti:s.kind==="free"?dayIndex()%OFF_TOPICS.length:0,asked:0,side:null,deb:0,errs:[],seed:Date.now()%97};
+ if(s.kind==="free"){const q=OFF_TOPICS[OFS.ti].q[0];return{t:"Hi Thắng! "+q[0],vi:"Chào Thắng! "+q[1],sug:[q[3],q[4]],sample:q[2]}}
+ if(s.kind==="char"){const a={h1:["Sure. The project is going well, but we have a small delay.","Sure, it's going well.","Of course."],h2:["No, it's free. Nice to meet you, Sophie. I'm going to Da Nang.","Nice to meet you!","I'm going to Hue."],h3:["Good morning, doctor. I have a bad headache and a sore throat.","I have a headache.","I feel sick."],h4:["Hey! I've been really busy with work lately.","Busy with work.","Not much, man."],h5:["My full name is Vu Van Thang.","My name is Thang.","Sure."],h6:["I'm so sorry to hear that. Can I have your order number, please?","I'm so sorry.","Let me help you."]}[s.id]||["Hello!","Hi!","OK."];return{t:s.open,vi:"",sug:[a[1],a[2]],sample:a[0]}}
+ if(s.kind==="debate"){return{t:s.open,vi:"",sug:["I agree, because…","I disagree, because…"],sample:"I agree, because it saves a lot of time."}}
+ return null}
+function offCurQ(s){if(s.kind==="free")return OFF_TOPICS[OFS.ti].q[OFS.i%5];if(s.kind==="char"){const L=OFF_CHAR[s.id];return OFS.i===0?null:L[(OFS.i-1)%L.length]}return null}
+function offReply(s,text){OFS.seed++;const w=offWords(text),low=text.toLowerCase();const askBack=s.kind==="free"&&/\b(and you|how about you|what about you|you\?)\s*\??$/i.test(text.trim());
+ const isQ=/\?\s*$/.test(text)||/^(what|where|when|why|how|who|do|does|did|are|is|can|could|would|have)\b/i.test(text.trim());
+ let r=w.length<3&&!isQ?offPick(OFF_REACT.short,OFS.seed):POSW.test(low)&&!NEGW.test(low)?offPick(OFF_REACT.pos,OFS.seed):NEGW.test(low)?offPick(OFF_REACT.neg,OFS.seed):/\bbecause\b/i.test(low)?offPick(OFF_REACT.why,OFS.seed):offPick(s.kind==="char"?[["I see.","Tôi hiểu."],["Got it.","Rõ rồi."],["OK.","Được."],["Right.","Vâng."]]:OFF_REACT.def,OFS.seed);
+ let en=r[0],vi=r[1];
+ if(s.kind==="debate"){const D=OFF_DEB[s.id];r=offPick([["I see your point.","Mình hiểu ý bạn."],["That's a fair point.","Ý đó hợp lý."],["Interesting idea.","Ý kiến thú vị."],["OK, I hear you.","Được, mình nghe rồi."]],OFS.seed);en=r[0];vi=r[1];
+  if(OFS.side==null)OFS.side=/\b(disagree|don't agree|do not agree|not agree|no\b|don't think|do not think|not true|worse)\b/i.test(low)?"against":"for";
+  const L=OFS.side==="for"?D.con:D.pro;
+  if(OFS.deb>L.length){OFS.i++;return{t:"Thanks for a great debate! You argued really well. Tap the end button to get your feedback.",vi:"Cảm ơn bạn vì buổi tranh luận hay! Bạn lập luận rất tốt. Bấm nút kết thúc để nhận nhận xét nhé.",sug:[],sample:"Thank you! I enjoyed it.",end:true}}
+  if(OFS.deb===L.length){OFS.deb++;OFS.i++;return{t:"You made some strong points today! Let's sum up: what is your final opinion?",vi:"Hôm nay bạn đưa ra nhiều ý hay! Tóm lại: ý kiến cuối cùng của bạn là gì?",sug:["In my opinion,…","Overall, I still think…"],sample:"Overall, I still think it's better, but I understand your point."}}
+  const c=L[OFS.deb++];OFS.i++;
+  const ask=offPick([["What do you think about that?","Bạn nghĩ sao về điều đó?"],["Can you give me an example?","Bạn cho mình một ví dụ được không?"],["How would you answer that?","Bạn sẽ phản bác thế nào?"]],OFS.deb);
+  return{t:`${en} But ${c[0][0].toLowerCase()+c[0].slice(1)} ${ask[0]}`,vi:`${vi} Nhưng ${c[1][0].toLowerCase()+c[1].slice(1)} ${ask[1]}`,sug:["That's true, but…","I see your point, however…"],sample:OFS.side==="for"?"That's true, but I think the benefits are bigger.":"I see your point, however I still disagree."}}
+ if(w.length<3&&!isQ&&(s.kind==="free"||s.kind==="char")){const q=offCurQ(s);if(q)return{t:`Can you tell me a bit more? Try a full sentence. ${q[0]}`,vi:`Bạn nói thêm chút nhé, thử nói cả câu. ${q[1]}`,sug:[q[2]],sample:q[2],stay:true}}
+ let pre="";let preVi="";
+ if(askBack){const q=offCurQ(s);if(q&&q[2]){pre="For me? "+q[2].replace(/^(Yes|No),\s*/i,"")+" ";preVi="Còn mình à? ";en="";vi=""}}
+ if(s.kind==="free"){const want=/\b(talk about|let's talk|can we talk|change the topic)\b/i.test(low)?offTopicByText(low.replace(/.*talk about/,"")):-1;
+  if(want>=0&&want!==OFS.ti){OFS.ti=want;OFS.i=0;const q=OFF_TOPICS[want].q[0];return{t:`Sure, let's talk about that! ${q[0]}`,vi:`Được, mình nói về chủ đề đó nhé! ${q[1]}`,sug:[q[3],q[4]],sample:q[2]}}
+  OFS.i++;if(OFS.i>=5){OFS.i=0;OFS.ti=(OFS.ti+1)%OFF_TOPICS.length;const q=OFF_TOPICS[OFS.ti].q[0];return{t:`${pre}${en} Let's change the topic. ${q[0]}`.replace(/\s+/g," ").trim(),vi:`${preVi}${vi} Mình đổi chủ đề nhé. ${q[1]}`.trim(),sug:[q[3],q[4]],sample:q[2]}}
+  const q=OFF_TOPICS[OFS.ti].q[OFS.i];return{t:`${pre}${en} ${q[0]}`.replace(/\s+/g," ").trim(),vi:`${preVi}${vi} ${q[1]}`.trim(),sug:[q[3],q[4]],sample:q[2]}}
+ if(s.kind==="char"){const L=OFF_CHAR[s.id];if(OFS.i>=L.length){OFS.i++;return{t:`${en} It was really nice talking with you. Do you want to start again?`,vi:`${vi} Nói chuyện với bạn vui lắm. Bạn muốn bắt đầu lại không?`,sug:["Yes, let's start again.","Thank you, bye!"],sample:"Thank you. It was nice talking to you too!",end:true}}
+  const q=L[OFS.i];OFS.i++;return{t:`${pre}${en} ${q[0]}`.replace(/\s+/g," ").trim(),vi:`${preVi}${vi} ${q[1]}`.trim(),sug:[q[3],q[4]],sample:q[2]}}
+ return null}
+function offSummary(s){const me=chatMsgs.filter(m=>m.r==="me").map(m=>m.t);const ws=me.flatMap(offWords);const avg=ws.length/Math.max(1,me.length);
+ const uniq=new Set(ws.map(x=>x.toLowerCase())).size;const fixes=chatMsgs.filter(m=>m.r==="fb"&&m.better).map(m=>({you:m.you,better:m.better,why_vi:m.why||""}));
+ const longOnes=me.filter(t=>offWords(t).length>=8).length,because=me.filter(t=>/\b(because|so|but|when|if)\b/i.test(t)).length;
+ let score=Math.round(40+Math.min(avg,14)*2.5+Math.min(uniq,60)/3+Math.min(me.length,10)-fixes.length*6);score=Math.max(20,Math.min(98,score));
+ const level=avg<4?"A1":avg<7?"A2":avg<11?"B1":avg<15?"B2":"C1";
+ const good=[];if(me.length>=5)good.push(`Bạn nói được ${me.length} lượt, giữ cuộc trò chuyện rất tốt.`);if(longOnes)good.push(`${longOnes} câu dài từ 8 từ trở lên, diễn đạt đủ ý.`);if(because)good.push("Bạn dùng từ nối (because, but, so…) để giải thích ý.");if(!fixes.length)good.push("Không thấy lỗi ngữ pháp thường gặp nào.");if(!good.length)good.push("Bạn đã mạnh dạn nói, đó là bước quan trọng nhất.");
+ const tv=s.kind==="free"?OFF_TOPICS[OFS?OFS.ti:0].vt:{h1:24,h2:6,h3:8,h4:13,h5:4,h6:5}[s.id]??({d1:3,d2:12,d3:4,d4:16,d5:18,d6:12}[s.id]??18);
+ const have=new Set(allCards().map(c=>c.en.toLowerCase()));const pool=(VT||loadVTSync()||[])[tv];
+ const words=pool?pool.words.filter(w=>!have.has(w.en.toLowerCase())&&!(S.words||{})[w.id]).slice(0,40).sort(()=>Math.random()-.5).slice(0,5).map(w=>({en:w.en,vi:w.vi,ex:w.ctx})):[];
+ const next=avg<6?"Lần sau thử nói mỗi câu dài hơn: thêm “because…” hoặc một ví dụ.":fixes.length?"Xem lại các câu cần sửa ở trên và nói lại thật to 3 lần.":"Thử dùng 2 từ mới ở dưới trong buổi nói tiếp theo.";
+ return{score,level,good_vi:good.slice(0,3),fixes:fixes.slice(0,4),words,next_vi:next,offline:true}}
+function loadVTSync(){try{const d=JSON.parse(document.getElementById("vtdata").textContent);VT=d.map((t,ti)=>({title:t.t,words:t.w.map((w,i)=>({id:`T${ti}w${i}`,en:w[0],ipa:w[1],vi:w[2],ctx:w[3],lv:w[4],nw:w[5]===1}))}));return VT}catch(e){return null}}
 let chatScen=null,chatMsgs=null,chatBusy=false,scriptStep=0,chatCat="scen",callMode=false,photoBlob=null,photoUrl="",summary=null,summaryBusy=false;
 const CATS=[["scen","Tình huống"],["char","Nhân vật"],["debate","Tranh luận"],["photo","Mô tả ảnh"]];
 function startSession(s){chatScen=s;chatMsgs=null;summary=null;vChat()}
 function vChat(){
  if(!chatScen){
-  const ai=!!SAMPLE;const needAi=`<div class="tip">Phần này cần mạng và chạy trong app Luyện Nói trên Claude, vì Claude sẽ đóng vai người nói chuyện với bạn. Ở đây bạn vẫn luyện được phần <b>Tình huống</b> theo kịch bản.</div>`;
+  const ai=!!SAMPLE;const needAi=`<div class="tip">Mô tả ảnh của riêng bạn cần Claude. Khi không có Claude, bạn vào <b>Học › Chế độ Ảnh</b> để tả các bức tranh có sẵn, vẫn được chấm điểm.</div>`;
   let body="";
   if(chatCat==="scen")body=`<div class="scen">${SCEN.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã luyện ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`;
-  else if(chatCat==="char")body=ai?`<div class="scen">${CHARS.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã nói ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
-  else if(chatCat==="debate")body=ai?`<div class="scen">${DEBATES.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã tranh luận ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
+  else if(chatCat==="char")body=true?`<div class="scen">${CHARS.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã nói ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
+  else if(chatCat==="debate")body=true?`<div class="scen">${DEBATES.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã tranh luận ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
   else body=ai?`<div class="panel stack"><p style="margin:0">Chọn một bức ảnh trong máy (ảnh du lịch, món ăn, đường phố, nơi làm việc...). Bạn tả lại bằng tiếng Anh, Claude sẽ hỏi thêm chi tiết và gợi ý từ mới.</p>
    <label class="btn primary" style="align-self:flex-start" for="photoIn">Chọn ảnh</label><input type="file" id="photoIn" accept="image/*" hidden></div>`:needAi;
   $("#view").innerHTML=`<div class="stack">${backBar("Nhập vai")}
    <div class="topics" role="group" aria-label="Kiểu luyện nói">${CATS.map(([k,v])=>`<button data-cat="${k}" aria-pressed="${chatCat===k}">${v}</button>`).join("")}</div>
-   <p class="muted small" style="margin:0">${ai?"Claude đóng vai người đối diện, sửa lỗi sau mỗi câu và tổng kết khi bạn bấm Kết thúc. Bật <b>Gọi điện</b> trong buổi nói để chỉ nói và nghe, không cần nhìn chữ.":"Bạn đang luyện theo kịch bản có sẵn kèm câu trả lời mẫu."}</p>${body}</div>`;
+   <p class="muted small" style="margin:0">${ai?"Claude đóng vai người đối diện, sửa lỗi sau mỗi câu và tổng kết khi bạn bấm Kết thúc. Bật <b>Gọi điện</b> trong buổi nói để chỉ nói và nghe, không cần nhìn chữ.":"Bạn đang luyện với gia sư offline: hỏi đáp theo chủ đề, sửa lỗi ngữ pháp thường gặp, có câu mẫu và tổng kết khi bấm Kết thúc. Bật <b>Gọi điện</b> để chỉ nói và nghe."}</p>${body}</div>`;
   wireBack();document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{chatCat=b.dataset.cat;vChat()});
   document.querySelectorAll(".scen button").forEach(b=>b.onclick=()=>startSession(SCEN.concat(CHARS,DEBATES).find(s=>s.id===b.dataset.id)));
   $("#photoIn")&&($("#photoIn").onchange=e=>{const f=e.target.files[0];if(!f)return;if(photoUrl)URL.revokeObjectURL(photoUrl);photoBlob=f;photoUrl=URL.createObjectURL(f);startSession(PHOTO)});
   return}
- const s=chatScen;if(!chatMsgs){chatMsgs=[{r:"ai",t:s.open,sug:s.chips||(s.sample?[s.sample[0]]:[])}];scriptStep=0;if(S.settings.autoSpeak!==false||callMode)setTimeout(()=>speak(s.open),50)}
+ const s=chatScen;if(!chatMsgs){const o=!SAMPLE&&!s.script?offStart(s):null;if(!o)OFS=null;else OFS.sample=o.sample;chatMsgs=[o?{r:"ai",t:o.t,vi:o.vi,sug:o.sug}:{r:"ai",t:s.open,sug:s.chips||(s.sample?[s.sample[0]]:[])}];scriptStep=0;if(S.settings.autoSpeak!==false||callMode)setTimeout(()=>speak(chatMsgs[0].t),50)}
  const aiMode=!!SAMPLE;const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai");const turns=chatMsgs.filter(m=>m.r==="me").length;
  const head=`<div class="chead"><button class="iconbtn" id="back" aria-label="Quay lại">${IC.back}</button>
-   <span class="av">${esc((s.title||"A").trim()[0])}${aiMode?`<i class="online"></i>`:""}</span>
-   <div class="who"><b>${esc(s.title)}</b><span class="muted small">${aiMode?(callMode?"Đang gọi thoại":"Đang hoạt động"):"Kịch bản có sẵn"} · ${esc(s.vi)}</span></div>
+   <span class="av">${esc((s.title||"A").trim()[0])}<i class="online"></i></span>
+   <div class="who"><b>${esc(s.title)}</b><span class="muted small">${callMode?"Đang gọi thoại":aiMode?"Đang hoạt động":OFS?"Gia sư offline":"Kịch bản có sẵn"} · ${esc(s.vi)}</span></div>
    <button class="iconbtn" id="autoSp" aria-pressed="${S.settings.autoSpeak!==false}" aria-label="${S.settings.autoSpeak!==false?"Tắt":"Bật"} tự đọc câu trả lời">${S.settings.autoSpeak!==false?IC.spk:IC.mute}</button>
-   ${aiMode?`<button class="iconbtn ${callMode?"on":""}" id="callT" aria-pressed="${callMode}" aria-label="${callMode?"Chuyển sang nhắn tin":"Chuyển sang gọi thoại"}">${callMode?IC.chat:IC.phone}</button>`:""}</div>
+   ${aiMode||OFS?`<button class="iconbtn ${callMode?"on":""}" id="callT" aria-pressed="${callMode}" aria-label="${callMode?"Chuyển sang nhắn tin":"Chuyển sang gọi thoại"}">${callMode?IC.chat:IC.phone}</button>`:""}</div>
   ${s.kind==="photo"&&photoUrl?`<img src="${photoUrl}" alt="Ảnh bạn đang mô tả" class="photo">`:""}`;
- const endBtn=aiMode&&turns>=2?`<button class="btn mark" id="endS">Kết thúc và nhận xét</button>`:"";
+ const endBtn=(aiMode||OFS)&&turns>=2?`<button class="btn mark" id="endS">Kết thúc và nhận xét</button>`:"";
  if(summary||summaryBusy){$("#view").innerHTML=`<div class="stack">${head}${renderSummary()}</div>`;wireHead();wireSummary();return}
  if(callMode){
   $("#view").innerHTML=`<div class="stack">${head}
    <div class="panel call"><div class="avatar">${esc((s.title||"AI").trim()[0])}</div>
-    <div class="muted small" id="cstat">${chatBusy?"Claude đang trả lời…":"Chạm micro để nói, chạm lần nữa khi nói xong"}</div>
+    <div class="muted small" id="cstat">${chatBusy?"Đang trả lời…":"Chạm micro để nói, chạm lần nữa khi nói xong"}</div>
     <div class="callLine">${chatBusy?"…":esc(lastAi?lastAi.t:"")}</div>
     <div class="heard" id="clive" style="width:100%">${esc(turns?chatMsgs.filter(m=>m.r==="me").pop().t:"")}</div>
     <button class="mic big" id="cmic" aria-label="Nói" ${chatBusy?"disabled":""}>${IC.mic}</button>
@@ -980,7 +1148,7 @@ function vChat(){
   $("#cmic").onclick=e=>startMic({partial:t=>{$("#clive").textContent=t},done:t=>{if(t)send(t)}},e.currentTarget);
   $("#rep").onclick=()=>lastAi&&speak(lastAi.t);wireHint();$("#endS")&&($("#endS").onclick=endSession);return}
  $("#view").innerHTML=`<div class="stack">${head}
-  <div class="panel"><div class="chat" id="chat">${chatMsgs.map((m,i)=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?`<div class="tools"><button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button><button class="iconbtn" data-slow="${esc(m.t)}" aria-label="Nghe chậm">${IC.slow}</button>${SAMPLE?`<button class="tr" data-tr="${i}">${m.vi?"Ẩn dịch":"Dịch"}</button>`:""}</div>${m.vi&&m.showVi?`<div class="vi-tr">${esc(m.vi)}</div>`:""}`:""}</div>`).join("")}${chatBusy?`<div class="msg ai typing" aria-label="Claude đang trả lời"><i></i><i></i><i></i></div>`:chipsHtml()}</div></div>
+  <div class="panel"><div class="chat" id="chat">${chatMsgs.map((m,i)=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?`<div class="tools"><button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button><button class="iconbtn" data-slow="${esc(m.t)}" aria-label="Nghe chậm">${IC.slow}</button>${SAMPLE||m.vi?`<button class="tr" data-tr="${i}">${m.vi&&m.showVi?"Ẩn dịch":"Dịch"}</button>`:""}</div>${m.vi&&m.showVi?`<div class="vi-tr">${esc(m.vi)}</div>`:""}`:""}</div>`).join("")}${chatBusy?`<div class="msg ai typing" aria-label="Claude đang trả lời"><i></i><i></i><i></i></div>`:chipsHtml()}</div></div>
   <form class="compose" id="cf"><input type="text" id="cin" placeholder="Aa · gõ tiếng Anh" autocomplete="off" ${chatBusy?"disabled":""}>
    <button class="iconbtn sendb" aria-label="Gửi" ${chatBusy?"disabled":""}>${IC.send}</button><button type="button" class="mic" id="cmic" aria-label="Nói">${IC.mic}</button></form>
   <div class="row">${endBtn}<button class="btn ghost small" id="hint">Gợi ý câu trả lời</button><button class="btn ghost small" id="restart">Làm lại từ đầu</button></div>
@@ -999,10 +1167,14 @@ function chipsHtml(){const m=chatMsgs[chatMsgs.length-1];if(!m||m.r!=="ai"||!m.s
 function wireHead(){$("#back").onclick=()=>{summary=null;if(learnMode==="role"&&chatScen){chatScen=null;vChat()}else{chatScen=null;learnMode=null;vLearn()}window.scrollTo(0,0)};$("#autoSp").onclick=()=>{S.settings.autoSpeak=S.settings.autoSpeak===false;save();if(S.settings.autoSpeak===false)try{TTS&&TTS.stop();speechSynthesis.cancel()}catch(e){}vChat()};$("#callT")&&($("#callT").onclick=()=>{callMode=!callMode;vChat()})}
 async function wireHint(){const btn=$("#hint");if(!btn)return;btn.onclick=async()=>{const s=chatScen;let h;
   if(s.sample)h=s.sample[Math.min(scriptStep,s.sample.length-1)];
+  else if(!SAMPLE&&OFS)h=OFS.sample;
   else if(SAMPLE){btn.disabled=true;try{const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai").t;h=(await SAMPLE(`A Vietnamese learner of English must reply to this line in a conversation: "${lastAi}". Write ONE natural, simple reply they could say (max 20 words). Output only the reply.`,{modelTier:"quick"})).text.trim()}catch(e){h=""}btn.disabled=false}
   if(!h)return;$("#hintBox").innerHTML=`<div class="tip">Bạn có thể nói: <b>${esc(h)}</b> <button class="iconbtn" id="hs" aria-label="Nghe gợi ý">${IC.spk}</button></div>`;$("#hs").onclick=()=>speak(h)}}
 async function send(text){if(chatBusy)return;const s=chatScen;chatMsgs.push({r:"me",t:text});addXp(5,"conv");S.conv[s.id]=(S.conv[s.id]||0)+1;save();
- if(!SAMPLE){const sc=s.script||[];const reply=scriptStep<sc.length?sc[scriptStep]:"It was great talking with you! Want to try another situation?";
+ if(!SAMPLE){const c=offCheck(text);if(c.better)chatMsgs.push({r:"fb",h:`<span class="fix">Nên nói:</span> ${esc(c.better)}<br>${esc(c.notes.join(" "))}`,better:c.better,you:text,why:c.notes.join(" ")});
+  if(OFS){const o=offReply(s,text);if(!c.better)chatMsgs.push({r:"fb",h:offWords(text).length>=8?"<b>Tốt lắm!</b> Câu dài và rõ ý.":offWords(text).length>=3?"<b>Đúng rồi!</b> Thử nói dài hơn bằng cách thêm because… hoặc một ví dụ.":`Thử nói cả câu, ví dụ: <b>${esc(OFS.sample||"")}</b>`,ok:true});
+   OFS.sample=o.sample;chatMsgs.push({r:"ai",t:o.t,vi:o.vi,sug:o.sug});vChat();if(S.settings.autoSpeak!==false||callMode)speak(o.t);return}
+  const sc=s.script||[];const reply=scriptStep<sc.length?sc[scriptStep]:"It was great talking with you! Want to try another situation?";
   const model=s.sample?s.sample[Math.min(scriptStep,s.sample.length-1)]:"";scriptStep++;
   if(model)chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply,sug:s.sample&&s.sample[scriptStep]?[s.sample[scriptStep]]:[]});vChat();if(S.settings.autoSpeak!==false)speak(reply);return}
  chatBusy=true;vChat();
@@ -1022,7 +1194,9 @@ Return JSON only: {"reply": "<your next line in English>", "ok": <true if the le
  catch(e){chatBusy=false;if(e&&e.code==="not_granted"){SAMPLE=null;toast("Claude chưa được cho phép, chuyển sang kịch bản");chatMsgs.pop();if(s.script){send(text);return}chatScen=null;vChat();return}
   if(e&&(e.code==="images_unavailable"||e.code==="image_rejected")){photoBlob=null;toast("Không gửi được ảnh, Claude sẽ trò chuyện không kèm ảnh")}
   chatMsgs.push({r:"fb",h:esc(e&&e.code==="rate_limited"?"Claude đang bận, đợi vài giây rồi gửi lại nhé.":"Chưa nhận được trả lời. Kiểm tra mạng rồi gửi lại.")});vChat()}}
-async function endSession(){if(!SAMPLE||summaryBusy)return;summaryBusy=true;vChat();const s=chatScen;
+async function endSession(){if(summaryBusy)return;const s=chatScen;
+ if(!SAMPLE&&OFS){summary=offSummary(s);addXp(10,null);S.sessions=(S.sessions||[]).concat([{d:dkey(),id:s.id,title:s.title,score:summary.score|0,level:summary.level||""}]).slice(-60);save();vChat();return}
+ if(!SAMPLE)return;summaryBusy=true;vChat();
  const hist=chatMsgs.filter(m=>m.r!=="fb").map(m=>(m.r==="ai"?"Partner: ":"Learner: ")+m.t).join("\n");
  try{summary=await SAMPLE.json(`You are an English speaking coach for a Vietnamese adult. Review the LEARNER's lines in this conversation (scenario: ${s.title} / ${s.vi}).
 ${hist}
