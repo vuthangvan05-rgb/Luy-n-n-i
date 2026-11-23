@@ -374,9 +374,10 @@ const SCEN=[
 const LS="lnhn-state-v1";
 const dkey=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const DAY=864e5;
-function fresh(){return{v:1,updatedAt:0,settings:{goal:50,newPerDay:8,rate:1,voice:"buttery",level:"B1"},cards:{},custom:[],log:{},shadow:{},conv:{},newDay:{d:"",n:0},topic:"all"}}
+function fresh(){return{v:1,updatedAt:0,settings:{goal:50,newPerDay:8,rate:.95,rv2:1,voice:"buttery",level:"B1"},cards:{},custom:[],log:{},shadow:{},conv:{},newDay:{d:"",n:0},topic:"all"}}
 let S=fresh();
 try{const raw=localStorage.getItem(LS);if(raw)S=Object.assign(fresh(),JSON.parse(raw));S.settings=Object.assign(fresh().settings,S.settings)}catch(e){}
+function migV(){if(!S.settings.rv2){if(S.settings.rate==1)S.settings.rate=.95;S.settings.rv2=1}}migV();
 let dbRef=null,saveT=null;
 function save(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
   clearTimeout(saveT);saveT=setTimeout(()=>{if(dbRef)dbRef.set({json:JSON.stringify(S),updatedAt:S.updatedAt}).catch(()=>{})},1200)}
@@ -403,11 +404,25 @@ function learnedCount(){return Object.values(S.cards).filter(s=>s.ivl>=6).length
 
 /* ---------------- SPEECH ---------------- */
 let TTS=null,DICT=null,SAMPLE=null;
-function speak(text,slow){const rate=(slow?.75:1)*S.settings.rate;
-  if(TTS){TTS.speak(text,{voice:S.settings.voice,rate:Math.min(1.5,Math.max(.7,rate)),language:"en"}).catch(()=>browserSpeak(text,rate));return}
+function splitSent(t){return String(t).replace(/\s+/g," ").trim().match(/[^.!?…]+[.!?…]+["')\]]*|[^.!?…]+$/g)?.map(x=>x.trim()).filter(Boolean)||[String(t)]}
+function speak(text,slow){const rate=(slow?.8:1)*S.settings.rate;
+  if(TTS){const parts=splitSent(text);TTS.speak(parts.length>1?parts.map(x=>({text:x,language:"en"})):text,{voice:S.settings.voice,rate:Math.min(1.5,Math.max(.7,rate)),language:"en"}).catch(()=>browserSpeak(text,rate));return}
   browserSpeak(text,rate)}
-function browserSpeak(text,rate){try{const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate;
-  const v=speechSynthesis.getVoices().find(v=>/en[-_]US/i.test(v.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast("Thiết bị này chưa đọc được âm thanh")}}
+let VOICES=[];
+const BAD_V=/compact|bad news|bells|boing|bubbles|cellos|whisper|zarvox|trinoids|wobble|jester|organ|superstar|albert|bahh|fred|junior|ralph|kathy|good news|hysterical|deranged|pipe organ|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley/i;
+function voiceScore(v){let s=0;const n=v.name.toLowerCase();
+ if(/^en[-_]us/i.test(v.lang))s+=30;else if(/^en[-_]gb/i.test(v.lang))s+=26;else if(/^en[-_](au|ca|ie|nz)/i.test(v.lang))s+=18;else if(/^en/i.test(v.lang))s+=10;else return -1;
+ if(/natural|neural|enhanced|premium|online/.test(n))s+=40;
+ if(/google us english|google uk english female/.test(n))s+=30;else if(/google/.test(n))s+=22;
+ if(/samantha|ava|allison|susan|serena|evan|nathan|zoe|karen|daniel|moira|tessa|aria|jenny|guy|libby|sonia|ryan|emma|brian|ana|christopher|michelle|eric|steffan/.test(n))s+=15;
+ if(/microsoft (david|zira|mark|hazel|george)/.test(n))s+=5;
+ if(BAD_V.test(n))s-=60;return s}
+function loadVoices(){try{VOICES=speechSynthesis.getVoices().filter(v=>voiceScore(v)>=0).sort((a,b)=>voiceScore(b)-voiceScore(a))}catch(e){VOICES=[]}return VOICES}
+try{loadVoices();speechSynthesis.addEventListener("voiceschanged",()=>{loadVoices();if(TAB==="stats"&&!TTS&&$("#sBVoice")&&$("#sBVoice").options.length<2)render()})}catch(e){}
+function bestVoice(){if(!VOICES.length)loadVoices();const pick=S.settings.bvoice&&VOICES.find(v=>v.voiceURI===S.settings.bvoice);return pick||VOICES[0]||null}
+function browserSpeak(text,rate){try{const v=bestVoice();speechSynthesis.cancel();
+  const parts=splitSent(text);parts.forEach((x,i)=>{const u=new SpeechSynthesisUtterance(x);u.lang=v?v.lang:"en-US";if(v)u.voice=v;u.rate=Math.min(1.4,Math.max(.6,rate));u.pitch=1;u.volume=1;speechSynthesis.speak(u)});
+  if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){toast("Thiết bị này chưa đọc được âm thanh")}}
 let micTarget=null,micBuf="",micBtn=null;
 function startMic(target,btn){if(!DICT){toast("Micro chỉ có trên Chrome/Edge hoặc app Claude máy tính. Bạn có thể gõ thay thế.");return}
   if(DICT.active()){DICT.stop().catch(()=>{});return}
@@ -1238,8 +1253,10 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
     <label class="stack" style="gap:4px"><span class="small">Mục tiêu mỗi ngày</span><select id="sGoal">${[30,50,80,120].map(v=>`<option value="${v}" ${S.settings.goal==v?"selected":""}>${v} XP (~${Math.round(v/3.5)} phút)</option>`).join("")}</select></label>
     <label class="stack" style="gap:4px"><span class="small">Trình độ của bạn</span><select id="sLvl">${[["A2","A2 · Cơ bản"],["B1","B1 · Trung cấp"],["B2","B2 · Khá"],["C1","C1 · Nâng cao"]].map(([v,l])=>`<option value="${v}" ${S.settings.level===v?"selected":""}>${l}</option>`).join("")}</select></label>
     <label class="stack" style="gap:4px"><span class="small">Thẻ mới mỗi ngày</span><select id="sNew">${[5,8,12,20].map(v=>`<option ${S.settings.newPerDay==v?"selected":""}>${v}</option>`).join("")}</select></label>
-    <label class="stack" style="gap:4px"><span class="small">Tốc độ giọng đọc</span><select id="sRate">${[[.8,"Chậm"],[1,"Bình thường"],[1.15,"Nhanh"]].map(([v,l])=>`<option value="${v}" ${S.settings.rate==v?"selected":""}>${l}</option>`).join("")}</select></label>
-    ${TTS?`<label class="stack" style="gap:4px"><span class="small">Giọng đọc</span><select id="sVoice">${[["buttery","Giọng 1"],["airy","Giọng 2"],["glassy","Giọng 3"],["rounded","Giọng 4"]].map(([v,l])=>`<option value="${v}" ${S.settings.voice===v?"selected":""}>${l}</option>`).join("")}</select></label>`:""}
+    <label class="stack" style="gap:4px"><span class="small">Tốc độ giọng đọc</span><select id="sRate">${[[.7,"Rất chậm"],[.85,"Chậm"],[.95,"Vừa, rõ ràng (nên dùng)"],[1.05,"Bình thường"],[1.15,"Nhanh"]].map(([v,l])=>`<option value="${v}" ${S.settings.rate==v?"selected":""}>${l}</option>`).join("")}</select></label>
+    ${!TTS?`<label class="stack" style="gap:4px"><span class="small">Giọng đọc trên máy</span><select id="sBVoice"><option value="">Tự chọn giọng rõ nhất${VOICES[0]?" ("+esc(VOICES[0].name.replace(/^(Microsoft|Google)\s+/,""))+")":""}</option>${VOICES.slice(0,12).map(v=>`<option value="${esc(v.voiceURI)}" ${S.settings.bvoice===v.voiceURI?"selected":""}>${esc(v.name.replace(/\s*\(.*?\)\s*/g," ").trim())} · ${/gb/i.test(v.lang)?"Anh":/us/i.test(v.lang)?"Mỹ":esc(v.lang)}</option>`).join("")}</select></label>`:""}
+    <div class="stack" style="gap:4px;justify-content:flex-end"><button class="btn" id="vTest">${IC.spk}Nghe thử giọng</button></div>
+    ${TTS?`<label class="stack" style="gap:4px"><span class="small">Giọng đọc</span><select id="sVoice">${[["buttery","Giọng 1 · ấm, rõ"],["airy","Giọng 2 · nhẹ"],["glassy","Giọng 3 · trong"],["rounded","Giọng 4 · tròn"]].map(([v,l])=>`<option value="${v}" ${S.settings.voice===v?"selected":""}>${l}</option>`).join("")}</select></label>`:""}
    </div>
    <p class="small muted" style="margin:0">${syncMsg}</p>
   </div>
@@ -1257,6 +1274,8 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
  $("#sGoal").onchange=e=>{S.settings.goal=+e.target.value;save();hdr()};$("#sLvl").onchange=e=>{S.settings.level=e.target.value;save();toast("Claude sẽ nói theo trình độ "+e.target.value)};$("#sNew").onchange=e=>{S.settings.newPerDay=+e.target.value;save()};
  $("#sRate").onchange=e=>{S.settings.rate=+e.target.value;save();speak("This is how fast I will speak.")};
  $("#sVoice")&&($("#sVoice").onchange=e=>{S.settings.voice=e.target.value;save();speak("Hi, this is my voice.")});
+ $("#sBVoice")&&($("#sBVoice").onchange=e=>{S.settings.bvoice=e.target.value;save();speak("Hi Thang. This is my voice. Is it clear enough?")});
+ $("#vTest").onclick=()=>speak("Hello! Nice to meet you. I'm going to the market this afternoon. Would you like to come with me?");
  $("#bk").value=JSON.stringify(S);
  $("#bkCopy").onclick=()=>{const t=$("#bk");navigator.clipboard.writeText(t.value).then(()=>toast("Đã sao chép")).catch(()=>{t.select();toast("Đã chọn nội dung, bấm Ctrl+C để sao chép")})};
  $("#bkLoad").onclick=()=>{try{const o=JSON.parse($("#bk").value);if(!o||o.v!==1)throw 0;S=Object.assign(fresh(),o);save();toast("Đã khôi phục dữ liệu");render()}catch(e){toast("Nội dung không hợp lệ. Hãy dán đúng bản sao lưu.")}};}
@@ -1287,7 +1306,7 @@ window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h!==
  c.use("sample").then(s=>{if(s){SAMPLE=s;if(TAB==="learn"||TAB==="today")render()}}).catch(()=>{});
  try{const [db,user]=await Promise.all([c.use("db"),c.use("user")]);if(!db||!user)return;const id=await user.id();if(!id)return;
   const ref=db.collection("data/users/"+id).doc("progress");const snap=await ref.get();
-  if(snap.exists){const d=snap.data();if(d&&d.updatedAt>(S.updatedAt||0)&&d.json){S=Object.assign(fresh(),JSON.parse(d.json));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render()}}
+  if(snap.exists){const d=snap.data();if(d&&d.updatedAt>(S.updatedAt||0)&&d.json){S=Object.assign(fresh(),JSON.parse(d.json));S.settings=Object.assign(fresh().settings,S.settings);migV();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render()}}
   dbRef=ref;syncMsg="Tiến độ được lưu vào tài khoản Claude của bạn, mở trên điện thoại hay máy tính đều thấy.";
   if(S.updatedAt&&!(snap.exists&&snap.data().updatedAt>=S.updatedAt))ref.set({json:JSON.stringify(S),updatedAt:S.updatedAt}).catch(()=>{});
   if(TAB==="stats")render()}catch(e){}})();
