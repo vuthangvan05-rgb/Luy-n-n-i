@@ -467,6 +467,11 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div class="goalbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
    <p class="muted small" style="margin:0">${pct>=100?"Xong mục tiêu hôm nay. Làm thêm là cộng điểm thưởng.":"Khoảng 15 phút mỗi ngày là đủ để giữ chuỗi."}</p>
   </div>
+  ${(()=>{const D=S.daily&&S.daily.d===dkey()?S.daily:null;const st=D?Math.min(5,D.step):0;return`<button class="panel stack daily-card" id="qDaily" style="text-align:left;gap:8px;border:2px solid var(--ink);cursor:pointer;font:inherit;color:inherit">
+   <div class="row" style="justify-content:space-between"><span class="label">Bài học hôm nay · 15 phút</span><span class="pill ${st>=5?"good":""}">${st>=5?"Đã xong":st+"/5 phần"}</span></div>
+   <b style="font-size:1.15rem">${st>=5?"Xong rồi! Hẹn bạn ngày mai":st?"Học tiếp bài hôm nay ›":"Bấm để bắt đầu ›"}</b>
+   <span class="muted small">5 từ mới · 5 câu nói theo · ôn câu sai · 3 câu dịch nói · trò chuyện với Sam</span>${progBar(st*20)}</button>`})()}
+  ${revDue().length?`<button class="panel row" id="qRev" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>${revDue().length} câu nói sai cần ôn</b><br><span class="muted small">Ôn ngay để không lặp lại lỗi cũ</span></span><span class="muted">›</span></button>`:""}
   ${true?`<div class="hero stack">
    <div class="label" style="color:inherit;opacity:.8">${SAMPLE?"Luyện nói với AI":"Luyện nói với gia sư"}</div>
    <h2 style="color:inherit">Sam đang chờ bạn. Nói vài câu nhé?</h2>
@@ -486,6 +491,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
  </div>`;
  document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else if(x.mode)openMode(x.mode);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
  $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
+ $("#qDaily").onclick=()=>openMode("daily");$("#qRev")&&($("#qRev").onclick=()=>openMode("review"));
  if(true){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
   $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>openMode("photo")}}
 function todayChar(){return CHARS[dayIndex()%CHARS.length]}
@@ -567,7 +573,7 @@ function vSpeak(){const s=PL()[shIdx];const best=S.shadow[s.id];
  wireBack(()=>{sentTopic=null;shRes=null;vSentList();window.scrollTo(0,0)});
  $("#l1").onclick=()=>speak(s.t);$("#l2").onclick=()=>speak(s.t,true);
  const fin=h=>{if(!h){toast("Chưa nghe thấy gì, thử nói to và gần micro hơn");return}const r=align(s.t,h);shRes={...r,heard:h};
-  const prev=S.shadow[s.id];S.shadow[s.id]=Math.max(prev||0,r.score);addXp(Math.max(1,Math.round(r.score/10)),"shadow");vSpeak();if(r.score>=85)toast("Tuyệt! +"+Math.round(r.score/10)+" XP")};
+  const prev=S.shadow[s.id];S.shadow[s.id]=Math.max(prev||0,r.score);if(r.score<70)revAdd({t:s.t,vi:s.vi,k:"say",src:"Chế độ câu"});addXp(Math.max(1,Math.round(r.score/10)),"shadow");vSpeak();if(r.score>=85)toast("Tuyệt! +"+Math.round(r.score/10)+" XP")};
  $("#mic").onclick=e=>startMic({partial:t=>{const el=$("#heard");if(el)el.textContent=t},done:fin},e.currentTarget);
  $("#typeF")&&($("#typeF").onsubmit=e=>{e.preventDefault();fin($("#typeIn").value.trim())});
  $("#prev").onclick=()=>{shIdx=(shIdx-1+PL().length)%PL().length;shRes=null;vSpeak()};
@@ -632,6 +638,8 @@ const MODES=[
  {id:"chat",t:"Trò chuyện",d:"Nói chuyện tự do với gia sư AI, có gợi ý câu trả lời và dịch nghĩa.",c:"y",ai:true,svg:'<rect x="14" y="16" width="44" height="30" rx="10"/><path d="M24 46l-6 10 16-10"/><rect x="42" y="34" width="42" height="28" rx="10" class="f2"/><circle cx="56" cy="48" r="3" class="dot"/><circle cx="64" cy="48" r="3" class="dot"/><circle cx="72" cy="48" r="3" class="dot"/>'},
  {id:"call",t:"Gọi thoại",d:"Chỉ nói và nghe như một cuộc gọi, luyện phản xạ nói.",c:"b",ai:true,svg:'<rect x="34" y="10" width="30" height="56" rx="7"/><circle cx="49" cy="30" r="8" class="f2"/><path d="M39 52c3-7 17-7 20 0" class="f2"/><path d="M72 26c5 4 5 16 0 20M78 20c9 7 9 25 0 32" class="ln"/>'},
  {id:"sent",t:"Chế độ câu",d:"Học các câu giao tiếp hằng ngày theo bài, nói theo và được chấm phát âm.",c:"g",ai:false,svg:'<path d="M14 40h4M22 32v16M28 26v28M34 34v12M40 29v22M46 36v8" class="ln"/><rect x="54" y="22" width="32" height="36" rx="8"/><path d="M61 34h18M61 42h12" class="ln2"/>'},
+ {id:"trans",t:"Dịch nói",d:"Nhìn câu tiếng Việt, nói lại bằng tiếng Anh, micro chấm ngay.",c:"o",ai:false,svg:'<rect x="10" y="14" width="40" height="30" rx="8"/><text x="30" y="35" text-anchor="middle" font-size="14" font-weight="700" class="dot">VI</text><rect x="46" y="32" width="40" height="30" rx="8" class="f2"/><text x="66" y="53" text-anchor="middle" font-size="14" font-weight="700" class="dot">EN</text>'},
+ {id:"review",t:"Ôn câu nói sai",get d(){const n=revDue().length,a=revAll().length;return a?`${n} câu cần ôn hôm nay, ${a} câu trong danh sách. App tự gom từ mọi chế độ.`:"App tự gom những câu bạn nói chưa đúng để ôn lại vào hôm sau."},c:"p",ai:false,svg:'<circle cx="48" cy="38" r="24"/><path d="M48 24v14l9 6" class="ln2"/><path d="M20 20l6 8 8-5" class="ln2"/>'},
  {id:"words",t:"Chế độ từ vựng",d:"32 chủ đề, 1.218 từ có phiên âm, nghĩa, ngữ cảnh và trình độ A1 đến C2.",c:"p",ai:false,svg:'<rect x="20" y="16" width="30" height="42" rx="5" transform="rotate(-10 35 37)"/><rect x="46" y="18" width="30" height="42" rx="5" class="f2" transform="rotate(8 61 39)"/><path d="M61 30l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z" class="dot"/>'},
  {id:"role",t:"Nhập vai",d:"Tình huống thực tế, nhân vật, tranh luận và mô tả ảnh.",c:"o",ai:false,svg:'<rect x="12" y="14" width="40" height="34" rx="8"/><path d="M20 26h24M20 34h16" class="ln2"/><rect x="44" y="30" width="40" height="34" rx="8" class="f2"/><circle cx="64" cy="43" r="6" class="dot"/><path d="M54 58c3-6 17-6 20 0" class="ln2"/>'},
  {id:"photo",t:"Chế độ Ảnh",d:"Mô tả hình ảnh và nhận phản hồi tức thì, kèm 6 bức tranh để học từ.",c:"b",ai:false,svg:'<rect x="18" y="12" width="60" height="40" rx="4"/><path d="M24 46l14-16 10 10 8-6 16 12z" class="f2"/><circle cx="64" cy="22" r="5" class="dot"/><path d="M10 60h76l-6 8H16z"/>'},
@@ -640,6 +648,120 @@ const MODES=[
  {id:"num",g:1,t:"Số đếm",d:"Số đếm, số thứ tự, cặp số dễ nhầm và bài nghe số.",c:"o",ai:false,svg:'<rect x="14" y="16" width="68" height="44" rx="8"/><text x="48" y="47" text-anchor="middle" font-size="22" font-weight="700" class="dot">1 2 3</text>'},
  {id:"listen",t:"Luyện nghe",d:"Nghe câu rồi gõ lại những gì bạn nghe được, xem đúng bao nhiêu.",c:"t",ai:false,svg:'<path d="M22 50V40a26 26 0 0 1 52 0v10" class="ln"/><rect x="16" y="44" width="14" height="22" rx="6"/><rect x="66" y="44" width="14" height="22" rx="6"/><path d="M40 52l8-6v14z" class="dot"/>'}
 ];
+// ===== Review list (câu nói sai) =====
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return(h>>>0).toString(36)}
+function dPlus(n){return dkey(new Date(Date.now()+n*DAY))}
+function revAdd(it){if(!it||!it.t)return;S.rev=S.rev||{};const id="r"+hashStr(it.t.trim().toLowerCase());const o=S.rev[id];
+ if(o){o.n++;o.ok=0;o.due=dkey();if(it.vi&&!o.vi)o.vi=it.vi}else S.rev[id]={t:it.t.trim(),vi:it.vi||"",k:it.k||"say",src:it.src||"",note:it.note||"",n:1,ok:0,due:dkey(),at:dkey()};
+ const ks=Object.keys(S.rev);if(ks.length>200)ks.sort((a,b)=>S.rev[a].at<S.rev[b].at?-1:1).slice(0,ks.length-200).forEach(k=>delete S.rev[k]);save()}
+function revHit(id,score){const o=S.rev&&S.rev[id];if(!o)return false;
+ if(score>=85){o.ok++;if(o.ok>=2){delete S.rev[id];save();return true}o.due=dPlus(2)}else{o.ok=0;o.n++;o.due=dPlus(1)}save();return false}
+function revAll(){return Object.entries(S.rev||{}).map(([rid,o])=>({rid,...o}))}
+function revDue(){return revAll().filter(o=>o.due<=dkey())}
+function revItem(o){return{t:o.t,vi:o.vi,k:o.k,rid:o.rid,tag:"Ôn lại",note:o.note}}
+// ===== Generic speaking drill =====
+let DR=null;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pickTrans(n){S.tr=S.tr||{};const pool=ALL_SENT.filter(s=>s.vi&&s.t.split(" ").length>=3&&s.t.split(" ").length<=14);
+ const fresh=shuffle(pool.filter(s=>(S.tr[s.id]||0)<85));const done=shuffle(pool.filter(s=>(S.tr[s.id]||0)>=85));
+ return fresh.concat(done).slice(0,n).map(s=>({t:s.t,vi:s.vi,k:"tr",sid:s.id,tag:"Dịch nói",f:s.f}))}
+function startDrill(o){DR={i:0,res:null,hint:0,good:0,scored:{},...o};learnMode="drill";if(TAB!=="learn")go("learn");else{vDrill();window.scrollTo(0,0)}}
+function drillBack(){const d=DR;DR=null;if(d&&d.onBack)return d.onBack();learnMode=null;vLearn();window.scrollTo(0,0)}
+function vDrill(){const d=DR;if(!d){learnMode=null;return vLearn()}if(d.i>=d.items.length)return drillEnd();
+ const it=d.items[d.i],tr=it.k==="tr",r=d.res;const n=d.items.length;
+ const tWords=r?r.T.map((w,i)=>`<span class="w ${r.ok[i]?"ok":"miss"}">${esc(w)}</span>`).join(" "):esc(it.t);
+ const hintTxt=it.t.split(" ").slice(0,d.hint*2).join(" ");
+ const col=r?(r.score>=85?"var(--good)":r.score>=60?"var(--warn)":"var(--bad)"):"";
+ $("#view").innerHTML=`<div class="stack">${backBar(d.title)}
+  ${d.sub?`<p class="muted small" style="margin:0">${d.sub}</p>`:""}
+  ${progBar(Math.round(d.i/n*100))}
+  <div class="panel stack">
+   <div class="row" style="justify-content:space-between"><span class="pill ${it.tag==="Ôn lại"?"bad":""}">${esc(it.tag||"")}</span><span class="muted small">${d.i+1}/${n}</span></div>
+   ${tr?`<div class="label">Nói câu này bằng tiếng Anh</div><div class="phrase">${esc(it.vi)}</div>
+     ${r?`<div class="label">Đáp án mẫu</div><div class="target">${esc(it.t)}</div>${r.T.some((w,i)=>!r.ok[i])&&r.heard&&!r.heard.startsWith("(")?`<div class="small muted">Từ bạn còn thiếu hoặc nói khác: <b>${esc(r.T.filter((w,i)=>!r.ok[i]).join(", "))}</b></div>`:""}`:d.hint?`<div class="tip">Gợi ý: <b>${esc(hintTxt)}</b> …</div>`:""}`
+    :`<div class="target">${tWords}</div>${it.ipa?`<div class="ipa">${esc(it.ipa)}</div>`:""}${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}${it.ex?`<div class="muted"><i>${esc(it.ex)}</i></div>`:""}${it.note?`<div class="small muted">${esc(it.note)}</div>`:""}`}
+   <div class="row">${!tr||r?`<button class="btn" id="dl1">${IC.spk}Nghe</button><button class="btn" id="dl2">${IC.slow}Nghe chậm</button>`:`<button class="btn" id="dh">Gợi ý</button><button class="btn ghost" id="dshow">Xem đáp án</button>`}</div>
+   <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic" id="dmic" aria-label="Bấm để nói, bấm lần nữa để dừng">${IC.mic}</button>
+    <div style="flex:1;min-width:0" class="stack"><div class="label">Máy nghe được</div><div class="heard" id="dheard">${r?esc(r.heard):`<span class="muted">${tr?"Bấm micro và nói câu tiếng Anh…":"Nghe mẫu, rồi bấm micro và đọc theo…"}</span>`}</div></div>
+    ${r?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
+   ${DICT?"":`<form id="dtype" class="row" style="flex-wrap:nowrap"><input type="text" id="dtin" placeholder="Không có micro? Gõ câu tiếng Anh vào đây" autocomplete="off"><button class="btn">Chấm</button></form>`}
+   ${r?`<div class="tip">${r.score>=85?"<b>Chính xác!</b> Câu này bạn nói rất tốt.":r.score>=60?"<b>Gần đúng.</b> Nghe lại đáp án và nói thêm lần nữa."+(r.added?" Câu này đã vào danh sách ôn.":""):"<b>Chưa đúng.</b> "+(r.added?"Câu này đã vào danh sách <b>Ôn câu nói sai</b>, app sẽ nhắc bạn ôn lại.":"Nghe lại rồi thử lần nữa nhé.")}${r.cleared?" Bạn đã thuộc câu này, đã xóa khỏi danh sách ôn.":""}</div>`:""}
+   ${r&&r.fix?`<div class="fb" style="max-width:none"><span class="fix">Câu bạn nói nên sửa:</span> ${esc(r.fix)}</div>`:""}
+   ${r&&!tr?tipsFor(r.T,r.ok).slice(0,2).map(t=>`<div class="tip">${esc(t)}</div>`).join(""):""}
+   <div class="row">${r?`<button class="btn" id="dagain">Nói lại</button>`:""}<button class="btn primary" id="dnext">${d.i+1<n?(r?"Câu tiếp ›":"Bỏ qua ›"):"Hoàn thành ›"}</button></div>
+  </div></div>`;
+ wireBack(drillBack);
+ $("#dl1")&&($("#dl1").onclick=()=>speak(it.t));$("#dl2")&&($("#dl2").onclick=()=>speak(it.t,true));
+ $("#dh")&&($("#dh").onclick=()=>{d.hint=Math.min(d.hint+1,6);vDrill()});
+ $("#dshow")&&($("#dshow").onclick=()=>{fin("")});
+ const fin=h=>{const reveal=!h;const a=align(it.t,h||"");const c=h?offCheck(h):{better:""};
+  const res={...a,heard:h||"(bạn xem đáp án)",fix:c.better&&a.score<100?c.better:""};const first=!d.scored[d.i];d.scored[d.i]=1;
+  if(it.rid){res.cleared=revHit(it.rid,a.score)}
+  else if(a.score<70&&first){revAdd({t:it.t,vi:it.vi,k:it.k,src:d.title});res.added=true}
+  if(it.sid){if(tr){S.tr=S.tr||{};S.tr[it.sid]=Math.max(S.tr[it.sid]||0,a.score)}else S.shadow[it.sid]=Math.max(S.shadow[it.sid]||0,a.score)}
+  if(it.wid&&a.score>=70){S.words=S.words||{};S.words[it.wid]=1}
+  if(first&&a.score>=85)d.good++;
+  if(!reveal)addXp(Math.max(1,Math.round(a.score/10)),"shadow");else save();
+  d.res=res;vDrill();if(reveal||a.score<85)setTimeout(()=>speak(it.t),150)};
+ $("#dmic").onclick=e=>startMic({partial:t=>{const el=$("#dheard");if(el)el.textContent=t},done:h=>{if(!h){toast("Chưa nghe thấy gì, thử nói to và gần micro hơn");return}fin(h)}},e.currentTarget);
+ $("#dtype")&&($("#dtype").onsubmit=e=>{e.preventDefault();const v=$("#dtin").value.trim();if(v)fin(v)});
+ $("#dagain")&&($("#dagain").onclick=()=>{d.res=null;vDrill()});
+ $("#dnext").onclick=()=>{d.i++;d.res=null;d.hint=0;vDrill();window.scrollTo(0,0)};
+ if(!tr&&!r&&d.autoSpeak!==false&&!d.spoke?.[d.i]){d.spoke=d.spoke||{};d.spoke[d.i]=1;setTimeout(()=>speak(it.t),200)}}
+function drillEnd(){const d=DR;const n=d.items.length;
+ $("#view").innerHTML=`<div class="stack">${backBar(d.title)}
+  <div class="panel stack" style="align-items:center;text-align:center"><div class="score" style="color:var(--good)">${d.good}/${n}</div><h2>${d.endTitle||"Hoàn thành lượt luyện!"}</h2>
+   <p class="muted" style="margin:0">${d.good===n?"Tất cả đều chính xác. Tuyệt vời!":"Những câu chưa đúng đã được thêm vào danh sách <b>Ôn câu nói sai</b>."}</p>
+   <div class="row" style="justify-content:center">${d.onEnd?`<button class="btn primary" id="dcont">Tiếp tục bài học ›</button>`:`<button class="btn primary" id="dmore">Luyện lượt mới</button><button class="btn" id="dout">Về trang Học</button>`}</div></div></div>`;
+ wireBack(drillBack);
+ $("#dcont")&&($("#dcont").onclick=()=>{const f=d.onEnd;DR=null;f()});
+ $("#dmore")&&($("#dmore").onclick=()=>{const m=d.mode;DR=null;openMode(m)});
+ $("#dout")&&($("#dout").onclick=()=>{DR=null;learnMode=null;vLearn();window.scrollTo(0,0)})}
+function vReviewList(){const all=revAll().sort((a,b)=>a.due<b.due?-1:1);const due=revDue();
+ $("#view").innerHTML=`<div class="stack">${backBar("Ôn câu nói sai")}
+  <p class="muted" style="margin:0">App tự gom những câu bạn nói chưa đúng ở mọi chế độ (dưới 70 điểm, hoặc câu gia sư đã sửa). Nói đúng 2 lần ở 2 ngày khác nhau thì câu được xóa khỏi danh sách.</p>
+  <div class="panel row" style="justify-content:space-between"><span><b>${due.length}</b> câu cần ôn hôm nay · ${all.length} câu trong danh sách</span>
+   <button class="btn primary" id="rgo" ${all.length?"":"disabled"}>${due.length?"Ôn ngay":"Ôn trước"}</button></div>
+  ${all.length?`<div class="panel"><div class="list">${all.map(o=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;padding:8px 0;border-bottom:1px solid var(--line)"><span style="min-width:0"><b>${esc(o.k==="tr"?o.vi:o.t)}</b><br><span class="muted small">${esc(o.k==="tr"?o.t:o.vi||o.src)} · sai ${o.n} lần${o.due>dkey()?" · ôn lại "+o.due.slice(5).split("-").reverse().join("/"):""}</span></span><button class="iconbtn" data-say="${esc(o.t)}" aria-label="Nghe">${IC.spk}</button></div>`).join("")}</div></div>`
+   :`<div class="panel"><p class="muted" style="margin:0">Chưa có câu nào. Khi bạn nói sai ở Chế độ câu, Dịch nói, Luyện nghe hay Trò chuyện, câu đó sẽ xuất hiện ở đây.</p></div>`}</div>`;
+ wireBack();document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+ $("#rgo").onclick=()=>{const list=(due.length?due:all).slice(0,10).map(revItem);startDrill({title:"Ôn câu nói sai",items:list,mode:"review",onBack:()=>{learnMode="review";vLearn()}})}}
+// ===== Daily 15-minute lesson =====
+const LV_ORD=["A1","A2","B1","B2","C1","C2"];
+function buildDaily(){const lvMax=LV_ORD.indexOf(S.settings.level||"B1")+1;const vt=VT||loadVTSync()||[];const words=[];S.words=S.words||{};
+ const start=dayIndex()%Math.max(1,vt.length);
+ for(let k=0;k<vt.length&&words.length<5;k++){const t=vt[(start+k)%vt.length];for(const w of t.words){if(words.length>=5)break;if(!S.words[w.id]&&LV_ORD.indexOf(w.lv)<=lvMax&&!words.includes(w.id))words.push(w.id)}}
+ const sents=ALL_SENT.filter(s=>(S.shadow[s.id]||0)<80).slice(0,5).map(s=>s.id);
+ const trans=pickTrans(3).map(x=>x.sid);
+ S.daily={d:dkey(),step:0,words,sents,trans,conv0:null};save()}
+function dailyStages(){const D=S.daily;return[
+ {k:"words",t:"5 từ mới",s:"Nghe, đọc theo và nhớ nghĩa"},
+ {k:"sents",t:"5 câu nói theo",s:"Shadowing, được chấm phát âm"},
+ {k:"rev",t:"Ôn câu nói sai",s:revDue().length?revDue().length+" câu đến hạn":"Không có câu đến hạn, tự bỏ qua"},
+ {k:"trans",t:"3 câu dịch nói",s:"Nhìn tiếng Việt, nói tiếng Anh"},
+ {k:"chat",t:"Trò chuyện ngắn với Sam",s:"Trả lời ít nhất 4 lượt"}]}
+function dailyDone(){return S.daily&&S.daily.d===dkey()&&S.daily.step>=5}
+function dailyNext(){S.daily.step++;save();learnMode="daily";vLearn();window.scrollTo(0,0)}
+function runStage(){const D=S.daily,st=dailyStages()[D.step];if(!st)return;const vt=VT||loadVTSync()||[];const back=()=>{learnMode="daily";vLearn()};
+ const common={onEnd:dailyNext,onBack:back,endTitle:"Xong phần "+st.t.toLowerCase()+"!",sub:`Bài học hôm nay · Phần ${D.step+1}/5: ${st.t}`};
+ if(st.k==="words"){const all=vt.flatMap(t=>t.words);const items=D.words.map(id=>all.find(w=>w.id===id)).filter(Boolean).map(w=>({t:w.en,vi:w.vi,ipa:w.ipa,ex:w.ctx,k:"say",wid:w.id,tag:"Từ mới · "+w.lv}));
+  if(!items.length)return dailyNext();return startDrill({title:"Bài học hôm nay",items,...common})}
+ if(st.k==="sents"){const items=D.sents.map(id=>ALL_SENT.find(s=>s.id===id)).filter(Boolean).map(s=>({t:s.t,vi:s.vi,k:"say",sid:s.id,tag:"Nói theo · "+s.f}));if(!items.length)return dailyNext();return startDrill({title:"Bài học hôm nay",items,...common})}
+ if(st.k==="rev"){const items=revDue().slice(0,5).map(revItem);if(!items.length)return dailyNext();return startDrill({title:"Bài học hôm nay",items,...common})}
+ if(st.k==="trans"){const items=D.trans.map(id=>ALL_SENT.find(s=>s.id===id)).filter(Boolean).map(s=>({t:s.t,vi:s.vi,k:"tr",sid:s.id,tag:"Dịch nói"}));if(!items.length)return dailyNext();return startDrill({title:"Bài học hôm nay",items,...common})}
+ if(st.k==="chat"){D.conv0=today().conv||0;save();callMode=false;chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat";dailyChat=true;vLearn();window.scrollTo(0,0)}}
+let dailyChat=false;
+function vDaily(){if(!S.daily||S.daily.d!==dkey())buildDaily();const D=S.daily;
+ if(D.step===4&&D.conv0!=null&&(today().conv||0)-D.conv0>=4){D.step=5;addXp(10,null);save()}
+ const st=dailyStages();const done=D.step>=5;
+ $("#view").innerHTML=`<div class="stack">${backBar("Bài học hôm nay")}
+  <p class="muted" style="margin:0">Khoảng 15 phút, app tự soạn theo tiến độ của bạn. Làm lần lượt từng phần, có thể dừng giữa chừng và quay lại sau.</p>
+  ${progBar(Math.round(Math.min(5,D.step)/5*100))}
+  <ul class="plan">${st.map((x,i)=>`<li class="${i<D.step?"done":""}" ${i===D.step?'aria-current="step"':""}><span class="chk">${i<D.step?"✓":i+1}</span><span class="t"><b>${esc(x.t)}</b><br><span class="muted small">${esc(x.s)}</span></span>${i===D.step?`<span class="pill">Tiếp theo</span>`:""}</li>`).join("")}</ul>
+  ${done?`<div class="panel stack" style="align-items:center;text-align:center"><div class="score" style="color:var(--good)">✓</div><h2>Bạn đã xong bài học hôm nay!</h2><p class="muted" style="margin:0">Mai quay lại để giữ chuỗi nhé. Muốn học thêm thì vào các chế độ ở trang Học.</p><button class="btn" id="dredo">Học thêm một bài nữa</button></div>`
+   :`<button class="btn primary big" id="dgo">${D.step?"Tiếp tục":"Bắt đầu"}: ${esc(st[D.step].t)} ›</button>${D.step===4&&D.conv0!=null?`<p class="muted small" style="margin:0">Đã trả lời ${(today().conv||0)-D.conv0}/4 lượt với Sam.</p>`:""}`}
+ </div>`;
+ wireBack();$("#dgo")&&($("#dgo").onclick=runStage);$("#dredo")&&($("#dredo").onclick=()=>{buildDaily();vDaily()})}
 let learnMode=null,sentTopic=null,wordSel=null,lsn=null;
 function pct(a,b){return b?Math.round(a/b*100):0}
 function sentDone(items){return items.filter(s=>(S.shadow[s.id]||0)>=80).length}
@@ -652,6 +774,9 @@ function vLearn(){
  if(learnMode==="photo")return vPhoto();
  if(learnMode==="abc")return vABC();
  if(learnMode==="num")return vNum();
+ if(learnMode==="drill")return vDrill();
+ if(learnMode==="review")return vReviewList();
+ if(learnMode==="daily")return vDaily();
  const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg></div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
  $("#view").innerHTML=`<div class="stack"><h1>Chế độ học</h1>
   <div class="modes">${MODES.filter(m=>!m.g).map(card).join("")}</div>
@@ -660,6 +785,8 @@ function vLearn(){
   </div>`;
  document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>openMode(b.dataset.m))}
 function openMode(m){
+ if(m==="trans")return startDrill({title:"Dịch nói",sub:"Đọc câu tiếng Việt, bấm micro và nói bằng tiếng Anh. Có nhiều cách nói đúng, app so với câu mẫu nên hãy nghe đáp án để học cách nói tự nhiên.",items:pickTrans(10),mode:"trans"});
+ if(m!=="chat")dailyChat=false;
  if(m==="chat"||m==="call"){callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
  else if(m==="role"){chatScen=null;callMode=false;learnMode="role"}
  else{learnMode=m;sentTopic=null;wordSel=null;vtTopic=null;vtSel=null;lsn=null;phScene=null;phRes=null}
@@ -719,7 +846,7 @@ function vListen(){if(!lsn)lsn={s:ALL_SENT[Math.floor(Math.random()*ALL_SENT.len
   </div><span class="muted small">Đã làm ${S.listenN||0} câu</span></div>`;
  wireBack();$("#lp").onclick=()=>speak(s.t);$("#ls").onclick=()=>speak(s.t,true);
  if(r)$("#lnext").onclick=()=>{lsn=null;vListen();setTimeout(()=>speak(lsn.s.t),100)};
- else $("#lf").onsubmit=e=>{e.preventDefault();const v=$("#lin").value.trim();if(!v){toast("Gõ câu bạn nghe được trước nhé");return}lsn.res=align(s.t,v);S.listenN=(S.listenN||0)+1;addXp(Math.max(1,Math.round(lsn.res.score/20)),"shadow");vListen()}}
+ else $("#lf").onsubmit=e=>{e.preventDefault();const v=$("#lin").value.trim();if(!v){toast("Gõ câu bạn nghe được trước nhé");return}lsn.res=align(s.t,v);if(lsn.res.score<70)revAdd({t:s.t,vi:s.vi,k:"say",src:"Luyện nghe"});S.listenN=(S.listenN||0)+1;addXp(Math.max(1,Math.round(lsn.res.score/20)),"shadow");vListen()}}
 
 /* ---------------- BASICS: IPA, ALPHABET, NUMBERS ---------------- */
 const IPA=[
@@ -1179,14 +1306,15 @@ function vChat(){
  document.querySelectorAll("[data-chip]").forEach(b=>b.onclick=()=>send(b.dataset.chip));
  wireHint();$("#endS")&&($("#endS").onclick=endSession);}
 function chipsHtml(){const m=chatMsgs[chatMsgs.length-1];if(!m||m.r!=="ai"||!m.sug||!m.sug.length)return"";return`<div class="chips">${m.sug.map(x=>`<button class="chip" data-chip="${esc(x)}">${esc(x)}</button>`).join("")}</div>`}
-function wireHead(){$("#back").onclick=()=>{summary=null;if(learnMode==="role"&&chatScen){chatScen=null;vChat()}else{chatScen=null;learnMode=null;vLearn()}window.scrollTo(0,0)};$("#autoSp").onclick=()=>{S.settings.autoSpeak=S.settings.autoSpeak===false;save();if(S.settings.autoSpeak===false)try{TTS&&TTS.stop();speechSynthesis.cancel()}catch(e){}vChat()};$("#callT")&&($("#callT").onclick=()=>{callMode=!callMode;vChat()})}
+function wireHead(){$("#back").onclick=()=>{summary=null;if(dailyChat){dailyChat=false;chatScen=null;learnMode="daily";vLearn();window.scrollTo(0,0);return}if(learnMode==="role"&&chatScen){chatScen=null;vChat()}else{chatScen=null;learnMode=null;vLearn()}window.scrollTo(0,0)};$("#autoSp").onclick=()=>{S.settings.autoSpeak=S.settings.autoSpeak===false;save();if(S.settings.autoSpeak===false)try{TTS&&TTS.stop();speechSynthesis.cancel()}catch(e){}vChat()};$("#callT")&&($("#callT").onclick=()=>{callMode=!callMode;vChat()})}
 async function wireHint(){const btn=$("#hint");if(!btn)return;btn.onclick=async()=>{const s=chatScen;let h;
   if(s.sample)h=s.sample[Math.min(scriptStep,s.sample.length-1)];
   else if(!SAMPLE&&OFS)h=OFS.sample;
   else if(SAMPLE){btn.disabled=true;try{const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai").t;h=(await SAMPLE(`A Vietnamese learner of English must reply to this line in a conversation: "${lastAi}". Write ONE natural, simple reply they could say (max 20 words). Output only the reply.`,{modelTier:"quick"})).text.trim()}catch(e){h=""}btn.disabled=false}
   if(!h)return;$("#hintBox").innerHTML=`<div class="tip">Bạn có thể nói: <b>${esc(h)}</b> <button class="iconbtn" id="hs" aria-label="Nghe gợi ý">${IC.spk}</button></div>`;$("#hs").onclick=()=>speak(h)}}
 async function send(text){if(chatBusy)return;const s=chatScen;chatMsgs.push({r:"me",t:text});addXp(5,"conv");S.conv[s.id]=(S.conv[s.id]||0)+1;save();
- if(!SAMPLE){const c=offCheck(text);if(c.better)chatMsgs.push({r:"fb",h:`<span class="fix">Nên nói:</span> ${esc(c.better)}<br>${esc(c.notes.join(" "))}`,better:c.better,you:text,why:c.notes.join(" ")});
+ if(dailyChat&&S.daily&&S.daily.conv0!=null&&(today().conv||0)-S.daily.conv0===4)setTimeout(()=>toast("Đủ 4 lượt! Bấm ← để hoàn thành bài học hôm nay"),400);
+ if(!SAMPLE){const c=offCheck(text);if(c.better)revAdd({t:c.better,k:"say",src:"Trò chuyện",note:"Bạn đã nói: "+text+". "+c.notes.join(" ")});if(c.better)chatMsgs.push({r:"fb",h:`<span class="fix">Nên nói:</span> ${esc(c.better)}<br>${esc(c.notes.join(" "))}`,better:c.better,you:text,why:c.notes.join(" ")});
   if(OFS){const o=offReply(s,text);if(!c.better)chatMsgs.push({r:"fb",h:offWords(text).length>=8?"<b>Tốt lắm!</b> Câu dài và rõ ý.":offWords(text).length>=3?"<b>Đúng rồi!</b> Thử nói dài hơn bằng cách thêm because… hoặc một ví dụ.":`Thử nói cả câu, ví dụ: <b>${esc(OFS.sample||"")}</b>`,ok:true});
    OFS.sample=o.sample;chatMsgs.push({r:"ai",t:o.t,vi:o.vi,sug:o.sug});vChat();if(S.settings.autoSpeak!==false||callMode)speak(o.t);return}
   const sc=s.script||[];const reply=scriptStep<sc.length?sc[scriptStep]:"It was great talking with you! Want to try another situation?";
@@ -1204,7 +1332,7 @@ Return JSON only: {"reply": "<your next line in English>", "ok": <true if the le
  const opts={modelTier:"quick",cache:false};if(s.kind==="photo"&&photoBlob)opts.images=[photoBlob];
  try{const r=await SAMPLE.json(prompt,opts);
   const fb=r.ok&&!r.better?`<b>Tốt lắm!</b> ${esc(r.note_vi||"")}`:`${r.better?`<span class="fix">Tự nhiên hơn:</span> ${esc(r.better)}<br>`:""}${esc(r.note_vi||"")}`;
-  chatMsgs.push({r:"fb",h:fb,ok:!!r.ok,better:r.better||"",you:text});chatMsgs.push({r:"ai",t:String(r.reply||"Sorry, could you say that again?"),sug:Array.isArray(r.suggestions)?r.suggestions.slice(0,3).map(String):[]});scriptStep++;
+  chatMsgs.push({r:"fb",h:fb,ok:!!r.ok,better:r.better||"",you:text});if(r.better)revAdd({t:String(r.better),k:"say",src:"Trò chuyện",note:"Bạn đã nói: "+text+(r.note_vi?". "+r.note_vi:"")});chatMsgs.push({r:"ai",t:String(r.reply||"Sorry, could you say that again?"),sug:Array.isArray(r.suggestions)?r.suggestions.slice(0,3).map(String):[]});scriptStep++;
   chatBusy=false;vChat();if(S.settings.autoSpeak!==false||callMode)speak(chatMsgs[chatMsgs.length-1].t)}
  catch(e){chatBusy=false;if(e&&e.code==="not_granted"){SAMPLE=null;toast("Claude chưa được cho phép, chuyển sang kịch bản");chatMsgs.pop();if(s.script){send(text);return}chatScen=null;vChat();return}
   if(e&&(e.code==="images_unavailable"||e.code==="image_rejected")){photoBlob=null;toast("Không gửi được ảnh, Claude sẽ trò chuyện không kèm ảnh")}
