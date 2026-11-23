@@ -1,5 +1,5 @@
 // Offline cache for Luyện Nói Hằng Ngày. Bump VERSION when files change.
-const VERSION = "v7";
+const VERSION = "v8";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "vocab-topics.json"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
