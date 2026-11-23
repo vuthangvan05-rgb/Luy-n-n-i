@@ -63,6 +63,7 @@ h3{font-size:1rem;font-weight:700}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
 .btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 .92rem var(--f-body);padding:9px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{border-color:var(--ink)}
+form.row .btn{white-space:nowrap;flex:none}
 .btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .btn.mark{background:var(--mark);color:var(--mark-fg);border-color:var(--mark)}
 .btn.ghost{background:transparent}
@@ -210,6 +211,17 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .chip:hover{background:var(--ink);color:var(--surface)}
 .compose{align-items:center}.compose input{flex:1;border-radius:99px;padding:12px 16px;min-width:0}
 .compose .mic{width:52px;height:52px}.sendb{width:40px;height:40px}
+.ipagrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.ipa-t{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;min-width:0}
+.ipa-t .sym,.sym{font:600 1.15rem "Doulos SIL","Charis SIL","Lucida Sans Unicode","Segoe UI",serif}.ipa-t .ex{font-size:.75rem;color:var(--muted)}
+.ipa-t.g0{border-top:4px solid var(--good)}.ipa-t.g1{border-top:4px solid #7a5cff}.ipa-t.g2{border-top:4px solid var(--ink)}
+.ipa-t.sel{outline:3px solid var(--mark);outline-offset:1px}.sym.big{font-size:2rem;color:var(--ink)}
+.abcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.abc{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;min-width:0}
+.abc .L{font-size:1.6rem;font-weight:800;color:var(--ink)}.abc .L small{font-size:1rem;font-weight:600;margin-left:3px;color:var(--muted)}
+.numgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.num{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;font:inherit;text-align:left;min-width:0;overflow-wrap:anywhere}
+.num b{font:600 1.15rem var(--f-mono)}
 </style>
 </head><body>
 
@@ -577,6 +589,9 @@ const MODES=[
  {id:"sent",t:"Chế độ câu",d:"Học các câu giao tiếp hằng ngày theo bài, nói theo và được chấm phát âm.",c:"g",ai:false,svg:'<path d="M14 40h4M22 32v16M28 26v28M34 34v12M40 29v22M46 36v8" class="ln"/><rect x="54" y="22" width="32" height="36" rx="8"/><path d="M61 34h18M61 42h12" class="ln2"/>'},
  {id:"words",t:"Chế độ từ vựng",d:"Học từ vựng theo bộ, mỗi bài 12 thẻ, lật thẻ để xem nghĩa.",c:"p",ai:false,svg:'<rect x="20" y="16" width="30" height="42" rx="5" transform="rotate(-10 35 37)"/><rect x="46" y="18" width="30" height="42" rx="5" class="f2" transform="rotate(8 61 39)"/><path d="M61 30l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z" class="dot"/>'},
  {id:"role",t:"Nhập vai",d:"Tình huống thực tế, nhân vật, tranh luận và mô tả ảnh.",c:"o",ai:false,svg:'<rect x="12" y="14" width="40" height="34" rx="8"/><path d="M20 26h24M20 34h16" class="ln2"/><rect x="44" y="30" width="40" height="34" rx="8" class="f2"/><circle cx="64" cy="43" r="6" class="dot"/><path d="M54 58c3-6 17-6 20 0" class="ln2"/>'},
+ {id:"ipa",g:1,t:"Bảng phiên âm IPA",d:"44 âm tiếng Anh, ví dụ và cách đọc cho người Việt.",c:"g",ai:false,svg:'<rect x="14" y="14" width="68" height="48" rx="8"/><text x="48" y="48" text-anchor="middle" font-size="24" font-weight="700" class="dot" style="font-family:serif">/θ/</text>'},
+ {id:"abc",g:1,t:"Bảng chữ cái",d:"26 chữ cái, cách đọc tên chữ và luyện đánh vần.",c:"y",ai:false,svg:'<rect x="14" y="14" width="30" height="30" rx="6"/><rect x="52" y="14" width="30" height="30" rx="6" class="f2"/><rect x="33" y="38" width="30" height="30" rx="6"/><text x="29" y="35" text-anchor="middle" font-size="18" font-weight="700" class="dot">A</text><text x="67" y="35" text-anchor="middle" font-size="18" font-weight="700" class="dot">B</text><text x="48" y="59" text-anchor="middle" font-size="18" font-weight="700" class="dot">C</text>'},
+ {id:"num",g:1,t:"Số đếm",d:"Số đếm, số thứ tự, cặp số dễ nhầm và bài nghe số.",c:"o",ai:false,svg:'<rect x="14" y="16" width="68" height="44" rx="8"/><text x="48" y="47" text-anchor="middle" font-size="22" font-weight="700" class="dot">1 2 3</text>'},
  {id:"listen",t:"Luyện nghe",d:"Nghe câu rồi gõ lại những gì bạn nghe được, xem đúng bao nhiêu.",c:"t",ai:false,svg:'<path d="M22 50V40a26 26 0 0 1 52 0v10" class="ln"/><rect x="16" y="44" width="14" height="22" rx="6"/><rect x="66" y="44" width="14" height="22" rx="6"/><path d="M40 52l8-6v14z" class="dot"/>'}
 ];
 let learnMode=null,sentTopic=null,wordSel=null,lsn=null;
@@ -587,8 +602,15 @@ function vLearn(){
  if(learnMode==="sent")return sentTopic?vSpeak():vSentList();
  if(learnMode==="words")return vWords();
  if(learnMode==="listen")return vListen();
+ if(learnMode==="ipa")return vIPA();
+ if(learnMode==="abc")return vABC();
+ if(learnMode==="num")return vNum();
+ const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg>${m.ai&&!SAMPLE?`<span class="pill">Cần Claude</span>`:""}</div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
  $("#view").innerHTML=`<div class="stack"><h1>Chế độ học</h1>
-  <div class="modes">${MODES.map(m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg>${m.ai&&!SAMPLE?`<span class="pill">Cần Claude</span>`:""}</div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`).join("")}</div></div>`;
+  <div class="modes">${MODES.filter(m=>!m.g).map(card).join("")}</div>
+  <h2 style="margin-top:8px">Nền tảng</h2>
+  <div class="modes">${MODES.filter(m=>m.g).map(card).join("")}</div>
+  </div>`;
  document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>openMode(b.dataset.m))}
 function openMode(m){
  if(m==="chat"||m==="call"){if(!SAMPLE){toast("Chế độ này cần mạng và chạy trong app trên Claude");return}callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
@@ -631,6 +653,66 @@ function vListen(){if(!lsn)lsn={s:ALL_SENT[Math.floor(Math.random()*ALL_SENT.len
  wireBack();$("#lp").onclick=()=>speak(s.t);$("#ls").onclick=()=>speak(s.t,true);
  if(r)$("#lnext").onclick=()=>{lsn=null;vListen();setTimeout(()=>speak(lsn.s.t),100)};
  else $("#lf").onsubmit=e=>{e.preventDefault();const v=$("#lin").value.trim();if(!v){toast("Gõ câu bạn nghe được trước nhé");return}lsn.res=align(s.t,v);S.listenN=(S.listenN||0)+1;addXp(Math.max(1,Math.round(lsn.res.score/20)),"shadow");vListen()}}
+
+/* ---------------- BASICS: IPA, ALPHABET, NUMBERS ---------------- */
+const IPA=[
+ ["Nguyên âm đơn","Monophthongs",["iː|sheep, see|i dài, kéo hơi, miệng hơi cười","ɪ|ship, sit|i ngắn, dứt khoát","ʊ|good, book|u ngắn, môi tròn nhẹ","uː|food, blue|u dài, môi tròn","e|bed, ten|e như tiếng Việt","ə|about, teacher|ơ rất nhẹ, không nhấn","ɜː|bird, work|ơ dài, lưỡi cong nhẹ","ɔː|door, talk|o dài, môi tròn","æ|cat, black|giữa a và e, mở miệng rộng","ʌ|cup, love|ă ngắn","ɑː|car, father|a dài, mở miệng to","ɒ|hot, dog|o ngắn (giọng Anh)"]],
+ ["Nguyên âm đôi","Diphthongs",["ɪə|here, near|i-ơ (ia)","eɪ|day, name|ây","ʊə|tour, pure|u-ơ (ua)","ɔɪ|boy, coin|oi","əʊ|go, home|ơ-u (âu)","eə|hair, care|e-ơ","aɪ|my, time|ai","aʊ|now, house|ao"]],
+ ["Phụ âm","Consonants",["p|pen, happy|p bật hơi mạnh","b|bad, job|b, rung dây thanh","t|tea, cat|t bật hơi, nhớ đọc âm cuối","d|dog, bed|đ, đầu lưỡi chạm lợi","tʃ|chair, watch|ch, môi chu ra","dʒ|job, age|giống tʃ nhưng rung","k|key, book|k bật hơi","g|go, bag|g, rung","f|fish, life|ph, răng trên chạm môi dưới","v|van, love|v rung, răng chạm môi dưới","θ|think, bath|lưỡi giữa hai răng, thổi hơi","ð|this, mother|lưỡi giữa hai răng, rung","s|see, bus|x, nhớ đọc âm cuối","z|zoo, rose|d rung như tiếng ong","ʃ|she, fish|s uốn lưỡi, môi chu","ʒ|vision, measure|giống ʃ nhưng rung","m|man, home|m","n|no, sun|n","ŋ|sing, long|ng","h|hat, hello|h nhẹ","l|leg, ball|l, cuối từ lưỡi chạm lợi","r|red, sorry|r cong lưỡi, không chạm, không rung lưỡi","w|we, window|môi tròn rồi mở (gần u-ơ)","j|yes, you|gần âm d nhẹ / i"]]
+];
+const ABC="A|eɪ|apple;B|biː|book;C|siː|cat;D|diː|dog;E|iː|egg;F|ef|fish;G|dʒiː|game;H|eɪtʃ|house;I|aɪ|ice;J|dʒeɪ|job;K|keɪ|key;L|el|lion;M|em|milk;N|en|name;O|əʊ|orange;P|piː|pen;Q|kjuː|queen;R|ɑːr|red;S|es|sun;T|tiː|tea;U|juː|umbrella;V|viː|van;W|ˈdʌbəljuː|water;X|eks|box;Y|waɪ|yes;Z|zed / ziː|zoo".split(";").map(x=>{const [l,ipa,w]=x.split("|");return{l,ipa,w}});
+const ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+function numWord(n){if(n<20)return ONES[n];if(n<100)return TENS[Math.floor(n/10)]+(n%10?"-"+ONES[n%10]:"");if(n<1000)return ONES[Math.floor(n/100)]+" hundred"+(n%100?" and "+numWord(n%100):"");if(n<1e6)return numWord(Math.floor(n/1000))+" thousand"+(n%1000?(n%1000<100?" and ":" ")+numWord(n%1000):"");return numWord(Math.floor(n/1e6))+" million"+(n%1e6?(n%1e6<100?" and ":" ")+numWord(n%1e6):"")}
+const ORD=[[1,"first","1st"],[2,"second","2nd"],[3,"third","3rd"],[4,"fourth","4th"],[5,"fifth","5th"],[6,"sixth","6th"],[7,"seventh","7th"],[8,"eighth","8th"],[9,"ninth","9th"],[10,"tenth","10th"],[12,"twelfth","12th"],[20,"twentieth","20th"],[21,"twenty-first","21st"],[22,"twenty-second","22nd"],[23,"twenty-third","23rd"],[100,"hundredth","100th"]];
+const PAIRS=[[13,30],[14,40],[15,50],[16,60],[17,70],[18,80],[19,90]];
+let ipaSel=null,numTab="card",nq=null;
+function vIPA(){const sel=ipaSel;
+ $("#view").innerHTML=`<div class="stack">${backBar("Bảng phiên âm IPA")}
+  <p class="muted" style="margin:0">44 âm của tiếng Anh. Chạm vào một âm để xem cách đọc và nghe từ ví dụ. Ký hiệu "ː" nghĩa là âm kéo dài.</p>
+  ${IPA.map(([vi,en,arr],gi)=>`<section class="stack" style="gap:8px"><div><span class="lno">${en}</span><h2>${vi} <span class="muted small">(${arr.length} âm)</span></h2></div>
+   <div class="ipagrid">${arr.map((x,i)=>{const [s,ex]=x.split("|");const id=gi+"-"+i;return`<button class="ipa-t g${gi} ${sel===id?"sel":""}" data-ipa="${id}"><span class="sym">/${esc(s)}/</span><span class="ex">${esc(ex.split(",")[0])}</span></button>`}).join("")}</div>
+   ${sel&&sel.startsWith(gi+"-")?ipaCard(IPA[gi][2][+sel.split("-")[1]]):""}</section>`).join("")}
+  <div class="tip">Mẹo: so sánh từng cặp dễ nhầm như <b>/iː/ sheep</b> và <b>/ɪ/ ship</b>, <b>/θ/ think</b> và <b>/s/ sink</b>, <b>/æ/ bad</b> và <b>/e/ bed</b>.</div></div>`;
+ wireBack();document.querySelectorAll("[data-ipa]").forEach(b=>b.onclick=()=>{ipaSel=ipaSel===b.dataset.ipa?null:b.dataset.ipa;vIPA();if(ipaSel){const [g,i]=ipaSel.split("-");speak(IPA[g][2][i].split("|")[1].split(",")[0].trim(),true);const c=$(".ipacard");c&&c.scrollIntoView({block:"nearest",behavior:"smooth"})}});
+ document.querySelectorAll("[data-sayw]").forEach(b=>b.onclick=()=>speak(b.dataset.sayw,b.dataset.slow==="1"))}
+function ipaCard(x){const [s,ex,tip]=x.split("|");const ws=ex.split(",").map(w=>w.trim());
+ return`<div class="panel ipacard stack" style="gap:8px"><div class="row" style="gap:14px"><span class="sym big">/${esc(s)}/</span><span>${esc(tip)}</span></div>
+  <div class="row">${ws.map(w=>`<button class="btn" data-sayw="${esc(w)}">${IC.spk}${esc(w)}</button><button class="iconbtn" data-sayw="${esc(w)}" data-slow="1" aria-label="Nghe chậm ${esc(w)}">${IC.slow}</button>`).join("")}</div></div>`}
+function vABC(){
+ $("#view").innerHTML=`<div class="stack">${backBar("Bảng chữ cái")}
+  <p class="muted" style="margin:0">26 chữ cái. Chạm vào chữ để nghe tên chữ và một từ ví dụ. Rất cần khi đánh vần tên, email.</p>
+  <div class="abcgrid">${ABC.map((a,i)=>`<button class="abc" data-a="${i}"><span class="L">${a.l}<small>${a.l.toLowerCase()}</small></span><span class="ipa">/${esc(a.ipa)}/</span><span class="muted small">${esc(a.w)}</span></button>`).join("")}</div>
+  <div class="panel stack" style="gap:8px"><h3>Luyện đánh vần</h3><p class="muted small" style="margin:0">Gõ tên hoặc email của bạn, app sẽ đánh vần từng chữ cái.</p>
+   <form id="spf" class="row" style="flex-wrap:nowrap"><input type="text" id="spin" placeholder="Ví dụ: Thang" autocomplete="off"><button class="btn primary">Đánh vần</button></form>
+   <div id="spout" class="heard"></div></div>
+  <div class="tip">Hay nhầm: <b>E /iː/</b> và <b>I /aɪ/</b>, <b>G /dʒiː/</b> và <b>J /dʒeɪ/</b>, <b>A /eɪ/</b> và <b>R /ɑːr/</b>. Ký hiệu @ đọc là "at", dấu chấm đọc là "dot".</div></div>`;
+ wireBack();document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{const a=ABC[+b.dataset.a];speak(a.l+". "+a.l+" for "+a.w+".")});
+ $("#spf").onsubmit=e=>{e.preventDefault();const v=$("#spin").value.trim();if(!v)return;const parts=[...v].map(ch=>ch==="@"?"at":ch==="."?"dot":ch===" "?"space":ch==="-"?"dash":ch==="_"?"underscore":/[0-9]/.test(ch)?ch:/[a-z]/i.test(ch)?ch.toUpperCase():null).filter(Boolean);
+  $("#spout").textContent=parts.join(" · ");speak(parts.join(", "),true)}}
+function vNum(){
+ const tabs=`<div class="topics" role="group" aria-label="Phần số đếm">${[["card","Số đếm"],["ord","Số thứ tự"],["pair","Dễ nhầm"],["quiz","Bài nghe số"]].map(([k,v])=>`<button data-nt="${k}" aria-pressed="${numTab===k}">${v}</button>`).join("")}</div>`;
+ let body="";
+ if(numTab==="card"){const list=[...Array(21).keys()].concat([30,40,50,60,70,80,90,100,101,250,1000,2026,10000,1000000]);
+  body=`<div class="numgrid">${list.map(n=>`<button class="num" data-n="${n}"><b>${n.toLocaleString("en-US")}</b><span class="small muted">${esc(numWord(n))}</span></button>`).join("")}</div>
+  <div class="panel stack" style="gap:8px"><h3>Đọc số bất kỳ</h3><form id="nf" class="row" style="flex-wrap:nowrap"><input type="text" id="nin" inputmode="numeric" placeholder="Gõ một số, ví dụ 1985"><button class="btn primary">Đọc</button></form><div id="nout" class="heard"></div></div>
+  <div class="tip">Năm đọc theo cặp: 1985 là <b>nineteen eighty-five</b>, 2026 là <b>twenty twenty-six</b>. Số điện thoại đọc từng chữ số, số 0 thường đọc là "oh".</div>`}
+ else if(numTab==="ord")body=`<div class="numgrid">${ORD.map(([n,w,s])=>`<button class="num" data-say2="${w}"><b>${s}</b><span class="small muted">${w}</span></button>`).join("")}</div><div class="tip">Dùng số thứ tự cho ngày tháng: <b>May 1st</b> đọc là "May first", <b>the 21st century</b> là "the twenty-first century".</div>`;
+ else if(numTab==="pair")body=`<p class="muted" style="margin:0">Các số -teen nhấn ở cuối (thir<b>TEEN</b>), các số -ty nhấn ở đầu (<b>THIR</b>ty) và âm t đọc nhẹ.</p><div class="stack" style="gap:8px">${PAIRS.map(([a,b])=>`<div class="row" style="flex-wrap:nowrap"><button class="num" style="flex:1" data-n="${a}"><b>${a}</b><span class="small muted">${numWord(a)}</span></button><button class="num" style="flex:1" data-n="${b}"><b>${b}</b><span class="small muted">${numWord(b)}</span></button></div>`).join("")}</div>`;
+ else{if(!nq)nq={n:pickNum(),res:null};
+  body=`<div class="panel stack" style="align-items:center;text-align:center"><p class="muted" style="margin:0">Nghe số rồi gõ lại bằng chữ số.</p>
+   <div class="row"><button class="mic" id="nqp" aria-label="Nghe số">${IC.spk}</button><button class="btn" id="nqs">${IC.slow}Nghe chậm</button></div>
+   ${nq.res==null?`<form id="nqf" class="row" style="flex-wrap:nowrap;width:100%"><input type="text" id="nqi" inputmode="numeric" placeholder="Số bạn nghe được" autocomplete="off"><button class="btn primary">Kiểm tra</button></form>`:
+    `<div class="score" style="color:${nq.res?"var(--good)":"var(--bad)"}">${nq.n.toLocaleString("en-US")}</div><div>${esc(numWord(nq.n))}</div><div class="pill ${nq.res?"good":"bad"}">${nq.res?"Chính xác!":"Bạn gõ "+esc(nq.ans)}</div><button class="btn primary" id="nqn">Số tiếp ›</button>`}
+   <span class="muted small">Đúng ${S.numOk||0}/${S.numTry||0} lần</span></div>`}
+ $("#view").innerHTML=`<div class="stack">${backBar("Số đếm")}${tabs}${body}</div>`;
+ wireBack();document.querySelectorAll("[data-nt]").forEach(b=>b.onclick=()=>{numTab=b.dataset.nt;vNum();if(numTab==="quiz")setTimeout(()=>speak(String(nq.n)),150)});
+ document.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>speak(String(b.dataset.n)));
+ document.querySelectorAll("[data-say2]").forEach(b=>b.onclick=()=>speak(b.dataset.say2));
+ $("#nf")&&($("#nf").onsubmit=e=>{e.preventDefault();const n=parseInt($("#nin").value.replace(/[^0-9]/g,""),10);if(isNaN(n)||n>999999999){toast("Gõ một số từ 0 đến 999.999.999");return}$("#nout").textContent=numWord(n);speak(String(n))});
+ if(numTab==="quiz"){$("#nqp").onclick=()=>speak(String(nq.n));$("#nqs").onclick=()=>speak(String(nq.n),true);
+  $("#nqf")&&($("#nqf").onsubmit=e=>{e.preventDefault();const v=$("#nqi").value.replace(/[^0-9]/g,"");if(!v)return;nq.ans=v;nq.res=+v===nq.n;S.numTry=(S.numTry||0)+1;if(nq.res){S.numOk=(S.numOk||0)+1;addXp(2,"shadow")}else save();vNum()});
+  $("#nqn")&&($("#nqn").onclick=()=>{nq={n:pickNum(),res:null};vNum();setTimeout(()=>speak(String(nq.n)),100)})}}
+function pickNum(){const r=Math.random();if(r<.3){const p=PAIRS[Math.floor(Math.random()*PAIRS.length)];return p[Math.floor(Math.random()*2)]}if(r<.6)return Math.floor(Math.random()*100);if(r<.85)return Math.floor(Math.random()*1000);return 1900+Math.floor(Math.random()*130)}
 
 /* ---------------- CONVERSATION ---------------- */
 const CHARS=[
