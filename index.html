@@ -222,6 +222,14 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .numgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
 .num{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;font:inherit;text-align:left;min-width:0;overflow-wrap:anywhere}
 .num b{font:600 1.15rem var(--f-mono)}
+.scene{width:100%;height:auto;display:block;border-radius:10px;max-width:100%}
+.hot{cursor:pointer}.hot .dotp{fill:#ffd84d;stroke:#14202e;stroke-width:1.5}.hot:hover .dotp,.hot:focus .dotp{r:6}
+.hot .lbl rect{fill:#14202e;opacity:.85}.hot .lbl text{fill:#fff;font:600 9px "Be Vietnam Pro",system-ui,sans-serif}
+.scgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sc{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:14px;padding:6px 6px 10px;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:8px;min-width:0}
+.sc:hover{border-color:var(--ink)}
+.wchip{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:99px;padding:4px 10px;font:500 .82rem var(--f-body);cursor:pointer}
+.wchip.used{background:var(--good-bg);border-color:var(--good);color:var(--good)}
 </style>
 </head><body>
 
@@ -446,7 +454,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div class="qgrid">
     <button class="q" id="qChar"><span class="label">Nhân vật</span><b>${esc(todayChar().title)}</b></button>
     <button class="q" id="qDeb"><span class="label">Tranh luận</span><b>${esc(todayDeb().title)}</b></button>
-    <button class="q" id="qPhoto"><span class="label">Mô tả ảnh</span><b>Tả một bức ảnh của bạn</b></button>
+    <button class="q" id="qPhoto"><span class="label">Chế độ Ảnh</span><b>Mô tả tranh ${esc(SCENES[dayIndex()%SCENES.length].title.toLowerCase())}</b></button>
     <button class="q" id="qScen"><span class="label">Tình huống</span><b>${esc(sc.title)}</b></button>
    </div></div>`:""}
   <div class="stack" style="gap:8px"><div class="label">Kế hoạch hôm nay</div>
@@ -459,7 +467,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
  document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else if(x.mode)openMode(x.mode);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
  $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
  if(SAMPLE){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
-  $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>{chatCat="photo";chatScen=null;learnMode="role";go("learn")}}}
+  $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>openMode("photo")}}
 function todayChar(){return CHARS[dayIndex()%CHARS.length]}
 function todayDeb(){return DEBATES[dayIndex()%DEBATES.length]}
 function quick(s,call){callMode=call;chatScen=s;chatMsgs=null;summary=null;learnMode=s.kind==="free"?"chat":"role";go("learn")}
@@ -589,6 +597,7 @@ const MODES=[
  {id:"sent",t:"Chế độ câu",d:"Học các câu giao tiếp hằng ngày theo bài, nói theo và được chấm phát âm.",c:"g",ai:false,svg:'<path d="M14 40h4M22 32v16M28 26v28M34 34v12M40 29v22M46 36v8" class="ln"/><rect x="54" y="22" width="32" height="36" rx="8"/><path d="M61 34h18M61 42h12" class="ln2"/>'},
  {id:"words",t:"Chế độ từ vựng",d:"Học từ vựng theo bộ, mỗi bài 12 thẻ, lật thẻ để xem nghĩa.",c:"p",ai:false,svg:'<rect x="20" y="16" width="30" height="42" rx="5" transform="rotate(-10 35 37)"/><rect x="46" y="18" width="30" height="42" rx="5" class="f2" transform="rotate(8 61 39)"/><path d="M61 30l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z" class="dot"/>'},
  {id:"role",t:"Nhập vai",d:"Tình huống thực tế, nhân vật, tranh luận và mô tả ảnh.",c:"o",ai:false,svg:'<rect x="12" y="14" width="40" height="34" rx="8"/><path d="M20 26h24M20 34h16" class="ln2"/><rect x="44" y="30" width="40" height="34" rx="8" class="f2"/><circle cx="64" cy="43" r="6" class="dot"/><path d="M54 58c3-6 17-6 20 0" class="ln2"/>'},
+ {id:"photo",t:"Chế độ Ảnh",d:"Mô tả hình ảnh và nhận phản hồi tức thì, kèm 6 bức tranh để học từ.",c:"b",ai:false,svg:'<rect x="18" y="12" width="60" height="40" rx="4"/><path d="M24 46l14-16 10 10 8-6 16 12z" class="f2"/><circle cx="64" cy="22" r="5" class="dot"/><path d="M10 60h76l-6 8H16z"/>'},
  {id:"ipa",g:1,t:"Bảng phiên âm IPA",d:"44 âm tiếng Anh, ví dụ và cách đọc cho người Việt.",c:"g",ai:false,svg:'<rect x="14" y="14" width="68" height="48" rx="8"/><text x="48" y="48" text-anchor="middle" font-size="24" font-weight="700" class="dot" style="font-family:serif">/θ/</text>'},
  {id:"abc",g:1,t:"Bảng chữ cái",d:"26 chữ cái, cách đọc tên chữ và luyện đánh vần.",c:"y",ai:false,svg:'<rect x="14" y="14" width="30" height="30" rx="6"/><rect x="52" y="14" width="30" height="30" rx="6" class="f2"/><rect x="33" y="38" width="30" height="30" rx="6"/><text x="29" y="35" text-anchor="middle" font-size="18" font-weight="700" class="dot">A</text><text x="67" y="35" text-anchor="middle" font-size="18" font-weight="700" class="dot">B</text><text x="48" y="59" text-anchor="middle" font-size="18" font-weight="700" class="dot">C</text>'},
  {id:"num",g:1,t:"Số đếm",d:"Số đếm, số thứ tự, cặp số dễ nhầm và bài nghe số.",c:"o",ai:false,svg:'<rect x="14" y="16" width="68" height="44" rx="8"/><text x="48" y="47" text-anchor="middle" font-size="22" font-weight="700" class="dot">1 2 3</text>'},
@@ -603,6 +612,7 @@ function vLearn(){
  if(learnMode==="words")return vWords();
  if(learnMode==="listen")return vListen();
  if(learnMode==="ipa")return vIPA();
+ if(learnMode==="photo")return vPhoto();
  if(learnMode==="abc")return vABC();
  if(learnMode==="num")return vNum();
  const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg>${m.ai&&!SAMPLE?`<span class="pill">Cần Claude</span>`:""}</div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
@@ -615,7 +625,7 @@ function vLearn(){
 function openMode(m){
  if(m==="chat"||m==="call"){if(!SAMPLE){toast("Chế độ này cần mạng và chạy trong app trên Claude");return}callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
  else if(m==="role"){chatScen=null;callMode=false;learnMode="role"}
- else{learnMode=m;sentTopic=null;wordSel=null;lsn=null}
+ else{learnMode=m;sentTopic=null;wordSel=null;lsn=null;phScene=null;phRes=null}
  if(TAB!=="learn")go("learn");else{vLearn();window.scrollTo(0,0)}}
 function backBar(title,fn){return`<div class="row" style="flex-wrap:nowrap"><button class="iconbtn" id="bk2" aria-label="Quay lại">${IC.back}</button><h1 style="font-size:1.35rem">${esc(title)}</h1></div>`}
 function wireBack(fn){$("#bk2").onclick=fn||(()=>{learnMode=null;vLearn();window.scrollTo(0,0)})}
@@ -713,6 +723,158 @@ function vNum(){
   $("#nqf")&&($("#nqf").onsubmit=e=>{e.preventDefault();const v=$("#nqi").value.replace(/[^0-9]/g,"");if(!v)return;nq.ans=v;nq.res=+v===nq.n;S.numTry=(S.numTry||0)+1;if(nq.res){S.numOk=(S.numOk||0)+1;addXp(2,"shadow")}else save();vNum()});
   $("#nqn")&&($("#nqn").onclick=()=>{nq={n:pickNum(),res:null};vNum();setTimeout(()=>speak(String(nq.n)),100)})}}
 function pickNum(){const r=Math.random();if(r<.3){const p=PAIRS[Math.floor(Math.random()*PAIRS.length)];return p[Math.floor(Math.random()*2)]}if(r<.6)return Math.floor(Math.random()*100);if(r<.85)return Math.floor(Math.random()*1000);return 1900+Math.floor(Math.random()*130)}
+
+/* ---------------- PHOTO MODE: built-in illustrated scenes ---------------- */
+const SK="#f2c9a0",DK="#2b3443";
+function P(x,y,o={}){const s=o.s||1,sh=o.shirt||"#3d7bd9",hr=o.hair||"#3a2a1e",pa=o.pants||DK;const sit=o.sit;
+ return`<g transform="translate(${x} ${y}) scale(${s})">${sit?`<rect x="-7" y="18" width="18" height="6" rx="3" fill="${pa}"/><rect x="7" y="18" width="5" height="18" rx="2.5" fill="${pa}"/>`:`<rect x="-6" y="20" width="5" height="22" rx="2.5" fill="${pa}"/><rect x="1" y="20" width="5" height="22" rx="2.5" fill="${pa}"/>`}
+ <rect x="-8" y="-2" width="16" height="24" rx="6" fill="${sh}"/>${o.arm==="up"?`<path d="M7 2 L16 -10" stroke="${SK}" stroke-width="4" stroke-linecap="round"/>`:o.arm==="fwd"?`<path d="M6 4 L17 10" stroke="${SK}" stroke-width="4" stroke-linecap="round"/>`:`<path d="M7 2 L10 16" stroke="${SK}" stroke-width="4" stroke-linecap="round"/>`}
+ <path d="M-7 2 L-10 16" stroke="${SK}" stroke-width="4" stroke-linecap="round"/><circle cx="0" cy="-10" r="8" fill="${SK}"/><path d="M-8 -11a8 8 0 0 1 16 0${o.long?"v8h-3v-6":""}z" fill="${hr}"/></g>`}
+const tree=(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-3" y="0" width="6" height="26" fill="#8a5a33"/><circle cx="0" cy="-6" r="16" fill="#4caf63"/><circle cx="-10" cy="2" r="10" fill="#43a35a"/><circle cx="10" cy="2" r="10" fill="#57b96d"/></g>`;
+const cloud=(x,y)=>`<g fill="#fff"><circle cx="${x}" cy="${y}" r="8"/><circle cx="${x+10}" cy="${y-4}" r="10"/><circle cx="${x+20}" cy="${y}" r="8"/></g>`;
+const SCENES=[
+ {id:"cafe",title:"Quán cà phê",en:"A coffee shop",lv:"A2",
+  desc:"Inside a cozy coffee shop. A barista with a green apron stands behind the counter next to a coffee machine. A woman sits at a small table by the window, working on a laptop with a cup of coffee. There is a clock and a menu board on the wall and a plant in the corner.",
+  sample:"This is a coffee shop. A barista is standing behind the counter. A young woman is sitting at a table near the window. She is working on her laptop and drinking coffee. There is a clock on the wall and a plant in the corner.",
+  q:["Who is behind the counter?","What is the woman doing?","What can you see on the wall?"],
+  o:[["barista","nhân viên pha chế",60,98],["counter","quầy",60,140],["coffee machine","máy pha cà phê",28,108],["menu board","bảng thực đơn",62,42],["clock","đồng hồ",150,38],["window","cửa sổ",238,70],["laptop","máy tính xách tay",225,124],["cup of coffee","tách cà phê",255,128],["table","cái bàn",240,150],["plant","chậu cây",300,150]],
+  svg:()=>`<rect width="320" height="200" fill="#f6e7d2"/><rect y="168" width="320" height="32" fill="#c79a6b"/>
+   <rect x="190" y="30" width="96" height="80" rx="4" fill="#bfe3f5" stroke="#8a5a33" stroke-width="4"/><path d="M238 30v80M190 70h96" stroke="#8a5a33" stroke-width="3"/>${tree(212,88,.5)}
+   <rect x="30" y="22" width="66" height="40" rx="3" fill="#2f3b33"/><path d="M38 32h30M38 41h40M38 50h24" stroke="#e8e2c9" stroke-width="2.5" stroke-linecap="round"/>
+   <circle cx="150" cy="38" r="14" fill="#fff" stroke="#2b3443" stroke-width="3"/><path d="M150 38v-8M150 38h6" stroke="#2b3443" stroke-width="2.5" stroke-linecap="round"/>
+   ${P(60,88,{shirt:"#2e8b57",hair:"#222"})}<rect x="0" y="128" width="120" height="40" fill="#8a5a33"/><rect x="0" y="124" width="124" height="8" fill="#6d4426"/>
+   <rect x="16" y="96" width="26" height="28" rx="3" fill="#9aa3ad"/><rect x="22" y="102" width="14" height="8" fill="#2b3443"/><rect x="25" y="114" width="7" height="8" fill="#fff"/>
+   ${P(244,110,{shirt:"#d9534f",hair:"#5a3520",long:1,sit:1,arm:"fwd"})}<rect x="200" y="132" width="80" height="6" rx="2" fill="#6d4426"/><rect x="236" y="138" width="6" height="30" fill="#6d4426"/>
+   <path d="M212 132l6-14h20l-4 14z" fill="#4a5563"/><rect x="250" y="122" width="9" height="10" rx="2" fill="#fff"/><path d="M259 125h3v4h-3" stroke="#fff" stroke-width="1.6" fill="none"/>
+   <rect x="292" y="150" width="18" height="18" fill="#b5651d"/><path d="M301 150c-12-10-6-26 0-30c6 4 12 20 0 30" fill="#3f9b52"/>`},
+ {id:"office",title:"Văn phòng",en:"An office",lv:"B1",
+  desc:"A modern office. A woman is typing on a computer at her desk. A man is standing and talking on the phone next to a whiteboard with a chart. There is a printer, a coffee mug, a plant and a big window showing city buildings.",
+  sample:"This picture shows a busy office. On the left, a woman is sitting at her desk and typing on her computer. On the right, a man is talking on the phone. Behind him there is a whiteboard with a chart. I can also see a printer, a plant and a large window.",
+  q:["What is the woman doing?","Who is on the phone?","What is on the whiteboard?"],
+  o:[["computer","máy tính",70,104],["desk","bàn làm việc",70,140],["keyboard","bàn phím",78,128],["mug","cốc",118,124],["whiteboard","bảng trắng",210,58],["chart","biểu đồ",210,62],["phone","điện thoại",262,92],["printer","máy in",150,150],["window","cửa sổ",58,40],["plant","chậu cây",300,150]],
+  svg:()=>`<rect width="320" height="200" fill="#e9eef3"/><rect y="170" width="320" height="30" fill="#9aa7b4"/>
+   <rect x="16" y="16" width="86" height="56" fill="#cfe8f7" stroke="#6b7785" stroke-width="3"/><rect x="24" y="40" width="14" height="32" fill="#8fa3b8"/><rect x="42" y="30" width="16" height="42" fill="#7d93aa"/><rect x="62" y="44" width="12" height="28" fill="#99adc1"/><rect x="78" y="34" width="16" height="38" fill="#8599ae"/>
+   <rect x="168" y="28" width="86" height="58" rx="3" fill="#fff" stroke="#6b7785" stroke-width="3"/><rect x="180" y="66" width="10" height="12" fill="#3d7bd9"/><rect x="196" y="56" width="10" height="22" fill="#e0a800"/><rect x="212" y="46" width="10" height="32" fill="#2e8b57"/><path d="M178 62l18-10 16 6 22-18" stroke="#d9534f" stroke-width="2.5" fill="none"/>
+   ${P(40,114,{shirt:"#7a5cff",hair:"#222",long:1,sit:1,arm:"fwd"})}<rect x="20" y="132" width="120" height="7" rx="2" fill="#6b4f3a"/><rect x="28" y="139" width="6" height="31" fill="#6b4f3a"/><rect x="126" y="139" width="6" height="31" fill="#6b4f3a"/>
+   <rect x="56" y="92" width="34" height="24" rx="2" fill="#2b3443"/><rect x="59" y="95" width="28" height="18" fill="#7fc4ef"/><rect x="70" y="116" width="6" height="8" fill="#2b3443"/><rect x="62" y="125" width="30" height="5" rx="1" fill="#55606d"/>
+   <rect x="112" y="120" width="10" height="12" rx="2" fill="#e0a800"/>
+   <rect x="134" y="142" width="34" height="26" rx="3" fill="#cfd5db" stroke="#6b7785" stroke-width="2"/><rect x="140" y="138" width="22" height="6" fill="#fff"/>
+   ${P(266,110,{shirt:"#3d7bd9",hair:"#3a2a1e",arm:"up"})}<rect x="279" y="92" width="5" height="10" rx="1.5" fill="#2b3443"/>
+   <rect x="292" y="152" width="18" height="18" fill="#b5651d"/><path d="M301 152c-12-10-6-26 0-30c6 4 12 20 0 30" fill="#3f9b52"/>`},
+ {id:"park",title:"Công viên",en:"A park",lv:"A2",
+  desc:"A sunny park. An old man is sitting on a bench reading a newspaper. A boy is playing with a red ball and a brown dog is running after it. A girl is flying a kite. There are trees, clouds, a path and a bird in the sky.",
+  sample:"It's a sunny day in the park. An old man is sitting on a bench and reading a newspaper. A boy is playing with a ball, and his dog is running after it. A girl is flying a kite. There are many trees and some clouds in the sky.",
+  q:["What is the old man doing?","What is the dog doing?","What is the weather like?"],
+  o:[["sun","mặt trời",290,26],["cloud","đám mây",90,28],["kite","con diều",222,40],["bird","con chim",150,30],["tree","cái cây",30,110],["bench","ghế băng",88,150],["newspaper","tờ báo",98,122],["ball","quả bóng",196,166],["dog","con chó",232,162],["path","lối đi",160,188]],
+  svg:()=>`<rect width="320" height="200" fill="#bfe6fb"/><circle cx="290" cy="26" r="16" fill="#ffd84d"/>${cloud(80,30)}${cloud(170,20)}
+   <path d="M144 30q6-6 12 0q6-6 12 0" stroke="#2b3443" stroke-width="2" fill="none"/>
+   <rect y="128" width="320" height="72" fill="#8fd17a"/><path d="M120 200q40-40 80-72h30q-30 30-50 72z" fill="#e8d6a8"/>
+   ${tree(30,104,1.1)}${tree(300,108,.9)}
+   <rect x="58" y="146" width="66" height="6" rx="2" fill="#8a5a33"/><rect x="58" y="132" width="66" height="5" rx="2" fill="#8a5a33"/><rect x="64" y="152" width="5" height="16" fill="#5d3b20"/><rect x="113" y="152" width="5" height="16" fill="#5d3b20"/>
+   ${P(90,128,{shirt:"#7d8a96",hair:"#ddd",sit:1,arm:"fwd"})}<rect x="96" y="116" width="16" height="12" fill="#fff" stroke="#999"/>
+   ${P(180,148,{s:.8,shirt:"#e0a800",hair:"#222",arm:"fwd"})}<circle cx="196" cy="166" r="6" fill="#d9534f"/>
+   <g transform="translate(232 160)"><ellipse cx="0" cy="0" rx="12" ry="6" fill="#a0612f"/><circle cx="12" cy="-5" r="5" fill="#a0612f"/><path d="M-8 4v8M8 4v8" stroke="#a0612f" stroke-width="3"/><path d="M-12 -2l-6-4" stroke="#a0612f" stroke-width="3"/></g>
+   ${P(258,138,{s:.8,shirt:"#ff6fae",hair:"#5a3520",long:1,arm:"up"})}<path d="M271 128L222 50" stroke="#555" stroke-width="1"/><path d="M222 30l10 12-10 12-10-12z" fill="#3d7bd9"/>`},
+ {id:"street",title:"Đường phố",en:"A city street",lv:"B1",
+  desc:"A rainy city street. A woman with a yellow umbrella is waiting at a crosswalk. The traffic light is red. A red car and a blue bus are on the road. A man is riding a bicycle. There is a bakery shop with a sign and tall buildings behind.",
+  sample:"This is a busy street on a rainy day. A woman with a yellow umbrella is waiting to cross the road because the traffic light is red. There is a red car and a blue bus on the street. A man is riding his bicycle. On the left, I can see a small bakery.",
+  q:["What is the weather like?","Why is the woman waiting?","What vehicles can you see?"],
+  o:[["building","tòa nhà",150,40],["bakery","tiệm bánh",44,88],["umbrella","cái ô",200,92],["traffic light","đèn giao thông",268,70],["crosswalk","vạch qua đường",250,176],["car","ô tô",90,160],["bus","xe buýt",170,150],["bicycle","xe đạp",40,180],["rain","mưa",300,30],["sidewalk","vỉa hè",120,132]],
+  svg:()=>`<rect width="320" height="200" fill="#b9c4cf"/>
+   <rect x="100" y="10" width="46" height="110" fill="#8e9aa8"/><rect x="152" y="24" width="40" height="96" fill="#7c8897"/><rect x="198" y="4" width="44" height="116" fill="#95a1ae"/>
+   ${[0,1,2,3,4,5].map(i=>`<rect x="108" y="${18+i*16}" width="8" height="8" fill="#e8eef4"/><rect x="128" y="${18+i*16}" width="8" height="8" fill="#e8eef4"/><rect x="206" y="${12+i*17}" width="8" height="8" fill="#e8eef4"/><rect x="226" y="${12+i*17}" width="8" height="8" fill="#e8eef4"/>`).join("")}
+   <rect x="8" y="64" width="80" height="56" fill="#f3d7b6"/><rect x="8" y="58" width="80" height="12" fill="#d9534f"/><rect x="16" y="76" width="28" height="44" fill="#7a4a2a"/><rect x="52" y="78" width="28" height="22" fill="#cfe8f7"/><rect x="22" y="80" width="44" height="0"/>
+   <rect y="120" width="320" height="16" fill="#cfd5db"/><rect y="136" width="320" height="64" fill="#4e5661"/>
+   ${[0,1,2,3,4].map(i=>`<rect x="${222+i*14}" y="140" width="8" height="56" fill="#f2f2f2"/>`).join("")}
+   <rect x="266" y="56" width="4" height="64" fill="#2b3443"/><rect x="260" y="44" width="16" height="34" rx="3" fill="#2b3443"/><circle cx="268" cy="52" r="4" fill="#ff4d4d"/><circle cx="268" cy="62" r="4" fill="#555"/><circle cx="268" cy="72" r="4" fill="#555"/>
+   ${P(200,98,{shirt:"#3d7bd9",hair:"#222",long:1})}<path d="M200 70v28" stroke="#2b3443" stroke-width="2"/><path d="M180 82a20 14 0 0 1 40 0z" fill="#ffd84d"/>
+   <g transform="translate(90 156)"><rect x="-30" y="-12" width="60" height="18" rx="6" fill="#d9534f"/><path d="M-16 -12l6-10h22l6 10z" fill="#d9534f"/><rect x="-8" y="-20" width="16" height="8" fill="#cfe8f7"/><circle cx="-18" cy="8" r="6" fill="#222"/><circle cx="18" cy="8" r="6" fill="#222"/></g>
+   <g transform="translate(170 150)"><rect x="-36" y="-24" width="72" height="34" rx="5" fill="#3d7bd9"/>${[0,1,2,3].map(i=>`<rect x="${-30+i*16}" y="-18" width="12" height="10" fill="#cfe8f7"/>`).join("")}<circle cx="-22" cy="12" r="6" fill="#222"/><circle cx="22" cy="12" r="6" fill="#222"/></g>
+   <g transform="translate(40 180)"><circle cx="-12" cy="6" r="8" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="12" cy="6" r="8" fill="none" stroke="#222" stroke-width="2.5"/><path d="M-12 6l8-12h12l4 12M-4 -6l-2-4" stroke="#2e8b57" stroke-width="2.5" fill="none"/></g>${P(42,152,{s:.7,shirt:"#2e8b57",hair:"#222",sit:1,arm:"fwd"})}
+   ${[...Array(18)].map((_,i)=>`<path d="M${(i*37)%320} ${(i*53)%120}l-3 8" stroke="#eaf2fb" stroke-width="1.5"/>`).join("")}`},
+ {id:"beach",title:"Bãi biển",en:"A beach",lv:"A2",
+  desc:"A hot summer day at the beach. A family is relaxing under a striped umbrella. A man is lying on a towel and sunbathing. A girl is eating an ice cream. Two children are building a sandcastle. There is a sailboat on the sea, a palm tree and seagulls.",
+  sample:"This is a beach on a hot summer day. A family is relaxing under a big umbrella. A man is lying on a towel and sunbathing. A little girl is eating ice cream, and two kids are building a sandcastle. I can see a sailboat on the sea.",
+  q:["What is the man doing?","What are the children building?","What can you see on the sea?"],
+  o:[["sea","biển",160,90],["sailboat","thuyền buồm",230,70],["seagull","chim hải âu",120,30],["palm tree","cây dừa",36,100],["umbrella","ô che nắng",170,110],["towel","khăn tắm",160,166],["sandcastle","lâu đài cát",270,160],["ice cream","kem",110,130],["sand","cát",60,186],["sun","mặt trời",40,26]],
+  svg:()=>`<rect width="320" height="200" fill="#9fd9f7"/><circle cx="40" cy="26" r="16" fill="#ffd84d"/>
+   <path d="M110 30q5-5 10 0q5-5 10 0M140 44q4-4 8 0q4-4 8 0" stroke="#2b3443" stroke-width="2" fill="none"/>
+   <rect y="70" width="320" height="56" fill="#2f8fd6"/><path d="M0 84q20-6 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0" stroke="#7cc6f2" stroke-width="2" fill="none"/>
+   <g transform="translate(230 72)"><path d="M-16 0h32l-6 8h-20z" fill="#8a5a33"/><path d="M0 0v-34l18 30z" fill="#fff"/><path d="M-2 -2v-26l-14 24z" fill="#ffd84d"/></g>
+   <path d="M0 126q160-14 320 0v74H0z" fill="#f5deaa"/>
+   <g transform="translate(36 120)"><path d="M0 0q4-40 10-70" stroke="#8a5a33" stroke-width="6" fill="none"/><path d="M10 -70q-26-6-34 8M10 -70q26-8 34 6M10 -70q-10-20-28-18M10 -70q12-20 30-16" stroke="#3f9b52" stroke-width="6" fill="none" stroke-linecap="round"/></g>
+   <path d="M170 160V96" stroke="#555" stroke-width="3"/><path d="M130 100a40 22 0 0 1 80 0z" fill="#ff6fae"/><path d="M150 100a20 22 0 0 1 20-22a20 22 0 0 1 20 22z" fill="#fff"/>
+   <rect x="128" y="160" width="70" height="12" rx="3" fill="#3d7bd9"/><g transform="translate(150 158) rotate(-90)">${P(0,0,{s:.75,shirt:"#e0a800",hair:"#222"})}</g>
+   ${P(110,140,{s:.75,shirt:"#ff6fae",hair:"#5a3520",long:1,arm:"up"})}<path d="M120 128l4 8 4-8z" fill="#e0a800"/><circle cx="124" cy="126" r="4" fill="#fff0f5"/>
+   <path d="M256 172h30v-12h-6v-8h-6v8h-6v-8h-6v8h-6z" fill="#e0b86b"/>${P(242,156,{s:.6,shirt:"#2e8b57",hair:"#222",sit:1})}${P(300,156,{s:.6,shirt:"#d9534f",hair:"#3a2a1e",sit:1})}`},
+ {id:"kitchen",title:"Nhà bếp",en:"A kitchen",lv:"A2",
+  desc:"A family kitchen in the evening. A mother is cooking soup in a pot on the stove. A boy is sitting at the table with a glass of milk. On the table there is a bowl of fruit with apples and bananas. There is a fridge, a cupboard, a window and a cat sleeping on a chair.",
+  sample:"This is a kitchen at home. A mother is cooking soup on the stove. Her son is sitting at the table and drinking milk. There is a bowl of fruit on the table with apples and bananas. A cat is sleeping on a chair next to the fridge.",
+  q:["What is the mother cooking?","What is the boy drinking?","Where is the cat?"],
+  o:[["stove","bếp nấu",60,140],["pot","cái nồi",62,108],["fridge","tủ lạnh",290,110],["cupboard","tủ bếp",70,36],["window","cửa sổ",180,50],["glass of milk","cốc sữa",170,128],["fruit bowl","bát hoa quả",210,128],["apple","quả táo",205,122],["banana","quả chuối",218,122],["cat","con mèo",262,148]],
+  svg:()=>`<rect width="320" height="200" fill="#fdf1dc"/><rect y="172" width="320" height="28" fill="#d8b98f"/>
+   <rect x="20" y="16" width="100" height="40" rx="3" fill="#b5651d"/><path d="M70 16v40" stroke="#8a4a14" stroke-width="2"/><circle cx="64" cy="36" r="2" fill="#fff"/><circle cx="76" cy="36" r="2" fill="#fff"/>
+   <rect x="148" y="24" width="64" height="50" fill="#cfe8f7" stroke="#fff" stroke-width="4"/><path d="M180 24v50M148 49h64" stroke="#fff" stroke-width="3"/><circle cx="196" cy="38" r="6" fill="#ffd84d"/>
+   <rect x="30" y="124" width="64" height="48" fill="#9aa3ad"/><rect x="30" y="120" width="64" height="6" fill="#55606d"/><rect x="38" y="134" width="48" height="28" rx="3" fill="#2b3443"/>
+   <path d="M46 120v-18h32v18z" fill="#55606d"/><path d="M42 102h40" stroke="#2b3443" stroke-width="3"/><path d="M56 96q2-6 0-10M66 96q2-6 0-10" stroke="#bbb" stroke-width="2" fill="none"/>
+   ${P(100,112,{shirt:"#d9534f",hair:"#222",long:1,arm:"fwd"})}
+   <rect x="150" y="136" width="96" height="6" rx="2" fill="#8a5a33"/><rect x="158" y="142" width="6" height="30" fill="#8a5a33"/><rect x="232" y="142" width="6" height="30" fill="#8a5a33"/>
+   ${P(150,118,{s:.8,shirt:"#3d7bd9",hair:"#3a2a1e",sit:1,arm:"fwd"})}<rect x="166" y="122" width="8" height="14" fill="#fff" stroke="#bbb"/>
+   <path d="M198 128a14 8 0 0 0 28 0z" fill="#e8e8e8"/><circle cx="205" cy="124" r="5" fill="#d9534f"/><path d="M212 126q6-10 14-6" stroke="#ffd84d" stroke-width="5" fill="none" stroke-linecap="round"/>
+   <rect x="272" y="60" width="38" height="112" rx="4" fill="#e9eef3" stroke="#9aa7b4" stroke-width="2"/><path d="M272 100h38M278 76v14M278 108v20" stroke="#9aa7b4" stroke-width="2"/>
+   <rect x="246" y="150" width="24" height="5" fill="#8a5a33"/><path d="M248 155v17M268 155v17" stroke="#8a5a33" stroke-width="3"/><ellipse cx="258" cy="146" rx="11" ry="6" fill="#f0a040"/><circle cx="268" cy="142" r="5" fill="#f0a040"/><path d="M266 138l1-4 2 3M270 138l2-3 0 4" fill="#f0a040"/>`}
+];
+let phScene=null,phLabels=false,phRes=null,phBusy=false,phText="";
+function sceneSvg(sc,interactive){return`<svg viewBox="0 0 320 200" class="scene" role="img" aria-label="${esc(sc.en)}">${sc.svg()}${interactive?sc.o.map((o,i)=>`<g class="hot" data-o="${i}" tabindex="0" role="button" aria-label="${esc(o[0])}"><circle cx="${o[2]}" cy="${o[3]}" r="13" fill="transparent"/>${phLabels?`<g class="lbl"><rect x="${Math.min(Math.max(o[2]-o[0].length*2.9-4,2),318-o[0].length*5.8-8)}" y="${o[3]-7}" width="${o[0].length*5.8+8}" height="14" rx="7"/><text x="${Math.min(Math.max(o[2],o[0].length*2.9+6),314-o[0].length*2.9)}" y="${o[3]+3.5}" text-anchor="middle">${esc(o[0])}</text></g>`:`<circle class="dotp" cx="${o[2]}" cy="${o[3]}" r="4"/>`}</g>`).join(""):""}</svg>`}
+function vPhoto(){
+ if(!phScene){$("#view").innerHTML=`<div class="stack">${backBar("Chế độ Ảnh")}
+  <p class="muted" style="margin:0">Mô tả hình ảnh bằng tiếng Anh và nhận phản hồi ngay. Chạm vào chấm trên tranh để học tên đồ vật.</p>
+  <div class="scgrid">${SCENES.map(sc=>`<button class="sc" data-sc="${sc.id}">${sceneSvg(sc,false)}<span class="row" style="justify-content:space-between;width:100%"><b>${esc(sc.title)}</b><span class="pill ${S.photo&&S.photo[sc.id]?"good":""}">${S.photo&&S.photo[sc.id]?S.photo[sc.id]+" điểm":sc.lv}</span></span></button>`).join("")}</div>
+  ${SAMPLE?`<div class="panel row" style="justify-content:space-between"><span>Hoặc dùng ảnh của bạn</span><label class="btn" for="ownPh">Chọn ảnh</label><input type="file" id="ownPh" accept="image/*" hidden></div>`:""}</div>`;
+  wireBack();document.querySelectorAll("[data-sc]").forEach(b=>b.onclick=()=>{phScene=SCENES.find(s=>s.id===b.dataset.sc);phRes=null;phText="";vPhoto();window.scrollTo(0,0)});
+  $("#ownPh")&&($("#ownPh").onchange=e=>{const f=e.target.files[0];if(!f)return;if(photoUrl)URL.revokeObjectURL(photoUrl);photoBlob=f;photoUrl=URL.createObjectURL(f);chatScen=PHOTO;chatMsgs=null;summary=null;callMode=false;learnMode="role";vLearn()});return}
+ const sc=phScene,r=phRes;
+ $("#view").innerHTML=`<div class="stack">${backBar(sc.title+" · "+sc.en)}
+  <div class="panel" style="padding:8px">${sceneSvg(sc,true)}</div>
+  <div class="row" style="justify-content:space-between"><label class="row small" style="gap:6px"><input type="checkbox" id="lblT" ${phLabels?"checked":""}> Hiện tên đồ vật</label><span class="muted small" id="lastW"></span></div>
+  <div class="panel stack" style="gap:8px"><h3>Nhiệm vụ: mô tả bức tranh (3 đến 5 câu)</h3>
+   <div class="small muted">Gợi ý trả lời các câu hỏi:</div><ul style="margin:0;padding-left:20px">${sc.q.map(q=>`<li>${esc(q)}</li>`).join("")}</ul>
+   <div class="row" style="gap:6px">${sc.o.map(o=>`<button class="wchip ${r&&r.used&&r.used.includes(o[0])?"used":""}" data-sw="${esc(o[0])}">${esc(o[0])}</button>`).join("")}</div>
+   <div class="small muted">Mẫu câu hữu ích: <b>This is…</b> · <b>I can see…</b> · <b>There is / There are…</b> · <b>On the left / right…</b> · <b>He/She is + V-ing</b></div></div>
+  <div class="compose" style="align-items:flex-end"><textarea id="phIn" rows="4" placeholder="Nói hoặc gõ mô tả của bạn…" style="flex:1">${esc(phText)}</textarea><button type="button" class="mic" id="phMic" aria-label="Nói mô tả">${IC.mic}</button></div>
+  <button class="btn primary big" id="phGo" ${phBusy?"disabled":""}>${phBusy?"Claude đang chấm…":"Nhận phản hồi"}</button>
+  ${r?photoResult(r):""}
+  <details class="panel"><summary><b>Xem bài mô tả mẫu</b></summary><p style="margin:10px 0 6px">${esc(sc.sample)}</p><div class="row"><button class="btn" id="smp">${IC.spk}Nghe</button><button class="btn" id="smpS">${IC.slow}Nghe chậm</button></div></details></div>`;
+ wireBack(()=>{phScene=null;phRes=null;vPhoto();window.scrollTo(0,0)});
+ const sayO=i=>{const o=sc.o[+i];speak(o[0]);$("#lastW").innerHTML=`<b>${esc(o[0])}</b> · ${esc(o[1])}`};
+ document.querySelectorAll(".hot").forEach(g=>{g.onclick=()=>sayO(g.dataset.o);g.onkeydown=e=>{if(e.key==="Enter")sayO(g.dataset.o)}});
+ $("#lblT").onchange=e=>{phLabels=e.target.checked;phText=$("#phIn").value;vPhoto()};
+ document.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{speak(b.dataset.sw);const o=sc.o.find(x=>x[0]===b.dataset.sw);$("#lastW").innerHTML=`<b>${esc(o[0])}</b> · ${esc(o[1])}`});
+ $("#phIn").oninput=e=>{phText=e.target.value};
+ $("#phMic").onclick=e=>{const base=$("#phIn").value.trim();startMic({partial:t=>{$("#phIn").value=(base+" "+t).trim()},done:t=>{phText=(base+" "+t).trim();$("#phIn").value=phText}},e.currentTarget)};
+ $("#smp").onclick=()=>speak(sc.sample);$("#smpS").onclick=()=>speak(sc.sample,true);
+ document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+ $("#phGo").onclick=checkPhoto}
+function photoResult(r){const col=r.score>=80?"var(--good)":r.score>=60?"var(--warn)":"var(--bad)";
+ return`<div class="panel stack"><div class="row" style="gap:14px"><div class="score" style="color:${col}">${r.score}</div><div><div class="label">Điểm mô tả</div><b>${r.ai?"Claude nhận xét":"Tự chấm theo từ vựng"}</b></div></div>
+  ${r.good_vi&&r.good_vi.length?`<div><h3>Bạn làm tốt</h3><ul style="margin:6px 0 0;padding-left:20px">${r.good_vi.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+  ${r.fixes&&r.fixes.length?`<div class="stack" style="gap:8px"><h3>Cần sửa</h3>${r.fixes.map(f=>`<div class="fb" style="align-self:stretch;max-width:none"><s class="muted">${esc(f.you)}</s><br><span class="fix">Nên nói:</span> ${esc(f.better)} <button class="iconbtn" data-say="${esc(f.better)}" aria-label="Nghe">${IC.spk}</button><br><span class="small muted">${esc(f.why_vi||"")}</span></div>`).join("")}</div>`:""}
+  ${r.missed&&r.missed.length?`<div class="small"><b>Bạn chưa nhắc đến:</b> ${r.missed.map(esc).join(", ")}</div>`:""}
+  ${r.better?`<div class="tip"><b>Phiên bản hay hơn:</b> ${esc(r.better)} <button class="iconbtn" data-say="${esc(r.better)}" aria-label="Nghe">${IC.spk}</button></div>`:""}</div>`}
+async function checkPhoto(){const sc=phScene;const text=($("#phIn").value||"").trim();phText=text;if(text.split(/\s+/).length<4){toast("Hãy viết hoặc nói ít nhất một câu hoàn chỉnh");return}
+ const low=" "+text.toLowerCase().replace(/[^a-z ]/g," ")+" ";const used=sc.o.map(o=>o[0]).filter(w=>low.includes(" "+w.split(" ").pop()+" ")||low.includes(" "+w.split(" ").pop()+"s "));
+ const missed=sc.o.map(o=>o[0]).filter(w=>!used.includes(w)).slice(0,5);
+ const sentences=text.split(/[.!?]+/).filter(s=>s.trim().split(/\s+/).length>=3).length;
+ let res={ai:false,used,missed,score:Math.min(100,Math.round(used.length/sc.o.length*60+Math.min(sentences,5)*8)),good_vi:[`Bạn dùng được ${used.length}/${sc.o.length} từ trong tranh và viết ${sentences} câu.`],fixes:[],better:""};
+ if(SAMPLE){phBusy=true;vPhoto();
+  try{const j=await SAMPLE.json(`You are an English speaking coach for a Vietnamese adult (CEFR ${S.settings.level||"B1"}). The learner is describing a picture.
+What the picture shows: ${sc.desc}
+Learner's description: """${text}"""
+Judge accuracy (does it match the picture), grammar, vocabulary and detail. Return JSON only: {"score": <0-100>, "good_vi": ["<1-2 strengths in Vietnamese>"], "fixes": [{"you":"<learner phrase>","better":"<correct natural English>","why_vi":"<short reason in Vietnamese>"}], "better": "<an improved 3-5 sentence version of the learner's description at their level>"}. Max 4 fixes.`,{modelTier:"default",cache:false});
+   res={ai:true,used,missed,score:Math.max(0,Math.min(100,j.score|0)),good_vi:j.good_vi||[],fixes:j.fixes||[],better:j.better||""}}
+  catch(e){toast("Claude chưa chấm được, đang dùng chế độ tự chấm")}phBusy=false}
+ phRes=res;S.photo=S.photo||{};S.photo[sc.id]=Math.max(S.photo[sc.id]||0,res.score);addXp(Math.max(2,Math.round(res.score/10)),"conv");vPhoto();
+ const el=$(".score");el&&el.scrollIntoView({block:"center",behavior:"smooth"})}
 
 /* ---------------- CONVERSATION ---------------- */
 const CHARS=[
