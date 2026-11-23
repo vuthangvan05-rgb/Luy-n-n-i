@@ -35,7 +35,7 @@
 html,body{background:var(--bg);color:var(--fg)}
 body{font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
 .wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 96px}
-header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:8px 4px}
+header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-block:8px 4px}
 .brand{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;color:var(--ink)}
 .brand span{background:var(--mark);color:var(--mark-fg);padding:0 .3em;border-radius:4px;margin-left:2px}
 .streak{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);display:flex;gap:12px}
@@ -150,6 +150,12 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .src{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .src div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
 .src b{display:block}
+.photo{max-width:100%;max-height:260px;object-fit:contain;border-radius:var(--r);border:1px solid var(--line);align-self:flex-start}
+.call{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding-block:24px}
+.avatar{width:84px;height:84px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font:800 2rem var(--f-body)}
+.callLine{font-size:1.25rem;font-weight:600;line-height:1.4;max-width:34ch}
+.mic.big{width:96px;height:96px}.mic.big svg{width:40px;height:40px}
+.mic:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head><body>
 
@@ -157,7 +163,7 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 <div class="wrap">
   <header class="top">
     <div class="brand">Luyện Nói<span>Hằng Ngày</span></div>
-    <div class="streak" aria-label="Chuỗi ngày và điểm hôm nay"><span>Chuỗi <b id="hdrStreak">0</b> ngày</span><span>Hôm nay <b id="hdrXp">0</b> XP</span></div>
+    <div class="streak" aria-label="Chuỗi ngày và điểm hôm nay"><span title="Chuỗi ngày học liên tiếp">Chuỗi <b id="hdrStreak">0</b> ngày</span><span title="Điểm hôm nay"><b id="hdrXp">0</b> XP</span></div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Các phần của app">
@@ -340,6 +346,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const IC={spk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 8a5 5 0 0 1 0 8"/></svg>',
  slow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><circle cx="18" cy="12" r="2"/></svg>',
  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+ phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l16-8-6 16-2-7z"/></svg>'};
 let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 function hdr(){$("#hdrStreak").textContent=streak();$("#hdrXp").textContent=today().xp}
@@ -454,46 +461,124 @@ function vSpeak(){const s=SHADOW[shIdx];const best=S.shadow[s.id];
  document.querySelectorAll("details .list button").forEach(b=>b.onclick=()=>{shIdx=+b.dataset.i;shRes=null;vSpeak()});}
 
 /* ---------------- CONVERSATION ---------------- */
-let chatScen=null,chatMsgs=null,chatBusy=false,scriptStep=0;
-function vChat(){if(!chatScen){$("#view").innerHTML=`<div class="stack"><h1>Hội thoại nhập vai</h1>
-  <p class="muted" style="margin:0">Chọn một tình huống. ${SAMPLE?"Claude sẽ đóng vai người đối diện, trả lời tự nhiên và sửa lỗi cho bạn bằng tiếng Việt sau mỗi lượt.":"Bạn sẽ luyện theo kịch bản có sẵn kèm câu trả lời mẫu."}</p>
-  <div class="scen">${SCEN.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã luyện ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div></div>`;
-  document.querySelectorAll(".scen button").forEach(b=>b.onclick=()=>{chatScen=SCEN.find(s=>s.id===b.dataset.id);chatMsgs=null;vChat()});return}
+const CHARS=[
+ {id:"h1",title:"Mike, sếp người Mỹ",vi:"Thẳng thắn, bận rộn, nói nhanh, thích câu trả lời rõ ràng",role:"Mike, a direct and busy American manager in his 40s who talks fast, uses business idioms and likes clear, short answers",open:"Hey, got a minute? I want to hear how your project is going."},
+ {id:"h2",title:"Sophie, bạn đồng hành người Anh",vi:"Vui vẻ, tò mò, hay hỏi về Việt Nam",role:"Sophie, a cheerful British traveler from Manchester sitting next to the learner on a long train ride, curious about Vietnam and its food",open:"Hi! Is this seat taken? I'm Sophie, by the way. Where are you heading?"},
+ {id:"h3",title:"Dr. Lee, bác sĩ",vi:"Bình tĩnh, hỏi kỹ triệu chứng",role:"Dr. Lee, a calm and kind doctor at an international clinic asking about symptoms and giving simple advice",open:"Good morning. Please have a seat. What brings you in today?"},
+ {id:"h4",title:"Carlos, bạn tập gym",vi:"Nhiệt tình, nói chuyện đời thường, dùng nhiều tiếng lóng",role:"Carlos, an energetic gym buddy from California who speaks casually with everyday slang and loves talking about sports, food and weekend plans",open:"Yo! Haven't seen you here in a while. What have you been up to?"},
+ {id:"h5",title:"Ms. Taylor, giám khảo IELTS",vi:"Luyện IELTS Speaking Part 1 và Part 2",role:"Ms. Taylor, a professional IELTS Speaking examiner. Run Part 1 (short questions about home, work, hobbies), then Part 2 (give a cue card topic). Stay formal and neutral",open:"Good morning. My name is Ms. Taylor. Can you tell me your full name, please?"},
+ {id:"h6",title:"Anna, khách hàng khó tính",vi:"Phàn nàn về dịch vụ, bạn phải xử lý khéo",role:"Anna, an unhappy customer who is calling to complain that her order arrived late and damaged. She is annoyed but becomes calmer if the learner apologizes and offers solutions",open:"Hello? I'm calling about my order. It arrived three days late and the box was damaged. This is really frustrating."}
+].map(c=>({...c,kind:"char"}));
+const DEBATES=[
+ ["d1","Working from home is better than working in an office.","Làm việc ở nhà tốt hơn ở văn phòng"],
+ ["d2","Social media does more harm than good.","Mạng xã hội hại nhiều hơn lợi"],
+ ["d3","Children should start learning English as early as possible.","Trẻ em nên học tiếng Anh càng sớm càng tốt"],
+ ["d4","Money can buy happiness.","Tiền có thể mua được hạnh phúc"],
+ ["d5","Living in a big city is better than living in the countryside.","Sống ở thành phố tốt hơn ở nông thôn"],
+ ["d6","AI will create more jobs than it destroys.","AI sẽ tạo ra nhiều việc làm hơn là lấy đi"]
+].map(([id,t,vi])=>({id,kind:"debate",title:vi,vi:t,role:`a friendly debate partner who politely takes the OPPOSITE side of whatever the learner argues on the topic "${t}". Each turn: react briefly, give one clear counter-argument, then ask the learner to respond or give an example`,open:`Today's topic is: "${t}" Do you agree or disagree? Tell me why.`}));
+const PHOTO={id:"photo",kind:"photo",title:"Mô tả ảnh",vi:"Tả lại bức ảnh bằng tiếng Anh, Claude hỏi thêm chi tiết và dạy từ mới",role:"a friendly English tutor looking at the attached photo together with the learner. First let them describe it, then ask follow-up questions about details (people, places, actions, colors, feelings) and naturally introduce 1 useful new word that fits the photo",open:"Let's look at your photo together. Can you describe what you see?"};
+let chatScen=null,chatMsgs=null,chatBusy=false,scriptStep=0,chatCat="scen",callMode=false,photoBlob=null,photoUrl="",summary=null,summaryBusy=false;
+const CATS=[["scen","Tình huống"],["char","Nhân vật"],["debate","Tranh luận"],["photo","Mô tả ảnh"]];
+function startSession(s){chatScen=s;chatMsgs=null;summary=null;vChat()}
+function vChat(){
+ if(!chatScen){
+  const ai=!!SAMPLE;const needAi=`<div class="tip">Phần này cần mạng và chạy trong app Luyện Nói trên Claude, vì Claude sẽ đóng vai người nói chuyện với bạn. Ở đây bạn vẫn luyện được phần <b>Tình huống</b> theo kịch bản.</div>`;
+  let body="";
+  if(chatCat==="scen")body=`<div class="scen">${SCEN.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã luyện ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`;
+  else if(chatCat==="char")body=ai?`<div class="scen">${CHARS.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã nói ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
+  else if(chatCat==="debate")body=ai?`<div class="scen">${DEBATES.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã tranh luận ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
+  else body=ai?`<div class="panel stack"><p style="margin:0">Chọn một bức ảnh trong máy (ảnh du lịch, món ăn, đường phố, nơi làm việc...). Bạn tả lại bằng tiếng Anh, Claude sẽ hỏi thêm chi tiết và gợi ý từ mới.</p>
+   <label class="btn primary" style="align-self:flex-start" for="photoIn">Chọn ảnh</label><input type="file" id="photoIn" accept="image/*" hidden></div>`:needAi;
+  $("#view").innerHTML=`<div class="stack"><h1>Hội thoại</h1>
+   <div class="topics" role="group" aria-label="Kiểu luyện nói">${CATS.map(([k,v])=>`<button data-cat="${k}" aria-pressed="${chatCat===k}">${v}</button>`).join("")}</div>
+   <p class="muted small" style="margin:0">${ai?"Claude đóng vai người đối diện, sửa lỗi sau mỗi câu và tổng kết khi bạn bấm Kết thúc. Bật <b>Gọi điện</b> trong buổi nói để chỉ nói và nghe, không cần nhìn chữ.":"Bạn đang luyện theo kịch bản có sẵn kèm câu trả lời mẫu."}</p>${body}</div>`;
+  document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{chatCat=b.dataset.cat;vChat()});
+  document.querySelectorAll(".scen button").forEach(b=>b.onclick=()=>startSession(SCEN.concat(CHARS,DEBATES).find(s=>s.id===b.dataset.id)));
+  $("#photoIn")&&($("#photoIn").onchange=e=>{const f=e.target.files[0];if(!f)return;if(photoUrl)URL.revokeObjectURL(photoUrl);photoBlob=f;photoUrl=URL.createObjectURL(f);startSession(PHOTO)});
+  return}
  const s=chatScen;if(!chatMsgs){chatMsgs=[{r:"ai",t:s.open}];scriptStep=0;setTimeout(()=>speak(s.open),50)}
- const aiMode=!!SAMPLE;
- $("#view").innerHTML=`<div class="stack"><div class="row" style="justify-content:space-between"><button class="btn ghost" id="back">‹ Tình huống khác</button><span class="pill mode">${aiMode?"Claude đóng vai":"Kịch bản có sẵn"}</span></div>
+ const aiMode=!!SAMPLE;const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai");const turns=chatMsgs.filter(m=>m.r==="me").length;
+ const head=`<div class="row" style="justify-content:space-between"><button class="btn ghost" id="back">‹ Chọn bài khác</button>
+   <div class="row" style="gap:6px">${aiMode?`<button class="btn ${callMode?"primary":""}" id="callT" aria-pressed="${callMode}">${IC.phone}${callMode?"Đang gọi":"Gọi điện"}</button>`:`<span class="pill mode">Kịch bản có sẵn</span>`}</div></div>
   <div><h2>${esc(s.title)}</h2><div class="muted small">${esc(s.vi)}</div></div>
-  <div class="panel"><div class="chat" id="chat">${chatMsgs.map(m=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?` <button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button>`:""}</div>`).join("")}${chatBusy?`<div class="msg ai muted" id="typing">…</div>`:""}</div></div>
+  ${s.kind==="photo"&&photoUrl?`<img src="${photoUrl}" alt="Ảnh bạn đang mô tả" class="photo">`:""}`;
+ const endBtn=aiMode&&turns>=2?`<button class="btn mark" id="endS">Kết thúc và nhận xét</button>`:"";
+ if(summary||summaryBusy){$("#view").innerHTML=`<div class="stack">${head}${renderSummary()}</div>`;wireHead();wireSummary();return}
+ if(callMode){
+  $("#view").innerHTML=`<div class="stack">${head}
+   <div class="panel call"><div class="avatar">${esc((s.title||"AI").trim()[0])}</div>
+    <div class="muted small" id="cstat">${chatBusy?"Claude đang trả lời…":"Chạm micro để nói, chạm lần nữa khi nói xong"}</div>
+    <div class="callLine">${chatBusy?"…":esc(lastAi?lastAi.t:"")}</div>
+    <div class="heard" id="clive" style="width:100%">${esc(turns?chatMsgs.filter(m=>m.r==="me").pop().t:"")}</div>
+    <button class="mic big" id="cmic" aria-label="Nói" ${chatBusy?"disabled":""}>${IC.mic}</button>
+    <div class="row"><button class="btn ghost small" id="rep">${IC.spk}Nghe lại</button><button class="btn ghost small" id="hint">Gợi ý</button></div>
+    <div id="hintBox" style="width:100%"></div>
+    ${chatMsgs.length&&chatMsgs[chatMsgs.length-2]&&chatMsgs[chatMsgs.length-2].r==="fb"?`<div class="fb" style="align-self:stretch;max-width:none">${chatMsgs[chatMsgs.length-2].h}</div>`:""}
+   </div><div class="row">${endBtn}<span class="muted small">${turns} lượt nói</span></div></div>`;
+  wireHead();
+  $("#cmic").onclick=e=>startMic({partial:t=>{$("#clive").textContent=t},done:t=>{if(t)send(t)}},e.currentTarget);
+  $("#rep").onclick=()=>lastAi&&speak(lastAi.t);wireHint();$("#endS")&&($("#endS").onclick=endSession);return}
+ $("#view").innerHTML=`<div class="stack">${head}
+  <div class="panel"><div class="chat" id="chat">${chatMsgs.map(m=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?` <button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button>`:""}</div>`).join("")}${chatBusy?`<div class="msg ai muted">…</div>`:""}</div></div>
   <form class="compose" id="cf"><textarea id="cin" rows="1" placeholder="Trả lời bằng tiếng Anh, hoặc bấm micro để nói" ${chatBusy?"disabled":""}></textarea>
    <button type="button" class="mic" id="cmic" aria-label="Nói">${IC.mic}</button><button class="btn primary" aria-label="Gửi" ${chatBusy?"disabled":""}>${IC.send}</button></form>
-  <div class="row"><button class="btn ghost small" id="hint">Gợi ý câu trả lời</button><button class="btn ghost small" id="restart">Làm lại từ đầu</button></div>
+  <div class="row">${endBtn}<button class="btn ghost small" id="hint">Gợi ý câu trả lời</button><button class="btn ghost small" id="restart">Làm lại từ đầu</button></div>
   <div id="hintBox"></div></div>`;
- const ch=$("#chat");ch.scrollTop=ch.scrollHeight;
+ const ch=$("#chat");ch.scrollTop=ch.scrollHeight;wireHead();
  document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
- $("#back").onclick=()=>{chatScen=null;vChat()};$("#restart").onclick=()=>{chatMsgs=null;vChat()};
+ $("#restart").onclick=()=>{chatMsgs=null;vChat()};
  $("#cmic").onclick=e=>startMic({partial:t=>{$("#cin").value=t},done:t=>{if(t)send(t)}},e.currentTarget);
  $("#cf").onsubmit=e=>{e.preventDefault();const t=$("#cin").value.trim();if(t)send(t)};
  $("#cin").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#cf").requestSubmit()}};
- $("#hint").onclick=()=>{const h=s.sample[Math.min(scriptStep,s.sample.length-1)];$("#hintBox").innerHTML=`<div class="tip">Bạn có thể nói: <b>${esc(h)}</b> <button class="iconbtn" id="hs">${IC.spk}</button></div>`;$("#hs").onclick=()=>speak(h)};}
+ wireHint();$("#endS")&&($("#endS").onclick=endSession);}
+function wireHead(){$("#back").onclick=()=>{chatScen=null;summary=null;vChat()};$("#callT")&&($("#callT").onclick=()=>{callMode=!callMode;vChat()})}
+async function wireHint(){const btn=$("#hint");if(!btn)return;btn.onclick=async()=>{const s=chatScen;let h;
+  if(s.sample)h=s.sample[Math.min(scriptStep,s.sample.length-1)];
+  else if(SAMPLE){btn.disabled=true;try{const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai").t;h=(await SAMPLE(`A Vietnamese learner of English must reply to this line in a conversation: "${lastAi}". Write ONE natural, simple reply they could say (max 20 words). Output only the reply.`,{modelTier:"quick"})).text.trim()}catch(e){h=""}btn.disabled=false}
+  if(!h)return;$("#hintBox").innerHTML=`<div class="tip">Bạn có thể nói: <b>${esc(h)}</b> <button class="iconbtn" id="hs" aria-label="Nghe gợi ý">${IC.spk}</button></div>`;$("#hs").onclick=()=>speak(h)}}
 async function send(text){if(chatBusy)return;const s=chatScen;chatMsgs.push({r:"me",t:text});addXp(5,"conv");S.conv[s.id]=(S.conv[s.id]||0)+1;save();
- if(!SAMPLE){const reply=scriptStep<s.script.length?s.script[scriptStep]:"It was great talking with you! Want to try another situation?";
-  const model=s.sample[Math.min(scriptStep,s.sample.length-1)];scriptStep++;
-  chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply});vChat();speak(reply);return}
+ if(!SAMPLE){const sc=s.script||[];const reply=scriptStep<sc.length?sc[scriptStep]:"It was great talking with you! Want to try another situation?";
+  const model=s.sample?s.sample[Math.min(scriptStep,s.sample.length-1)]:"";scriptStep++;
+  if(model)chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply});vChat();speak(reply);return}
  chatBusy=true;vChat();
  const hist=chatMsgs.filter(m=>m.r!=="fb").map(m=>(m.r==="ai"?"Partner: ":"Learner: ")+m.t).join("\n");
  const prompt=`You are an English conversation partner for a Vietnamese adult learning spoken English (around intermediate level).
-Role-play scenario: you are ${s.role}. Keep each reply natural, friendly, 1-2 short sentences, everyday spoken English, and usually end with a question to keep the conversation going. Never break character in "reply".
+Role-play: you are ${s.role}. Keep each reply natural and friendly, 1-2 short sentences of everyday spoken English${callMode?" (this is a voice call, so keep it short and easy to understand by ear)":""}, and usually end with a question to keep the conversation going. Never break character in "reply".
 Also check the learner's LAST message for grammar, word choice or unnatural phrasing.
 Conversation so far:
 ${hist}
 
 Return JSON only: {"reply": "<your next line in English>", "ok": <true if the learner's last message was correct and natural>, "better": "<a more natural English version of the learner's last message, or empty string if already good>", "note_vi": "<one short explanation in Vietnamese of the mistake or a tip, max 25 words; if ok, a short praise in Vietnamese>"}`;
- try{const r=await SAMPLE.json(prompt,{modelTier:"quick",cache:false});
+ const opts={modelTier:"quick",cache:false};if(s.kind==="photo"&&photoBlob)opts.images=[photoBlob];
+ try{const r=await SAMPLE.json(prompt,opts);
   const fb=r.ok&&!r.better?`<b>Tốt lắm!</b> ${esc(r.note_vi||"")}`:`${r.better?`<span class="fix">Tự nhiên hơn:</span> ${esc(r.better)}<br>`:""}${esc(r.note_vi||"")}`;
-  chatMsgs.push({r:"fb",h:fb});chatMsgs.push({r:"ai",t:String(r.reply||"Sorry, could you say that again?")});scriptStep++;
+  chatMsgs.push({r:"fb",h:fb,ok:!!r.ok,better:r.better||"",you:text});chatMsgs.push({r:"ai",t:String(r.reply||"Sorry, could you say that again?")});scriptStep++;
   chatBusy=false;vChat();speak(chatMsgs[chatMsgs.length-1].t)}
- catch(e){chatBusy=false;if(e&&e.code==="not_granted"){SAMPLE=null;toast("Đã chuyển sang chế độ kịch bản");chatMsgs.pop();send(text);return}
+ catch(e){chatBusy=false;if(e&&e.code==="not_granted"){SAMPLE=null;toast("Claude chưa được cho phép, chuyển sang kịch bản");chatMsgs.pop();if(s.script){send(text);return}chatScen=null;vChat();return}
+  if(e&&(e.code==="images_unavailable"||e.code==="image_rejected")){photoBlob=null;toast("Không gửi được ảnh, Claude sẽ trò chuyện không kèm ảnh")}
   chatMsgs.push({r:"fb",h:esc(e&&e.code==="rate_limited"?"Claude đang bận, đợi vài giây rồi gửi lại nhé.":"Chưa nhận được trả lời. Kiểm tra mạng rồi gửi lại.")});vChat()}}
+async function endSession(){if(!SAMPLE||summaryBusy)return;summaryBusy=true;vChat();const s=chatScen;
+ const hist=chatMsgs.filter(m=>m.r!=="fb").map(m=>(m.r==="ai"?"Partner: ":"Learner: ")+m.t).join("\n");
+ try{summary=await SAMPLE.json(`You are an English speaking coach for a Vietnamese adult. Review the LEARNER's lines in this conversation (scenario: ${s.title} / ${s.vi}).
+${hist}
+
+Return JSON only: {"score": <0-100 overall speaking score for fluency, grammar and vocabulary>, "level": "<CEFR estimate like A2, B1, B2>", "good_vi": ["<1-3 short strengths in Vietnamese>"], "fixes": [{"you": "<learner's original phrase>", "better": "<natural English>", "why_vi": "<short reason in Vietnamese>"}], "words": [{"en": "<useful word or phrase for this topic>", "vi": "<Vietnamese meaning>", "ex": "<short example sentence>"}], "next_vi": "<one concrete tip in Vietnamese for next time>"}. Max 4 fixes, 5 words.`,{modelTier:"default",cache:false});
+  addXp(10,null);S.sessions=(S.sessions||[]).concat([{d:dkey(),id:s.id,title:s.title,score:summary.score|0,level:summary.level||""}]).slice(-60);save()}
+ catch(e){toast("Chưa tạo được nhận xét, thử lại sau nhé")}
+ summaryBusy=false;vChat()}
+function renderSummary(){if(summaryBusy)return`<div class="panel"><p class="muted" style="margin:0">Claude đang xem lại buổi nói của bạn…</p></div>`;const r=summary;
+ const sc=r.score|0;const col=sc>=80?"var(--good)":sc>=60?"var(--warn)":"var(--bad)";
+ return`<div class="panel stack"><div class="row" style="gap:16px"><div class="score" style="color:${col}">${sc}</div><div><div class="label">Điểm buổi nói</div><div><b>Trình độ ước tính: ${esc(r.level||"—")}</b></div></div></div>
+  ${(r.good_vi||[]).length?`<div><h3>Bạn làm tốt</h3><ul style="margin:6px 0 0;padding-left:20px">${r.good_vi.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+  ${(r.fixes||[]).length?`<div class="stack" style="gap:8px"><h3>Cần sửa</h3>${r.fixes.map(f=>`<div class="fb" style="align-self:stretch;max-width:none"><s class="muted">${esc(f.you)}</s><br><span class="fix">Nên nói:</span> ${esc(f.better)} <button class="iconbtn" data-say="${esc(f.better)}" aria-label="Nghe">${IC.spk}</button><br><span class="small muted">${esc(f.why_vi)}</span></div>`).join("")}</div>`:""}
+  ${(r.words||[]).length?`<div class="stack" style="gap:6px"><h3>Từ mới nên học</h3><table class="mini">${r.words.map(w=>`<tr><td><b>${esc(w.en)}</b> <span class="muted small">· ${esc(w.vi)}</span></td><td><button class="iconbtn" data-say="${esc(w.en)}" aria-label="Nghe">${IC.spk}</button></td></tr>`).join("")}</table>
+   <button class="btn" id="addW" style="align-self:flex-start">Thêm ${r.words.length} từ vào thẻ nhớ</button></div>`:""}
+  ${r.next_vi?`<div class="tip"><b>Lần sau:</b> ${esc(r.next_vi)}</div>`:""}
+  <div class="row"><button class="btn primary" id="again">Nói lại bài này</button></div></div>`}
+function wireSummary(){document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+ $("#again")&&($("#again").onclick=()=>{summary=null;chatMsgs=null;vChat()});
+ $("#addW")&&($("#addW").onclick=e=>{const have=new Set(allCards().map(c=>c.en.toLowerCase()));let n=0;(summary.words||[]).forEach((w,i)=>{if(w.en&&!have.has(w.en.toLowerCase())){S.custom.push({id:"u"+Date.now()+i,topic:"mine",en:w.en,vi:w.vi||"",ex:w.ex||""});n++}});save();e.currentTarget.disabled=true;toast(n?`Đã thêm ${n} thẻ mới`:"Các từ này đã có trong thẻ nhớ")})}
 
 /* ---------------- STATS ---------------- */
 function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,v])=>a+v.xp,0);const active=days.filter(([,v])=>v.xp>0).length;
@@ -509,7 +594,7 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
   <div class="panel stack" style="gap:6px"><div class="label">XP 7 ngày qua · vạch đứt là mục tiêu ${S.settings.goal} XP</div>
    <div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:520px" role="img" aria-label="Biểu đồ XP 7 ngày"><line x1="24" x2="${W-6}" y1="110" y2="110" stroke="var(--line)"/><line x1="24" x2="${W-6}" y1="${gy}" y2="${gy}" stroke="var(--muted)" stroke-dasharray="4 4"/>${bars}</svg></div></div>
   <div class="grid2"><div class="panel"><h3>Thẻ đã học theo chủ đề</h3><table class="mini">${byTopic.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${b}</td></tr>`).join("")}<tr><td>Thẻ của bạn</td><td>${S.custom.filter(c=>S.cards[c.id]).length}/${S.custom.length}</td></tr></table></div>
-   <div class="panel"><h3>Hoạt động</h3><table class="mini"><tr><td>Số ngày đã học</td><td>${active}</td></tr><tr><td>Câu đã nói đuổi</td><td>${sh.length}/${SHADOW.length}</td></tr><tr><td>Lượt hội thoại</td><td>${convT}</td></tr><tr><td>Tình huống đã thử</td><td>${Object.keys(S.conv).length}/${SCEN.length}</td></tr></table></div></div>
+   <div class="panel"><h3>Hoạt động</h3><table class="mini"><tr><td>Số ngày đã học</td><td>${active}</td></tr><tr><td>Câu đã nói đuổi</td><td>${sh.length}/${SHADOW.length}</td></tr><tr><td>Lượt hội thoại</td><td>${convT}</td></tr><tr><td>Buổi nói có nhận xét</td><td>${(S.sessions||[]).length}${(S.sessions||[]).length?" · gần nhất "+S.sessions[S.sessions.length-1].score+" điểm":""}</td></tr><tr><td>Tình huống đã thử</td><td>${Object.keys(S.conv).length}/${SCEN.length}</td></tr></table></div></div>
   <div class="panel stack"><h3>Cài đặt</h3>
    <div class="grid2">
     <label class="stack" style="gap:4px"><span class="small">Mục tiêu mỗi ngày</span><select id="sGoal">${[30,50,80,120].map(v=>`<option value="${v}" ${S.settings.goal==v?"selected":""}>${v} XP (~${Math.round(v/3.5)} phút)</option>`).join("")}</select></label>
@@ -527,6 +612,7 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
    <div><b>Duolingo</b><span class="small muted">Chuỗi ngày, XP, mục tiêu hằng ngày và bài học ngắn để giữ thói quen.</span></div>
    <div><b>ELSA Speak</b><span class="small muted">Chấm điểm phát âm từng từ, tập trung vào lỗi riêng của người Việt.</span></div>
    <div><b>Cake</b><span class="small muted">Mẫu câu giao tiếp thực tế mỗi ngày, nghe rồi nói đuổi (shadowing).</span></div>
+   <div><b>Talkpal</b><span class="small muted">Nói chuyện với nhân vật, tranh luận, mô tả ảnh, gọi điện bằng giọng và tổng kết sau mỗi buổi.</span></div>
    <div><b>Babbel, Speak, Praktika</b><span class="small muted">Hội thoại nhập vai theo tình huống với AI, sửa lỗi ngay sau từng câu.</span></div>
   </div></div></div>`;
  $("#sGoal").onchange=e=>{S.settings.goal=+e.target.value;save();hdr()};$("#sNew").onchange=e=>{S.settings.newPerDay=+e.target.value;save()};
@@ -551,7 +637,7 @@ function nativeDict(){const R=window.SpeechRecognition||window.webkitSpeechRecog
   stop(){try{rec&&rec.stop()}catch(e){}return Promise.resolve()}}}
 if(!(window.claude&&window.claude.use)){DICT=nativeDict();if(DICT)wireDict();
  syncMsg="Dữ liệu lưu ngay trên máy này và dùng được khi không có mạng. Thỉnh thoảng hãy sao chép bản sao lưu bên dưới để phòng khi xoá dữ liệu trình duyệt.";}
-if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------------- BOOT ---------------- */
 const h0=location.hash.slice(1);if(["today","vocab","speak","chat","stats"].includes(h0))TAB=h0;
 go(TAB);
