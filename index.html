@@ -156,6 +156,20 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .callLine{font-size:1.25rem;font-weight:600;line-height:1.4;max-width:34ch}
 .mic.big{width:96px;height:96px}.mic.big svg{width:40px;height:40px}
 .mic:disabled{opacity:.4;cursor:not-allowed}
+.hero{background:var(--ink);color:var(--surface);border-radius:16px;padding:18px;gap:12px}
+.btn.big{justify-content:center;padding:14px;font-size:1.05rem}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.q{text-align:left;border:1px solid color-mix(in srgb,var(--surface) 25%,transparent);background:color-mix(in srgb,var(--surface) 10%,transparent);color:inherit;border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:2px;min-width:0}
+.q .label{color:inherit;opacity:.75}.q b{font-size:.9rem;line-height:1.3}
+.q:hover{background:color-mix(in srgb,var(--surface) 18%,transparent)}
+.msg .tools{display:flex;align-items:center;gap:2px;margin-top:4px}
+.tr{border:0;background:var(--sunk);color:var(--ink);font:600 .75rem var(--f-body);padding:3px 9px;border-radius:99px;cursor:pointer;margin-left:4px}
+.vi-tr{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--muted);font-size:.9rem}
+.typing{display:flex;gap:4px;align-items:center;padding:14px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none}}
 </style>
 </head><body>
 
@@ -296,9 +310,9 @@ const SCEN=[
 const LS="lnhn-state-v1";
 const dkey=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const DAY=864e5;
-function fresh(){return{v:1,updatedAt:0,settings:{goal:50,newPerDay:8,rate:1,voice:"buttery"},cards:{},custom:[],log:{},shadow:{},conv:{},newDay:{d:"",n:0},topic:"all"}}
+function fresh(){return{v:1,updatedAt:0,settings:{goal:50,newPerDay:8,rate:1,voice:"buttery",level:"B1"},cards:{},custom:[],log:{},shadow:{},conv:{},newDay:{d:"",n:0},topic:"all"}}
 let S=fresh();
-try{const raw=localStorage.getItem(LS);if(raw)S=Object.assign(fresh(),JSON.parse(raw))}catch(e){}
+try{const raw=localStorage.getItem(LS);if(raw)S=Object.assign(fresh(),JSON.parse(raw));S.settings=Object.assign(fresh().settings,S.settings)}catch(e){}
 let dbRef=null,saveT=null;
 function save(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
   clearTimeout(saveT);saveT=setTimeout(()=>{if(dbRef)dbRef.set({json:JSON.stringify(S),updatedAt:S.updatedAt}).catch(()=>{})},1200)}
@@ -370,6 +384,16 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div class="goalbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
    <p class="muted small" style="margin:0">${pct>=100?"Xong mục tiêu hôm nay. Làm thêm là cộng điểm thưởng.":"Khoảng 15 phút mỗi ngày là đủ để giữ chuỗi."}</p>
   </div>
+  ${SAMPLE?`<div class="hero stack">
+   <div class="label" style="color:inherit;opacity:.8">Luyện nói với AI</div>
+   <h2 style="color:inherit">Hôm nay nói chuyện với ${esc(todayChar().title.split(",")[0])} nhé?</h2>
+   <button class="btn mark big" id="qCall">${IC.phone}Gọi điện ngay</button>
+   <div class="qgrid">
+    <button class="q" id="qChar"><span class="label">Nhân vật</span><b>${esc(todayChar().title)}</b></button>
+    <button class="q" id="qDeb"><span class="label">Tranh luận</span><b>${esc(todayDeb().title)}</b></button>
+    <button class="q" id="qPhoto"><span class="label">Mô tả ảnh</span><b>Tả một bức ảnh của bạn</b></button>
+    <button class="q" id="qScen"><span class="label">Tình huống</span><b>${esc(sc.title)}</b></button>
+   </div></div>`:""}
   <div class="stack" style="gap:8px"><div class="label">Kế hoạch hôm nay</div>
    <ul class="plan">${tasks.map((x,i)=>`<li data-i="${i}" class="${x.done?"done":""}" tabindex="0"><span class="chk">${x.done?"✓":""}</span><span class="t"><b>${esc(x.t)}</b><br><span class="muted small">${esc(x.s)}</span></span><span class="muted">›</span></li>`).join("")}</ul></div>
   <div class="panel stack" style="gap:8px"><div class="label">Mẫu câu của ngày · ${esc(TOPICS[pod.topic])}</div>
@@ -378,7 +402,12 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
   <div class="panel stack" style="gap:8px"><div class="label">4 tuần gần nhất</div>${heat()}<span class="muted small">Mỗi ô là một ngày. Ô càng đậm, bạn học càng nhiều.</span></div>
  </div>`;
  document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
- $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);}
+ $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
+ if(SAMPLE){$("#qCall").onclick=()=>quick(todayChar(),true);$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
+  $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>{chatCat="photo";chatScen=null;go("chat")}}}
+function todayChar(){return CHARS[dayIndex()%CHARS.length]}
+function todayDeb(){return DEBATES[dayIndex()%DEBATES.length]}
+function quick(s,call){callMode=call;chatScen=s;chatMsgs=null;summary=null;go("chat")}
 function openScen(id){chatScen=SCEN.find(s=>s.id===id);chatMsgs=null;go("chat")}
 function heat(){let h="",d=new Date();d=new Date(d-27*DAY);for(let i=0;i<28;i++){const k=dkey(d);const xp=S.log[k]?.xp||0;const l=xp===0?0:xp<S.settings.goal/2?1:xp<S.settings.goal?2:3;h+=`<i data-l="${l}" class="${k===dkey()?"today":""}" title="${k}: ${xp} XP"></i>`;d=new Date(+d+DAY)}return`<div class="heat">${h}</div>`}
 
@@ -520,13 +549,16 @@ function vChat(){
   $("#cmic").onclick=e=>startMic({partial:t=>{$("#clive").textContent=t},done:t=>{if(t)send(t)}},e.currentTarget);
   $("#rep").onclick=()=>lastAi&&speak(lastAi.t);wireHint();$("#endS")&&($("#endS").onclick=endSession);return}
  $("#view").innerHTML=`<div class="stack">${head}
-  <div class="panel"><div class="chat" id="chat">${chatMsgs.map(m=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?` <button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button>`:""}</div>`).join("")}${chatBusy?`<div class="msg ai muted">…</div>`:""}</div></div>
-  <form class="compose" id="cf"><textarea id="cin" rows="1" placeholder="Trả lời bằng tiếng Anh, hoặc bấm micro để nói" ${chatBusy?"disabled":""}></textarea>
+  <div class="panel"><div class="chat" id="chat">${chatMsgs.map((m,i)=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?`<div class="tools"><button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button><button class="iconbtn" data-slow="${esc(m.t)}" aria-label="Nghe chậm">${IC.slow}</button>${SAMPLE?`<button class="tr" data-tr="${i}">${m.vi?"Ẩn dịch":"Dịch"}</button>`:""}</div>${m.vi&&m.showVi?`<div class="vi-tr">${esc(m.vi)}</div>`:""}`:""}</div>`).join("")}${chatBusy?`<div class="msg ai typing" aria-label="Claude đang trả lời"><i></i><i></i><i></i></div>`:""}</div></div>
+  <form class="compose" id="cf"><textarea id="cin" rows="1" placeholder="Nói hoặc gõ tiếng Anh…" ${chatBusy?"disabled":""}></textarea>
    <button type="button" class="mic" id="cmic" aria-label="Nói">${IC.mic}</button><button class="btn primary" aria-label="Gửi" ${chatBusy?"disabled":""}>${IC.send}</button></form>
   <div class="row">${endBtn}<button class="btn ghost small" id="hint">Gợi ý câu trả lời</button><button class="btn ghost small" id="restart">Làm lại từ đầu</button></div>
   <div id="hintBox"></div></div>`;
  const ch=$("#chat");ch.scrollTop=ch.scrollHeight;wireHead();
  document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+ document.querySelectorAll("[data-slow]").forEach(b=>b.onclick=()=>speak(b.dataset.slow,true));
+ document.querySelectorAll("[data-tr]").forEach(b=>b.onclick=async()=>{const m=chatMsgs[+b.dataset.tr];if(m.vi){m.showVi=!m.showVi;vChat();return}
+  b.disabled=true;b.textContent="Đang dịch…";try{m.vi=(await SAMPLE("Translate into natural Vietnamese. Output only the translation:\n"+m.t,{modelTier:"quick"})).text.trim();m.showVi=true}catch(e){toast("Chưa dịch được, thử lại nhé")}vChat()});
  $("#restart").onclick=()=>{chatMsgs=null;vChat()};
  $("#cmic").onclick=e=>startMic({partial:t=>{$("#cin").value=t},done:t=>{if(t)send(t)}},e.currentTarget);
  $("#cf").onsubmit=e=>{e.preventDefault();const t=$("#cin").value.trim();if(t)send(t)};
@@ -543,7 +575,7 @@ async function send(text){if(chatBusy)return;const s=chatScen;chatMsgs.push({r:"
   if(model)chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply});vChat();speak(reply);return}
  chatBusy=true;vChat();
  const hist=chatMsgs.filter(m=>m.r!=="fb").map(m=>(m.r==="ai"?"Partner: ":"Learner: ")+m.t).join("\n");
- const prompt=`You are an English conversation partner for a Vietnamese adult learning spoken English (around intermediate level).
+ const prompt=`You are an English conversation partner for a Vietnamese adult learning spoken English at CEFR level ${S.settings.level||"B1"}. Match your vocabulary and sentence length to that level.
 Role-play: you are ${s.role}. Keep each reply natural and friendly, 1-2 short sentences of everyday spoken English${callMode?" (this is a voice call, so keep it short and easy to understand by ear)":""}, and usually end with a question to keep the conversation going. Never break character in "reply".
 Also check the learner's LAST message for grammar, word choice or unnatural phrasing.
 Conversation so far:
@@ -598,6 +630,7 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
   <div class="panel stack"><h3>Cài đặt</h3>
    <div class="grid2">
     <label class="stack" style="gap:4px"><span class="small">Mục tiêu mỗi ngày</span><select id="sGoal">${[30,50,80,120].map(v=>`<option value="${v}" ${S.settings.goal==v?"selected":""}>${v} XP (~${Math.round(v/3.5)} phút)</option>`).join("")}</select></label>
+    <label class="stack" style="gap:4px"><span class="small">Trình độ của bạn</span><select id="sLvl">${[["A2","A2 · Cơ bản"],["B1","B1 · Trung cấp"],["B2","B2 · Khá"],["C1","C1 · Nâng cao"]].map(([v,l])=>`<option value="${v}" ${S.settings.level===v?"selected":""}>${l}</option>`).join("")}</select></label>
     <label class="stack" style="gap:4px"><span class="small">Thẻ mới mỗi ngày</span><select id="sNew">${[5,8,12,20].map(v=>`<option ${S.settings.newPerDay==v?"selected":""}>${v}</option>`).join("")}</select></label>
     <label class="stack" style="gap:4px"><span class="small">Tốc độ giọng đọc</span><select id="sRate">${[[.8,"Chậm"],[1,"Bình thường"],[1.15,"Nhanh"]].map(([v,l])=>`<option value="${v}" ${S.settings.rate==v?"selected":""}>${l}</option>`).join("")}</select></label>
     ${TTS?`<label class="stack" style="gap:4px"><span class="small">Giọng đọc</span><select id="sVoice">${[["buttery","Giọng 1"],["airy","Giọng 2"],["glassy","Giọng 3"],["rounded","Giọng 4"]].map(([v,l])=>`<option value="${v}" ${S.settings.voice===v?"selected":""}>${l}</option>`).join("")}</select></label>`:""}
@@ -615,7 +648,7 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
    <div><b>Talkpal</b><span class="small muted">Nói chuyện với nhân vật, tranh luận, mô tả ảnh, gọi điện bằng giọng và tổng kết sau mỗi buổi.</span></div>
    <div><b>Babbel, Speak, Praktika</b><span class="small muted">Hội thoại nhập vai theo tình huống với AI, sửa lỗi ngay sau từng câu.</span></div>
   </div></div></div>`;
- $("#sGoal").onchange=e=>{S.settings.goal=+e.target.value;save();hdr()};$("#sNew").onchange=e=>{S.settings.newPerDay=+e.target.value;save()};
+ $("#sGoal").onchange=e=>{S.settings.goal=+e.target.value;save();hdr()};$("#sLvl").onchange=e=>{S.settings.level=e.target.value;save();toast("Claude sẽ nói theo trình độ "+e.target.value)};$("#sNew").onchange=e=>{S.settings.newPerDay=+e.target.value;save()};
  $("#sRate").onchange=e=>{S.settings.rate=+e.target.value;save();speak("This is how fast I will speak.")};
  $("#sVoice")&&($("#sVoice").onchange=e=>{S.settings.voice=e.target.value;save();speak("Hi, this is my voice.")});
  $("#bk").value=JSON.stringify(S);
