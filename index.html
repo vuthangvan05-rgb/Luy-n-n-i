@@ -170,6 +170,46 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
 @media (prefers-reduced-motion:reduce){.typing i{animation:none}}
+/* learning modes */
+.modes{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:520px){.modes{gap:10px}}
+.mode-card{text-align:left;border:0;background:transparent;color:var(--fg);padding:0;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:4px;min-width:0}
+.mode-card .art{position:relative;border-radius:16px;aspect-ratio:16/10;display:grid;place-items:center;transition:transform .15s;max-width:100%}
+.mode-card:hover .art{transform:translateY(-2px)}
+.mode-card .art svg{width:62%;height:auto;fill:var(--surface);stroke:var(--fg);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.mode-card .art .f2{fill:var(--mark)}.mode-card .art .dot{fill:var(--fg);stroke:none}.mode-card .art .ln{fill:none}.mode-card .art .ln2{fill:none;stroke-width:2.6}
+.mode-card .art .pill{position:absolute;top:8px;right:8px}
+.mode-card b{font-size:1rem;margin-top:4px}
+.c-y{background:var(--mark)}.c-y .f2{fill:var(--surface)!important}
+.c-b{background:color-mix(in srgb,var(--ink) 22%,var(--surface))}.c-g{background:color-mix(in srgb,var(--good) 22%,var(--surface))}
+.c-p{background:color-mix(in srgb,#7a5cff 22%,var(--surface))}.c-o{background:color-mix(in srgb,#ff8a3d 24%,var(--surface))}.c-t{background:color-mix(in srgb,#14a3b8 22%,var(--surface))}
+.prog{display:flex;align-items:center}.prog span{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 10px;font:600 .9rem var(--f-mono);z-index:1;min-width:56px;text-align:center}
+.prog div{flex:1;height:8px;background:color-mix(in srgb,var(--ink) 18%,var(--sunk));border-radius:0 99px 99px 0;margin-left:-4px;overflow:hidden}.prog i{display:block;height:100%;background:var(--ink)}
+.lno{color:var(--ink);font-weight:700;font-size:.9rem}
+.path{display:flex;flex-direction:column;gap:8px}
+.lesson{display:flex;align-items:center;gap:14px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:16px;padding:12px 14px;cursor:pointer;font:inherit}
+.lesson:hover{border-color:var(--ink)}.lesson .t{flex:1;display:flex;flex-direction:column;min-width:0}
+.ring{--p:0;width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--good) calc(var(--p)*1%),var(--sunk) 0)}
+.ring span{width:38px;height:38px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-weight:700;color:var(--ink)}
+.wbox{border:1.5px solid color-mix(in srgb,var(--ink) 40%,var(--line));border-radius:16px;padding:12px;margin:0;min-width:0}
+.wbox legend{padding:0 6px;font-weight:700}.pillno{background:var(--ink);color:var(--surface);padding:3px 12px;border-radius:99px;margin-right:4px}
+.wgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:600px){.wgrid{grid-template-columns:repeat(4,1fr);gap:6px}.wt{aspect-ratio:1;font-size:.72rem}}
+.wt{aspect-ratio:1.1;border:1px solid color-mix(in srgb,var(--ink) 30%,var(--line));background:var(--bg);border-radius:12px;display:grid;place-items:center;cursor:pointer;color:var(--fg);font:600 .82rem var(--f-body);padding:4px;min-width:0;overflow-wrap:anywhere;max-width:100%}
+.wt .star{width:28px;height:28px;fill:color-mix(in srgb,var(--ink) 55%,var(--surface))}
+.wt.done{background:var(--good-bg);border-color:var(--good);color:var(--good)}.wt.sel{outline:3px solid var(--mark);outline-offset:1px}
+.wcard{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+/* chat header & chips */
+.chead{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px}
+.chead .who{flex:1;min-width:0;display:flex;flex-direction:column}.chead .who span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{position:relative;width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:800;flex:none}
+.online{position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:#3ccf6e;border:2px solid var(--surface)}
+.iconbtn.on{background:var(--ink);color:var(--surface)}
+.chips{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-top:4px}
+.chip{border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:99px;padding:7px 14px;font:600 .9rem var(--f-body);cursor:pointer;text-align:right;max-width:85%}
+.chip:hover{background:var(--ink);color:var(--surface)}
+.compose{align-items:center}.compose input{flex:1;border-radius:99px;padding:12px 16px;min-width:0}
+.compose .mic{width:52px;height:52px}.sendb{width:40px;height:40px}
 </style>
 </head><body>
 
@@ -181,10 +221,9 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Các phần của app">
-    <button role="tab" data-tab="today" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Hôm nay</button>
+    <button role="tab" data-tab="today" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Trang chủ</button>
+    <button role="tab" data-tab="learn" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Học</button>
     <button role="tab" data-tab="vocab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Thẻ nhớ</button>
-    <button role="tab" data-tab="speak" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Phát âm</button>
-    <button role="tab" data-tab="chat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg>Hội thoại</button>
     <button role="tab" data-tab="stats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Tiến độ</button>
   </nav>
 
@@ -361,6 +400,10 @@ const IC={spk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
  slow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><circle cx="18" cy="12" r="2"/></svg>',
  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
+ chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+ mute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
+ star:'<svg viewBox="0 0 24 24" class="star" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l16-8-6 16-2-7z"/></svg>'};
 let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 function hdr(){$("#hdrStreak").textContent=streak();$("#hdrXp").textContent=today().xp}
@@ -368,7 +411,7 @@ let TAB="today";
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.tab));
 function go(t){TAB=t;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));
   if(location.hash.slice(1)!==t)history.replaceState(null,"","#"+t);render();window.scrollTo(0,0)}
-function render(){hdr();({today:vToday,vocab:vVocab,speak:vSpeak,chat:vChat,stats:vStats}[TAB]||vToday)()}
+function render(){hdr();({today:vToday,vocab:vVocab,learn:vLearn,stats:vStats}[TAB]||vToday)()}
 
 /* ---------------- TODAY ---------------- */
 function dayIndex(){return Math.floor((Date.now()-new Date(2026,0,1))/DAY)}
@@ -376,7 +419,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
  const pct=Math.min(100,Math.round(t.xp/S.settings.goal*100));
  const tasks=[
   {done:q.length===0&&t.rev>0,t:"Ôn thẻ nhớ",s:q.length?q.length+" thẻ đang chờ":"Đã ôn hết thẻ hôm nay",go:"vocab"},
-  {done:t.shadow>=3,t:"Nói đuổi 3 câu (shadowing)",s:"Đã làm "+Math.min(3,t.shadow)+"/3 · trọng tâm hôm nay: "+sh.f,go:"speak"},
+  {done:t.shadow>=3,t:"Nói đuổi 3 câu (shadowing)",s:"Đã làm "+Math.min(3,t.shadow)+"/3 · Chế độ câu hoặc Luyện nghe",mode:"sent"},
   {done:t.conv>=4,t:"Hội thoại: "+sc.title,s:"Trả lời ít nhất 4 lượt · "+Math.min(4,t.conv)+"/4",go:"chat",scen:sc.id}];
  $("#view").innerHTML=`<div class="stack">
   <div class="panel stack" style="gap:10px">
@@ -386,8 +429,8 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
   </div>
   ${SAMPLE?`<div class="hero stack">
    <div class="label" style="color:inherit;opacity:.8">Luyện nói với AI</div>
-   <h2 style="color:inherit">Hôm nay nói chuyện với ${esc(todayChar().title.split(",")[0])} nhé?</h2>
-   <button class="btn mark big" id="qCall">${IC.phone}Gọi điện ngay</button>
+   <h2 style="color:inherit">Sam đang chờ bạn. Nói vài câu nhé?</h2>
+   <div class="row" style="flex-wrap:nowrap"><button class="btn mark big" id="qCall" style="flex:1">${IC.phone}Gọi thoại</button><button class="btn mark big" id="qTalk" style="flex:1">${IC.chat}Trò chuyện</button></div>
    <div class="qgrid">
     <button class="q" id="qChar"><span class="label">Nhân vật</span><b>${esc(todayChar().title)}</b></button>
     <button class="q" id="qDeb"><span class="label">Tranh luận</span><b>${esc(todayDeb().title)}</b></button>
@@ -401,14 +444,14 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div style="color:var(--ink);font-weight:600">${esc(pod.vi)}</div><div class="muted"><i>${esc(pod.ex)}</i></div></div>
   <div class="panel stack" style="gap:8px"><div class="label">4 tuần gần nhất</div>${heat()}<span class="muted small">Mỗi ô là một ngày. Ô càng đậm, bạn học càng nhiều.</span></div>
  </div>`;
- document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
+ document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else if(x.mode)openMode(x.mode);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
  $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
- if(SAMPLE){$("#qCall").onclick=()=>quick(todayChar(),true);$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
-  $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>{chatCat="photo";chatScen=null;go("chat")}}}
+ if(SAMPLE){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
+  $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>{chatCat="photo";chatScen=null;learnMode="role";go("learn")}}}
 function todayChar(){return CHARS[dayIndex()%CHARS.length]}
 function todayDeb(){return DEBATES[dayIndex()%DEBATES.length]}
-function quick(s,call){callMode=call;chatScen=s;chatMsgs=null;summary=null;go("chat")}
-function openScen(id){chatScen=SCEN.find(s=>s.id===id);chatMsgs=null;go("chat")}
+function quick(s,call){callMode=call;chatScen=s;chatMsgs=null;summary=null;learnMode=s.kind==="free"?"chat":"role";go("learn")}
+function openScen(id){chatScen=SCEN.find(s=>s.id===id);chatMsgs=null;summary=null;callMode=false;learnMode="role";go("learn")}
 function heat(){let h="",d=new Date();d=new Date(d-27*DAY);for(let i=0;i<28;i++){const k=dkey(d);const xp=S.log[k]?.xp||0;const l=xp===0?0:xp<S.settings.goal/2?1:xp<S.settings.goal?2:3;h+=`<i data-l="${l}" class="${k===dkey()?"today":""}" title="${k}: ${xp} XP"></i>`;d=new Date(+d+DAY)}return`<div class="heat">${h}</div>`}
 
 /* ---------------- VOCAB ---------------- */
@@ -461,13 +504,14 @@ function tipsFor(T,ok){const miss=T.filter((w,i)=>!ok[i]);const tips=new Set();
   if(/^r/.test(w))tips.add("Âm /r/: cong lưỡi về sau, không chạm vòm miệng; khác /l/ lưỡi chạm chân răng.")});
  if(!tips.size&&miss.length)tips.add("Nghe bản chậm một lần, rồi nói đuổi theo ngay sau người đọc. Tập từng cụm ngắn trước khi nói cả câu.");
  return[...tips].slice(0,3)}
-function vSpeak(){const s=SHADOW[shIdx];const best=S.shadow[s.id];
+function PL(){return sentTopic?sentTopic.items:SHADOW}
+function vSpeak(){const s=PL()[shIdx];const best=S.shadow[s.id];
  const words=shRes?shRes.T.map((w,i)=>`<span class="w ${shRes.ok[i]?"ok":"miss"}">${esc(w)}</span>`).join(" "):esc(s.t);
- $("#view").innerHTML=`<div class="stack"><h1>Phát âm & nói đuổi</h1>
+ $("#view").innerHTML=`<div class="stack">${backBar(sentTopic?sentTopic.name:"Phát âm")}
   <p class="muted" style="margin:0">Nghe câu mẫu, bấm micro rồi đọc theo. App đánh dấu những từ máy nghe rõ bằng màu vàng, từ bị thiếu sẽ gạch dưới.</p>
   <div class="panel stack">
-   <div class="row" style="justify-content:space-between"><span class="pill">${esc(s.f)}</span><span class="muted small">Câu ${shIdx+1}/${SHADOW.length}${best!=null?" · tốt nhất "+best+"%":""}</span></div>
-   <div class="target" id="tgt">${words}</div>${s.ipa?`<div class="ipa">${esc(s.ipa)}</div>`:""}
+   <div class="row" style="justify-content:space-between"><span class="pill">${esc(s.f)}</span><span class="muted small">Câu ${shIdx+1}/${PL().length}${best!=null?" · tốt nhất "+best+"%":""}</span></div>
+   <div class="target" id="tgt">${words}</div>${s.vi?`<div style="color:var(--ink);font-weight:600">${esc(s.vi)}</div>`:""}${s.ipa?`<div class="ipa">${esc(s.ipa)}</div>`:""}
    <div class="row"><button class="btn" id="l1">${IC.spk}Nghe</button><button class="btn" id="l2">${IC.slow}Nghe chậm</button></div>
    <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic" id="mic" aria-label="Bấm để nói, bấm lần nữa để dừng">${IC.mic}</button>
     <div style="flex:1;min-width:0" class="stack"><div class="label">Máy nghe được</div><div class="heard" id="heard">${shRes?esc(shRes.heard):'<span class="muted">Bấm micro và đọc câu trên…</span>'}</div></div>
@@ -476,18 +520,117 @@ function vSpeak(){const s=SHADOW[shIdx];const best=S.shadow[s.id];
    ${shRes?tipsFor(shRes.T,shRes.ok).map(t=>`<div class="tip">${esc(t)}</div>`).join(""):""}
    <div class="row"><button class="btn" id="prev">‹ Câu trước</button><button class="btn primary" id="next">Câu tiếp ›</button></div>
   </div>
-  <details class="panel"><summary><b>Chọn câu theo trọng tâm</b></summary><div class="list" style="margin-top:10px">${SHADOW.map((x,i)=>`<button data-i="${i}" aria-current="${i===shIdx}"><span>${esc(x.t)}<br><span class="muted small">${esc(x.f)}</span></span><span class="pill ${S.shadow[x.id]>=85?"good":""}">${S.shadow[x.id]!=null?S.shadow[x.id]+"%":"—"}</span></button>`).join("")}</div></details>
+  <details class="panel"><summary><b>Các câu trong bài</b></summary><div class="list" style="margin-top:10px">${PL().map((x,i)=>`<button data-i="${i}" aria-current="${i===shIdx}"><span>${esc(x.t)}<br><span class="muted small">${esc(x.vi||x.f)}</span></span><span class="pill ${S.shadow[x.id]>=85?"good":""}">${S.shadow[x.id]!=null?S.shadow[x.id]+"%":"—"}</span></button>`).join("")}</div></details>
   <div class="panel stack" style="gap:6px"><h3>Lỗi phát âm thường gặp của người Việt</h3>
    <div class="small muted">Nuốt âm cuối (/s/, /t/, /d/, /k/) · nhầm /θ/ thành /t/ · nhầm /ʃ/ và /s/ · đọc từng từ rời rạc thay vì nối âm · nói đều đều không có trọng âm. Các câu ở trên được chọn để luyện đúng những lỗi này.</div></div>
  </div>`;
+ wireBack(()=>{sentTopic=null;shRes=null;vSentList();window.scrollTo(0,0)});
  $("#l1").onclick=()=>speak(s.t);$("#l2").onclick=()=>speak(s.t,true);
  const fin=h=>{if(!h){toast("Chưa nghe thấy gì, thử nói to và gần micro hơn");return}const r=align(s.t,h);shRes={...r,heard:h};
   const prev=S.shadow[s.id];S.shadow[s.id]=Math.max(prev||0,r.score);addXp(Math.max(1,Math.round(r.score/10)),"shadow");vSpeak();if(r.score>=85)toast("Tuyệt! +"+Math.round(r.score/10)+" XP")};
  $("#mic").onclick=e=>startMic({partial:t=>{const el=$("#heard");if(el)el.textContent=t},done:fin},e.currentTarget);
  $("#typeF")&&($("#typeF").onsubmit=e=>{e.preventDefault();fin($("#typeIn").value.trim())});
- $("#prev").onclick=()=>{shIdx=(shIdx-1+SHADOW.length)%SHADOW.length;shRes=null;vSpeak()};
- $("#next").onclick=()=>{shIdx=(shIdx+1)%SHADOW.length;shRes=null;vSpeak()};
+ $("#prev").onclick=()=>{shIdx=(shIdx-1+PL().length)%PL().length;shRes=null;vSpeak()};
+ $("#next").onclick=()=>{shIdx=(shIdx+1)%PL().length;shRes=null;vSpeak()};
  document.querySelectorAll("details .list button").forEach(b=>b.onclick=()=>{shIdx=+b.dataset.i;shRes=null;vSpeak()});}
+
+/* ---------------- LEARNING MODES ---------------- */
+const SENT_RAW=[
+ ["Những câu giao tiếp thiết yếu",[
+  ["Chào hỏi cơ bản",["Hello, how are you?|Xin chào, bạn khỏe không?","I'm fine, thanks. And you?|Tôi khỏe, cảm ơn. Còn bạn?","Good morning! Did you sleep well?|Chào buổi sáng! Bạn ngủ ngon không?","Nice to see you again.|Rất vui được gặp lại bạn.","Have a nice day!|Chúc bạn một ngày tốt lành!"]],
+  ["Nói về bản thân",["My name is Thang.|Tôi tên là Thắng.","I'm from Vietnam.|Tôi đến từ Việt Nam.","I work as an office worker.|Tôi làm nhân viên văn phòng.","I live in Hanoi with my family.|Tôi sống ở Hà Nội cùng gia đình.","In my free time, I like reading books.|Lúc rảnh, tôi thích đọc sách."]],
+  ["Giới thiệu người khác",["This is my friend, Lan.|Đây là bạn tôi, Lan.","Let me introduce you to my colleague.|Để tôi giới thiệu bạn với đồng nghiệp của tôi.","She works in the same company as me.|Cô ấy làm cùng công ty với tôi.","I think you two will get along well.|Tôi nghĩ hai bạn sẽ hợp nhau.","Have you met my brother before?|Bạn đã gặp anh trai tôi bao giờ chưa?"]]]],
+ ["Giao tiếp xã hội",[
+  ["Lịch sự",["Excuse me, could you help me?|Xin lỗi, bạn giúp tôi được không?","Thank you so much for your help.|Cảm ơn bạn rất nhiều vì đã giúp đỡ.","I'm sorry, I didn't mean to.|Tôi xin lỗi, tôi không cố ý.","Would you mind closing the window?|Bạn có phiền đóng cửa sổ không?","After you, please.|Mời bạn đi trước."]],
+  ["Chào hỏi và tạm biệt trang trọng",["Good afternoon. It's a pleasure to meet you.|Chào buổi chiều. Rất hân hạnh được gặp ông/bà.","How do you do?|Hân hạnh được làm quen.","Thank you for your time today.|Cảm ơn ông/bà đã dành thời gian hôm nay.","I look forward to working with you.|Tôi mong được làm việc cùng ông/bà.","It was a pleasure talking to you. Goodbye.|Rất vui được nói chuyện với ông/bà. Tạm biệt."]],
+  ["Nói về thông tin cá nhân",["How old are you, if you don't mind me asking?|Bạn bao nhiêu tuổi, nếu bạn không phiền?","Are you married?|Bạn đã kết hôn chưa?","I have two children, a boy and a girl.|Tôi có hai con, một trai một gái.","I graduated from university five years ago.|Tôi tốt nghiệp đại học cách đây năm năm.","My hometown is a small city near the sea.|Quê tôi là một thành phố nhỏ gần biển."]]]],
+ ["Giao tiếp cơ bản",[
+  ["Hỏi thông tin cơ bản",["What time is it now?|Bây giờ là mấy giờ?","Where is the nearest bank?|Ngân hàng gần nhất ở đâu?","How much does this cost?|Cái này giá bao nhiêu?","When does the store open?|Cửa hàng mở cửa lúc mấy giờ?","Can you tell me how to get there?|Bạn chỉ tôi đường đến đó được không?"]],
+  ["Bày tỏ sở thích và không thích",["I really love Vietnamese food.|Tôi rất thích đồ ăn Việt Nam.","I'm not a big fan of horror movies.|Tôi không mê phim kinh dị lắm.","I prefer tea to coffee.|Tôi thích trà hơn cà phê.","I can't stand waiting in long lines.|Tôi không chịu nổi việc xếp hàng dài.","Playing football is my favorite hobby.|Đá bóng là sở thích yêu thích của tôi."]],
+  ["Trao đổi thông tin liên hệ",["Can I have your phone number?|Cho tôi xin số điện thoại của bạn nhé?","What's your email address?|Địa chỉ email của bạn là gì?","Are you on Facebook or Zalo?|Bạn có dùng Facebook hay Zalo không?","Let me add you on WhatsApp.|Để tôi thêm bạn trên WhatsApp.","Feel free to call me anytime.|Cứ gọi cho tôi bất cứ lúc nào."]]]],
+ ["Cuộc sống hằng ngày",[
+  ["Mua sắm",["Do you have this in a bigger size?|Cái này có size lớn hơn không?","Can I try this on?|Tôi mặc thử được không?","Is there any discount?|Có giảm giá không?","I'll take this one, please.|Tôi lấy cái này.","Can I pay by card?|Tôi trả bằng thẻ được không?"]],
+  ["Ăn uống",["A table for two, please.|Cho tôi bàn hai người.","Can I see the menu, please?|Cho tôi xem thực đơn nhé.","I'd like the chicken noodle soup.|Tôi muốn gọi phở gà.","Not too spicy, please.|Đừng cay quá nhé.","Everything was delicious, thank you.|Mọi thứ đều ngon, cảm ơn."]],
+  ["Hỏi đường",["Excuse me, is this the way to the station?|Xin lỗi, đây có phải đường ra ga không?","Go straight and turn right at the corner.|Đi thẳng rồi rẽ phải ở góc đường.","Is it far from here?|Chỗ đó có xa đây không?","It's about five minutes on foot.|Đi bộ khoảng năm phút.","I think I'm lost. Can you show me on the map?|Tôi nghĩ tôi bị lạc. Bạn chỉ trên bản đồ giúp tôi nhé?"]]]],
+ ["Nơi làm việc",[
+  ["Cuộc họp",["Let's get started, shall we?|Chúng ta bắt đầu nhé?","Could you repeat that, please?|Bạn nhắc lại được không?","I'd like to add something.|Tôi muốn bổ sung một ý.","Let's discuss this in more detail next week.|Tuần sau chúng ta bàn chi tiết hơn nhé.","Does anyone have any questions?|Có ai có câu hỏi gì không?"]],
+  ["Email và điện thoại",["Hello, this is Thang speaking.|Xin chào, Thắng đang nghe.","Could I speak to Mr. Smith, please?|Tôi có thể nói chuyện với ông Smith không?","I'm calling about the meeting tomorrow.|Tôi gọi về cuộc họp ngày mai.","I'll send you an email with the details.|Tôi sẽ gửi email chi tiết cho bạn.","Please find the file attached.|File được đính kèm trong email."]],
+  ["Nhờ giúp đỡ",["Do you have a minute?|Bạn có rảnh một phút không?","Could you check this report for me?|Bạn kiểm tra giúp tôi báo cáo này được không?","I'm not sure how to do this.|Tôi không chắc làm việc này thế nào.","Thanks, I really appreciate it.|Cảm ơn, tôi thật sự trân trọng điều đó.","Let me know if you need anything.|Cần gì cứ nói với tôi nhé."]]]]
+];
+const LESSONS=SENT_RAW.map(([title,topics],li)=>({title,topics:topics.map(([name,arr],ti)=>({id:`L${li}t${ti}`,name,items:arr.map((x,k)=>{const [t,vi]=x.split("|");return{id:`L${li}t${ti}s${k}`,t,vi,f:name}})}))}));
+{const g={};SHADOW.forEach(s=>{(g[s.f]=g[s.f]||[]).push(s)});const groups=[["Âm cuối",["Âm cuối /s/ /z/","Âm cuối -ed"]],["Âm khó: th, sh, r, l, v",["Âm /θ/ /ð/","Âm /ʃ/ và /s/","Âm /r/ và /l/","Âm /v/ và /w/"]],["Nối âm và ngữ điệu",["Nối âm","Ngữ điệu câu hỏi","Trọng âm câu"]],["Câu nói tự nhiên",["Giao tiếp công việc","Đời sống"]]];
+ LESSONS.push({title:"Âm khó với người Việt",topics:groups.map(([name,fs],ti)=>({id:"Lst"+ti,name,items:fs.flatMap(f=>g[f]||[])}))})}
+const ALL_SENT=LESSONS.flatMap(l=>l.topics.flatMap(t=>t.items));
+const WORDS_RAW=[
+ ["Con người và gia đình","parents|bố mẹ|My parents live in the countryside.;sibling|anh chị em ruột|Do you have any siblings?;cousin|anh chị em họ|My cousin is getting married.;neighbor|hàng xóm|Our neighbor is very friendly.;friendly|thân thiện|She is friendly to everyone.;hard-working|chăm chỉ|He is a hard-working student.;shy|nhút nhát|I was shy when I was a child.;funny|vui tính|My dad is really funny.;grow up|lớn lên|I grew up in Da Nang.;get married|kết hôn|They got married last year.;raise|nuôi nấng|She raised three children.;get along|hòa hợp|I get along well with my sister."],
+ ["Công việc","colleague|đồng nghiệp|My colleague helped me a lot.;manager|quản lý|I need to talk to my manager.;salary|lương|The salary is good.;deadline|hạn chót|The deadline is Friday.;meeting|cuộc họp|We have a meeting at 9.;report|báo cáo|I'm writing a report.;customer|khách hàng|The customer is always right.;experience|kinh nghiệm|I have three years of experience.;skill|kỹ năng|Communication is an important skill.;promotion|thăng chức|She got a promotion.;apply for|nộp đơn xin|I want to apply for this job.;day off|ngày nghỉ|I'm taking a day off tomorrow."],
+ ["Ăn uống","menu|thực đơn|Can I see the menu?;delicious|ngon|This soup is delicious.;spicy|cay|I don't like spicy food.;order|gọi món|Are you ready to order?;bill|hóa đơn|Can we have the bill?;dessert|món tráng miệng|Let's share a dessert.;vegetarian|người ăn chay|My friend is vegetarian.;takeaway|mang đi|I'll get a takeaway.;recipe|công thức nấu ăn|Can you share the recipe?;fresh|tươi|The fish is very fresh.;breakfast|bữa sáng|I usually skip breakfast.;full|no|I'm full, thank you."],
+ ["Du lịch","passport|hộ chiếu|Don't forget your passport.;luggage|hành lý|My luggage is too heavy.;flight|chuyến bay|My flight is delayed.;booking|đặt chỗ|I made a booking online.;sightseeing|tham quan|We went sightseeing all day.;souvenir|quà lưu niệm|I bought some souvenirs.;check in|làm thủ tục|We need to check in at 2 p.m.;tourist|khách du lịch|The city is full of tourists.;map|bản đồ|Can you show me on the map?;local|người địa phương|Ask a local for directions.;beach|bãi biển|Let's go to the beach.;trip|chuyến đi|How was your trip?"],
+ ["Cảm xúc","happy|vui|I'm so happy for you.;tired|mệt|I'm really tired today.;excited|háo hức|I'm excited about the trip.;nervous|lo lắng, hồi hộp|I'm nervous about the test.;bored|chán|I'm bored at home.;surprised|ngạc nhiên|I was surprised by the news.;worried|lo lắng|Don't be worried.;proud|tự hào|I'm proud of you.;embarrassed|xấu hổ|I felt so embarrassed.;relaxed|thư giãn|I feel relaxed on weekends.;upset|buồn bực|She was upset with me.;grateful|biết ơn|I'm grateful for your help."]
+];
+const WLESS=WORDS_RAW.map(([title,s],li)=>({title,words:s.split(";").map((x,k)=>{const [en,vi,ex]=x.split("|");return{id:`W${li}k${k}`,en,vi,ex}})}));
+const ALL_WORDS=WLESS.flatMap(l=>l.words);
+const TUTOR={id:"free",kind:"free",title:"Sam",vi:"Gia sư AI · trò chuyện tự do",role:"Sam, a warm and patient English tutor having a casual chat with the learner, whose name is Thắng. Talk about everyday topics and follow the learner's interests",open:"Hi Thắng! How are you today?",chips:["I'm good, thanks!","A bit tired, actually.","Can we talk about travel?"]};
+const MODES=[
+ {id:"chat",t:"Trò chuyện",d:"Nói chuyện tự do với gia sư AI, có gợi ý câu trả lời và dịch nghĩa.",c:"y",ai:true,svg:'<rect x="14" y="16" width="44" height="30" rx="10"/><path d="M24 46l-6 10 16-10"/><rect x="42" y="34" width="42" height="28" rx="10" class="f2"/><circle cx="56" cy="48" r="3" class="dot"/><circle cx="64" cy="48" r="3" class="dot"/><circle cx="72" cy="48" r="3" class="dot"/>'},
+ {id:"call",t:"Gọi thoại",d:"Chỉ nói và nghe như một cuộc gọi, luyện phản xạ nói.",c:"b",ai:true,svg:'<rect x="34" y="10" width="30" height="56" rx="7"/><circle cx="49" cy="30" r="8" class="f2"/><path d="M39 52c3-7 17-7 20 0" class="f2"/><path d="M72 26c5 4 5 16 0 20M78 20c9 7 9 25 0 32" class="ln"/>'},
+ {id:"sent",t:"Chế độ câu",d:"Học các câu giao tiếp hằng ngày theo bài, nói theo và được chấm phát âm.",c:"g",ai:false,svg:'<path d="M14 40h4M22 32v16M28 26v28M34 34v12M40 29v22M46 36v8" class="ln"/><rect x="54" y="22" width="32" height="36" rx="8"/><path d="M61 34h18M61 42h12" class="ln2"/>'},
+ {id:"words",t:"Chế độ từ vựng",d:"Học từ vựng theo bộ, mỗi bài 12 thẻ, lật thẻ để xem nghĩa.",c:"p",ai:false,svg:'<rect x="20" y="16" width="30" height="42" rx="5" transform="rotate(-10 35 37)"/><rect x="46" y="18" width="30" height="42" rx="5" class="f2" transform="rotate(8 61 39)"/><path d="M61 30l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z" class="dot"/>'},
+ {id:"role",t:"Nhập vai",d:"Tình huống thực tế, nhân vật, tranh luận và mô tả ảnh.",c:"o",ai:false,svg:'<rect x="12" y="14" width="40" height="34" rx="8"/><path d="M20 26h24M20 34h16" class="ln2"/><rect x="44" y="30" width="40" height="34" rx="8" class="f2"/><circle cx="64" cy="43" r="6" class="dot"/><path d="M54 58c3-6 17-6 20 0" class="ln2"/>'},
+ {id:"listen",t:"Luyện nghe",d:"Nghe câu rồi gõ lại những gì bạn nghe được, xem đúng bao nhiêu.",c:"t",ai:false,svg:'<path d="M22 50V40a26 26 0 0 1 52 0v10" class="ln"/><rect x="16" y="44" width="14" height="22" rx="6"/><rect x="66" y="44" width="14" height="22" rx="6"/><path d="M40 52l8-6v14z" class="dot"/>'}
+];
+let learnMode=null,sentTopic=null,wordSel=null,lsn=null;
+function pct(a,b){return b?Math.round(a/b*100):0}
+function sentDone(items){return items.filter(s=>(S.shadow[s.id]||0)>=80).length}
+function vLearn(){
+ if(learnMode==="chat"||learnMode==="role")return vChat();
+ if(learnMode==="sent")return sentTopic?vSpeak():vSentList();
+ if(learnMode==="words")return vWords();
+ if(learnMode==="listen")return vListen();
+ $("#view").innerHTML=`<div class="stack"><h1>Chế độ học</h1>
+  <div class="modes">${MODES.map(m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg>${m.ai&&!SAMPLE?`<span class="pill">Cần Claude</span>`:""}</div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`).join("")}</div></div>`;
+ document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>openMode(b.dataset.m))}
+function openMode(m){
+ if(m==="chat"||m==="call"){if(!SAMPLE){toast("Chế độ này cần mạng và chạy trong app trên Claude");return}callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
+ else if(m==="role"){chatScen=null;callMode=false;learnMode="role"}
+ else{learnMode=m;sentTopic=null;wordSel=null;lsn=null}
+ if(TAB!=="learn")go("learn");else{vLearn();window.scrollTo(0,0)}}
+function backBar(title,fn){return`<div class="row" style="flex-wrap:nowrap"><button class="iconbtn" id="bk2" aria-label="Quay lại">${IC.back}</button><h1 style="font-size:1.35rem">${esc(title)}</h1></div>`}
+function wireBack(fn){$("#bk2").onclick=fn||(()=>{learnMode=null;vLearn();window.scrollTo(0,0)})}
+function progBar(p){return`<div class="prog"><span>${p}%</span><div><i style="width:${p}%"></i></div></div>`}
+function vSentList(){const p=pct(sentDone(ALL_SENT),ALL_SENT.length);
+ $("#view").innerHTML=`<div class="stack">${backBar("Chế độ câu")}
+  <p class="muted" style="margin:0">Học các cụm câu giao tiếp hằng ngày. Nghe câu mẫu, nói theo, đạt từ 80 điểm là câu đó hoàn thành.</p>${progBar(p)}
+  ${LESSONS.map((l,li)=>`<section class="stack" style="gap:8px"><div><span class="lno">Bài ${li+1}</span><h2>${esc(l.title)}</h2></div>
+   <div class="path">${l.topics.map((t,ti)=>{const d=sentDone(t.items),n=t.items.length;return`<button class="lesson" data-t="${t.id}"><span class="ring" style="--p:${pct(d,n)}"><span>${d===n?"✓":ti+1}</span></span><span class="t"><b>${esc(t.name)}</b><span class="muted small">${d}/${n} câu</span></span><span class="muted">›</span></button>`}).join("")}</div></section>`).join("")}</div>`;
+ wireBack();document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{sentTopic=LESSONS.flatMap(l=>l.topics).find(t=>t.id===b.dataset.t);shIdx=0;shRes=null;vSpeak();window.scrollTo(0,0)})}
+function vWords(){const learned=ALL_WORDS.filter(w=>S.words&&S.words[w.id]).length;S.words=S.words||{};
+ const sel=wordSel&&ALL_WORDS.find(w=>w.id===wordSel);
+ $("#view").innerHTML=`<div class="stack">${backBar("Chế độ từ vựng")}
+  <p class="muted" style="margin:0">Chạm vào một ngôi sao để mở thẻ từ. Đánh dấu "Đã thuộc" để hoàn thành.</p>${progBar(pct(learned,ALL_WORDS.length))}
+  ${WLESS.map((l,li)=>`<fieldset class="wbox"><legend><span class="lno pillno">Bài ${li+1}</span> ${esc(l.title)}</legend><div class="wgrid">${l.words.map(w=>`<button class="wt ${S.words[w.id]?"done":""} ${wordSel===w.id?"sel":""}" data-w="${w.id}" aria-label="${S.words[w.id]?esc(w.en):"Thẻ từ chưa mở"}">${S.words[w.id]||wordSel===w.id?`<span>${esc(w.en)}</span>`:IC.star}</button>`).join("")}</div>
+   ${sel&&l.words.includes(sel)?`<div class="wcard"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="phrase">${esc(sel.en)}</div><button class="iconbtn" id="wsp" aria-label="Nghe">${IC.spk}</button></div>
+    <div style="color:var(--ink);font-weight:600">${esc(sel.vi)}</div><div class="muted"><i>${esc(sel.ex)}</i> <button class="iconbtn" id="wsx" aria-label="Nghe ví dụ">${IC.spk}</button></div>
+    <div class="row"><button class="btn ${S.words[sel.id]?"":"primary"}" id="wok">${S.words[sel.id]?"Bỏ đánh dấu":"Đã thuộc"}</button><button class="btn" id="wadd">Thêm vào thẻ nhớ</button><button class="btn ghost" id="wnext">Từ tiếp ›</button></div></div>`:""}</fieldset>`).join("")}</div>`;
+ wireBack();
+ document.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{wordSel=b.dataset.w;vWords();const w=ALL_WORDS.find(x=>x.id===wordSel);speak(w.en);const c=$(".wcard");c&&c.scrollIntoView({block:"nearest",behavior:"smooth"})});
+ if(sel){$("#wsp").onclick=()=>speak(sel.en);$("#wsx").onclick=()=>speak(sel.ex);
+  $("#wok").onclick=()=>{if(S.words[sel.id])delete S.words[sel.id];else{S.words[sel.id]=1;addXp(2,"rev")}save();vWords()};
+  $("#wadd").onclick=()=>{if(allCards().some(c=>c.en.toLowerCase()===sel.en.toLowerCase())){toast("Từ này đã có trong thẻ nhớ");return}S.custom.push({id:"u"+Date.now(),topic:"mine",en:sel.en,vi:sel.vi,ex:sel.ex});save();toast("Đã thêm vào thẻ nhớ")};
+  $("#wnext").onclick=()=>{const i=ALL_WORDS.indexOf(sel);wordSel=ALL_WORDS[(i+1)%ALL_WORDS.length].id;vWords();speak(ALL_WORDS.find(x=>x.id===wordSel).en)}}}
+function vListen(){if(!lsn)lsn={s:ALL_SENT[Math.floor(Math.random()*ALL_SENT.length)],res:null,n:(S.listenN||0)};const s=lsn.s,r=lsn.res;
+ $("#view").innerHTML=`<div class="stack">${backBar("Luyện nghe")}
+  <p class="muted" style="margin:0">Bấm nghe (nghe lại bao nhiêu lần cũng được), rồi gõ lại câu bạn nghe được.</p>
+  <div class="panel stack" style="align-items:center;text-align:center">
+   <div class="row" style="justify-content:center"><button class="mic" id="lp" aria-label="Nghe câu">${IC.spk}</button><button class="btn" id="ls">${IC.slow}Nghe chậm</button></div>
+   ${r?`<div class="target">${r.T.map((w,i)=>`<span class="w ${r.ok[i]?"ok":"miss"}">${esc(w)}</span>`).join(" ")}</div><div style="color:var(--ink);font-weight:600">${esc(s.vi||"")}</div>
+    <div class="score" style="color:${r.score>=85?"var(--good)":r.score>=60?"var(--warn)":"var(--bad)"}">${r.score}<span class="small">%</span></div>
+    <button class="btn primary" id="lnext">Câu tiếp ›</button>`:
+   `<form id="lf" class="stack" style="width:100%;gap:8px"><textarea id="lin" rows="2" placeholder="Gõ câu bạn nghe được…" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn primary" style="justify-content:center">Kiểm tra</button></form>`}
+  </div><span class="muted small">Đã làm ${S.listenN||0} câu</span></div>`;
+ wireBack();$("#lp").onclick=()=>speak(s.t);$("#ls").onclick=()=>speak(s.t,true);
+ if(r)$("#lnext").onclick=()=>{lsn=null;vListen();setTimeout(()=>speak(lsn.s.t),100)};
+ else $("#lf").onsubmit=e=>{e.preventDefault();const v=$("#lin").value.trim();if(!v){toast("Gõ câu bạn nghe được trước nhé");return}lsn.res=align(s.t,v);S.listenN=(S.listenN||0)+1;addXp(Math.max(1,Math.round(lsn.res.score/20)),"shadow");vListen()}}
 
 /* ---------------- CONVERSATION ---------------- */
 const CHARS=[
@@ -519,18 +662,20 @@ function vChat(){
   else if(chatCat==="debate")body=ai?`<div class="scen">${DEBATES.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span>${S.conv[s.id]?`<span class="pill good" style="align-self:flex-start">Đã tranh luận ${S.conv[s.id]} lượt</span>`:""}</button>`).join("")}</div>`:needAi;
   else body=ai?`<div class="panel stack"><p style="margin:0">Chọn một bức ảnh trong máy (ảnh du lịch, món ăn, đường phố, nơi làm việc...). Bạn tả lại bằng tiếng Anh, Claude sẽ hỏi thêm chi tiết và gợi ý từ mới.</p>
    <label class="btn primary" style="align-self:flex-start" for="photoIn">Chọn ảnh</label><input type="file" id="photoIn" accept="image/*" hidden></div>`:needAi;
-  $("#view").innerHTML=`<div class="stack"><h1>Hội thoại</h1>
+  $("#view").innerHTML=`<div class="stack">${backBar("Nhập vai")}
    <div class="topics" role="group" aria-label="Kiểu luyện nói">${CATS.map(([k,v])=>`<button data-cat="${k}" aria-pressed="${chatCat===k}">${v}</button>`).join("")}</div>
    <p class="muted small" style="margin:0">${ai?"Claude đóng vai người đối diện, sửa lỗi sau mỗi câu và tổng kết khi bạn bấm Kết thúc. Bật <b>Gọi điện</b> trong buổi nói để chỉ nói và nghe, không cần nhìn chữ.":"Bạn đang luyện theo kịch bản có sẵn kèm câu trả lời mẫu."}</p>${body}</div>`;
-  document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{chatCat=b.dataset.cat;vChat()});
+  wireBack();document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{chatCat=b.dataset.cat;vChat()});
   document.querySelectorAll(".scen button").forEach(b=>b.onclick=()=>startSession(SCEN.concat(CHARS,DEBATES).find(s=>s.id===b.dataset.id)));
   $("#photoIn")&&($("#photoIn").onchange=e=>{const f=e.target.files[0];if(!f)return;if(photoUrl)URL.revokeObjectURL(photoUrl);photoBlob=f;photoUrl=URL.createObjectURL(f);startSession(PHOTO)});
   return}
- const s=chatScen;if(!chatMsgs){chatMsgs=[{r:"ai",t:s.open}];scriptStep=0;setTimeout(()=>speak(s.open),50)}
+ const s=chatScen;if(!chatMsgs){chatMsgs=[{r:"ai",t:s.open,sug:s.chips||(s.sample?[s.sample[0]]:[])}];scriptStep=0;if(S.settings.autoSpeak!==false||callMode)setTimeout(()=>speak(s.open),50)}
  const aiMode=!!SAMPLE;const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai");const turns=chatMsgs.filter(m=>m.r==="me").length;
- const head=`<div class="row" style="justify-content:space-between"><button class="btn ghost" id="back">‹ Chọn bài khác</button>
-   <div class="row" style="gap:6px">${aiMode?`<button class="btn ${callMode?"primary":""}" id="callT" aria-pressed="${callMode}">${IC.phone}${callMode?"Đang gọi":"Gọi điện"}</button>`:`<span class="pill mode">Kịch bản có sẵn</span>`}</div></div>
-  <div><h2>${esc(s.title)}</h2><div class="muted small">${esc(s.vi)}</div></div>
+ const head=`<div class="chead"><button class="iconbtn" id="back" aria-label="Quay lại">${IC.back}</button>
+   <span class="av">${esc((s.title||"A").trim()[0])}${aiMode?`<i class="online"></i>`:""}</span>
+   <div class="who"><b>${esc(s.title)}</b><span class="muted small">${aiMode?(callMode?"Đang gọi thoại":"Đang hoạt động"):"Kịch bản có sẵn"} · ${esc(s.vi)}</span></div>
+   <button class="iconbtn" id="autoSp" aria-pressed="${S.settings.autoSpeak!==false}" aria-label="${S.settings.autoSpeak!==false?"Tắt":"Bật"} tự đọc câu trả lời">${S.settings.autoSpeak!==false?IC.spk:IC.mute}</button>
+   ${aiMode?`<button class="iconbtn ${callMode?"on":""}" id="callT" aria-pressed="${callMode}" aria-label="${callMode?"Chuyển sang nhắn tin":"Chuyển sang gọi thoại"}">${callMode?IC.chat:IC.phone}</button>`:""}</div>
   ${s.kind==="photo"&&photoUrl?`<img src="${photoUrl}" alt="Ảnh bạn đang mô tả" class="photo">`:""}`;
  const endBtn=aiMode&&turns>=2?`<button class="btn mark" id="endS">Kết thúc và nhận xét</button>`:"";
  if(summary||summaryBusy){$("#view").innerHTML=`<div class="stack">${head}${renderSummary()}</div>`;wireHead();wireSummary();return}
@@ -549,9 +694,9 @@ function vChat(){
   $("#cmic").onclick=e=>startMic({partial:t=>{$("#clive").textContent=t},done:t=>{if(t)send(t)}},e.currentTarget);
   $("#rep").onclick=()=>lastAi&&speak(lastAi.t);wireHint();$("#endS")&&($("#endS").onclick=endSession);return}
  $("#view").innerHTML=`<div class="stack">${head}
-  <div class="panel"><div class="chat" id="chat">${chatMsgs.map((m,i)=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?`<div class="tools"><button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button><button class="iconbtn" data-slow="${esc(m.t)}" aria-label="Nghe chậm">${IC.slow}</button>${SAMPLE?`<button class="tr" data-tr="${i}">${m.vi?"Ẩn dịch":"Dịch"}</button>`:""}</div>${m.vi&&m.showVi?`<div class="vi-tr">${esc(m.vi)}</div>`:""}`:""}</div>`).join("")}${chatBusy?`<div class="msg ai typing" aria-label="Claude đang trả lời"><i></i><i></i><i></i></div>`:""}</div></div>
-  <form class="compose" id="cf"><textarea id="cin" rows="1" placeholder="Nói hoặc gõ tiếng Anh…" ${chatBusy?"disabled":""}></textarea>
-   <button type="button" class="mic" id="cmic" aria-label="Nói">${IC.mic}</button><button class="btn primary" aria-label="Gửi" ${chatBusy?"disabled":""}>${IC.send}</button></form>
+  <div class="panel"><div class="chat" id="chat">${chatMsgs.map((m,i)=>m.r==="fb"?`<div class="fb">${m.h}</div>`:`<div class="msg ${m.r}">${esc(m.t)}${m.r==="ai"?`<div class="tools"><button class="iconbtn" data-say="${esc(m.t)}" aria-label="Nghe">${IC.spk}</button><button class="iconbtn" data-slow="${esc(m.t)}" aria-label="Nghe chậm">${IC.slow}</button>${SAMPLE?`<button class="tr" data-tr="${i}">${m.vi?"Ẩn dịch":"Dịch"}</button>`:""}</div>${m.vi&&m.showVi?`<div class="vi-tr">${esc(m.vi)}</div>`:""}`:""}</div>`).join("")}${chatBusy?`<div class="msg ai typing" aria-label="Claude đang trả lời"><i></i><i></i><i></i></div>`:chipsHtml()}</div></div>
+  <form class="compose" id="cf"><input type="text" id="cin" placeholder="Aa · gõ tiếng Anh" autocomplete="off" ${chatBusy?"disabled":""}>
+   <button class="iconbtn sendb" aria-label="Gửi" ${chatBusy?"disabled":""}>${IC.send}</button><button type="button" class="mic" id="cmic" aria-label="Nói">${IC.mic}</button></form>
   <div class="row">${endBtn}<button class="btn ghost small" id="hint">Gợi ý câu trả lời</button><button class="btn ghost small" id="restart">Làm lại từ đầu</button></div>
   <div id="hintBox"></div></div>`;
  const ch=$("#chat");ch.scrollTop=ch.scrollHeight;wireHead();
@@ -562,9 +707,10 @@ function vChat(){
  $("#restart").onclick=()=>{chatMsgs=null;vChat()};
  $("#cmic").onclick=e=>startMic({partial:t=>{$("#cin").value=t},done:t=>{if(t)send(t)}},e.currentTarget);
  $("#cf").onsubmit=e=>{e.preventDefault();const t=$("#cin").value.trim();if(t)send(t)};
- $("#cin").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#cf").requestSubmit()}};
+ document.querySelectorAll("[data-chip]").forEach(b=>b.onclick=()=>send(b.dataset.chip));
  wireHint();$("#endS")&&($("#endS").onclick=endSession);}
-function wireHead(){$("#back").onclick=()=>{chatScen=null;summary=null;vChat()};$("#callT")&&($("#callT").onclick=()=>{callMode=!callMode;vChat()})}
+function chipsHtml(){const m=chatMsgs[chatMsgs.length-1];if(!m||m.r!=="ai"||!m.sug||!m.sug.length)return"";return`<div class="chips">${m.sug.map(x=>`<button class="chip" data-chip="${esc(x)}">${esc(x)}</button>`).join("")}</div>`}
+function wireHead(){$("#back").onclick=()=>{summary=null;if(learnMode==="role"&&chatScen){chatScen=null;vChat()}else{chatScen=null;learnMode=null;vLearn()}window.scrollTo(0,0)};$("#autoSp").onclick=()=>{S.settings.autoSpeak=S.settings.autoSpeak===false;save();if(S.settings.autoSpeak===false)try{TTS&&TTS.stop();speechSynthesis.cancel()}catch(e){}vChat()};$("#callT")&&($("#callT").onclick=()=>{callMode=!callMode;vChat()})}
 async function wireHint(){const btn=$("#hint");if(!btn)return;btn.onclick=async()=>{const s=chatScen;let h;
   if(s.sample)h=s.sample[Math.min(scriptStep,s.sample.length-1)];
   else if(SAMPLE){btn.disabled=true;try{const lastAi=[...chatMsgs].reverse().find(m=>m.r==="ai").t;h=(await SAMPLE(`A Vietnamese learner of English must reply to this line in a conversation: "${lastAi}". Write ONE natural, simple reply they could say (max 20 words). Output only the reply.`,{modelTier:"quick"})).text.trim()}catch(e){h=""}btn.disabled=false}
@@ -572,7 +718,7 @@ async function wireHint(){const btn=$("#hint");if(!btn)return;btn.onclick=async(
 async function send(text){if(chatBusy)return;const s=chatScen;chatMsgs.push({r:"me",t:text});addXp(5,"conv");S.conv[s.id]=(S.conv[s.id]||0)+1;save();
  if(!SAMPLE){const sc=s.script||[];const reply=scriptStep<sc.length?sc[scriptStep]:"It was great talking with you! Want to try another situation?";
   const model=s.sample?s.sample[Math.min(scriptStep,s.sample.length-1)]:"";scriptStep++;
-  if(model)chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply});vChat();speak(reply);return}
+  if(model)chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply,sug:s.sample&&s.sample[scriptStep]?[s.sample[scriptStep]]:[]});vChat();if(S.settings.autoSpeak!==false)speak(reply);return}
  chatBusy=true;vChat();
  const hist=chatMsgs.filter(m=>m.r!=="fb").map(m=>(m.r==="ai"?"Partner: ":"Learner: ")+m.t).join("\n");
  const prompt=`You are an English conversation partner for a Vietnamese adult learning spoken English at CEFR level ${S.settings.level||"B1"}. Match your vocabulary and sentence length to that level.
@@ -581,12 +727,12 @@ Also check the learner's LAST message for grammar, word choice or unnatural phra
 Conversation so far:
 ${hist}
 
-Return JSON only: {"reply": "<your next line in English>", "ok": <true if the learner's last message was correct and natural>, "better": "<a more natural English version of the learner's last message, or empty string if already good>", "note_vi": "<one short explanation in Vietnamese of the mistake or a tip, max 25 words; if ok, a short praise in Vietnamese>"}`;
+Return JSON only: {"reply": "<your next line in English>", "ok": <true if the learner's last message was correct and natural>, "better": "<a more natural English version of the learner's last message, or empty string if already good>", "note_vi": "<one short explanation in Vietnamese of the mistake or a tip, max 25 words; if ok, a short praise in Vietnamese>", "suggestions": ["<3 short, different replies (2-8 words each) the learner could say next to YOUR reply>"]}`;
  const opts={modelTier:"quick",cache:false};if(s.kind==="photo"&&photoBlob)opts.images=[photoBlob];
  try{const r=await SAMPLE.json(prompt,opts);
   const fb=r.ok&&!r.better?`<b>Tốt lắm!</b> ${esc(r.note_vi||"")}`:`${r.better?`<span class="fix">Tự nhiên hơn:</span> ${esc(r.better)}<br>`:""}${esc(r.note_vi||"")}`;
-  chatMsgs.push({r:"fb",h:fb,ok:!!r.ok,better:r.better||"",you:text});chatMsgs.push({r:"ai",t:String(r.reply||"Sorry, could you say that again?")});scriptStep++;
-  chatBusy=false;vChat();speak(chatMsgs[chatMsgs.length-1].t)}
+  chatMsgs.push({r:"fb",h:fb,ok:!!r.ok,better:r.better||"",you:text});chatMsgs.push({r:"ai",t:String(r.reply||"Sorry, could you say that again?"),sug:Array.isArray(r.suggestions)?r.suggestions.slice(0,3).map(String):[]});scriptStep++;
+  chatBusy=false;vChat();if(S.settings.autoSpeak!==false||callMode)speak(chatMsgs[chatMsgs.length-1].t)}
  catch(e){chatBusy=false;if(e&&e.code==="not_granted"){SAMPLE=null;toast("Claude chưa được cho phép, chuyển sang kịch bản");chatMsgs.pop();if(s.script){send(text);return}chatScen=null;vChat();return}
   if(e&&(e.code==="images_unavailable"||e.code==="image_rejected")){photoBlob=null;toast("Không gửi được ảnh, Claude sẽ trò chuyện không kèm ảnh")}
   chatMsgs.push({r:"fb",h:esc(e&&e.code==="rate_limited"?"Claude đang bận, đợi vài giây rồi gửi lại nhé.":"Chưa nhận được trả lời. Kiểm tra mạng rồi gửi lại.")});vChat()}}
@@ -626,7 +772,7 @@ function vStats(){const days=Object.entries(S.log);const total=days.reduce((a,[,
   <div class="panel stack" style="gap:6px"><div class="label">XP 7 ngày qua · vạch đứt là mục tiêu ${S.settings.goal} XP</div>
    <div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:520px" role="img" aria-label="Biểu đồ XP 7 ngày"><line x1="24" x2="${W-6}" y1="110" y2="110" stroke="var(--line)"/><line x1="24" x2="${W-6}" y1="${gy}" y2="${gy}" stroke="var(--muted)" stroke-dasharray="4 4"/>${bars}</svg></div></div>
   <div class="grid2"><div class="panel"><h3>Thẻ đã học theo chủ đề</h3><table class="mini">${byTopic.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${b}</td></tr>`).join("")}<tr><td>Thẻ của bạn</td><td>${S.custom.filter(c=>S.cards[c.id]).length}/${S.custom.length}</td></tr></table></div>
-   <div class="panel"><h3>Hoạt động</h3><table class="mini"><tr><td>Số ngày đã học</td><td>${active}</td></tr><tr><td>Câu đã nói đuổi</td><td>${sh.length}/${SHADOW.length}</td></tr><tr><td>Lượt hội thoại</td><td>${convT}</td></tr><tr><td>Buổi nói có nhận xét</td><td>${(S.sessions||[]).length}${(S.sessions||[]).length?" · gần nhất "+S.sessions[S.sessions.length-1].score+" điểm":""}</td></tr><tr><td>Tình huống đã thử</td><td>${Object.keys(S.conv).length}/${SCEN.length}</td></tr></table></div></div>
+   <div class="panel"><h3>Hoạt động</h3><table class="mini"><tr><td>Số ngày đã học</td><td>${active}</td></tr><tr><td>Câu đã luyện nói</td><td>${sh.length}/${ALL_SENT.length}</td></tr><tr><td>Từ vựng đã thuộc</td><td>${Object.keys(S.words||{}).length}/${ALL_WORDS.length}</td></tr><tr><td>Câu luyện nghe</td><td>${S.listenN||0}</td></tr><tr><td>Lượt hội thoại</td><td>${convT}</td></tr><tr><td>Buổi nói có nhận xét</td><td>${(S.sessions||[]).length}${(S.sessions||[]).length?" · gần nhất "+S.sessions[S.sessions.length-1].score+" điểm":""}</td></tr><tr><td>Tình huống đã thử</td><td>${Object.keys(S.conv).length}/${SCEN.length}</td></tr></table></div></div>
   <div class="panel stack"><h3>Cài đặt</h3>
    <div class="grid2">
     <label class="stack" style="gap:4px"><span class="small">Mục tiêu mỗi ngày</span><select id="sGoal">${[30,50,80,120].map(v=>`<option value="${v}" ${S.settings.goal==v?"selected":""}>${v} XP (~${Math.round(v/3.5)} phút)</option>`).join("")}</select></label>
@@ -672,13 +818,13 @@ if(!(window.claude&&window.claude.use)){DICT=nativeDict();if(DICT)wireDict();
  syncMsg="Dữ liệu lưu ngay trên máy này và dùng được khi không có mạng. Thỉnh thoảng hãy sao chép bản sao lưu bên dưới để phòng khi xoá dữ liệu trình duyệt.";}
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------------- BOOT ---------------- */
-const h0=location.hash.slice(1);if(["today","vocab","speak","chat","stats"].includes(h0))TAB=h0;
+const h0=location.hash.slice(1);if(["today","vocab","learn","stats"].includes(h0))TAB=h0;else if(h0==="speak"||h0==="chat")TAB="learn";
 go(TAB);
-window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h!==TAB&&["today","vocab","speak","chat","stats"].includes(h))go(h)});
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h!==TAB&&["today","vocab","learn","stats"].includes(h))go(h)});
 (async()=>{const c=window.claude;if(!c||!c.use)return;
  c.use("tts").then(t=>{TTS=t}).catch(()=>{});
- c.use("dictation").then(d=>{if(d){DICT=d;wireDict();if(TAB==="speak")render()}}).catch(()=>{});
- c.use("sample").then(s=>{if(s){SAMPLE=s;if(TAB==="chat")render()}}).catch(()=>{});
+ c.use("dictation").then(d=>{if(d){DICT=d;wireDict();if(TAB==="learn")render()}}).catch(()=>{});
+ c.use("sample").then(s=>{if(s){SAMPLE=s;if(TAB==="learn"||TAB==="today")render()}}).catch(()=>{});
  try{const [db,user]=await Promise.all([c.use("db"),c.use("user")]);if(!db||!user)return;const id=await user.id();if(!id)return;
   const ref=db.collection("data/users/"+id).doc("progress");const snap=await ref.get();
   if(snap.exists){const d=snap.data();if(d&&d.updatedAt>(S.updatedAt||0)&&d.json){S=Object.assign(fresh(),JSON.parse(d.json));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render()}}
