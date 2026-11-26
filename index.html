@@ -218,6 +218,21 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .lg{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .lg.rk{background:var(--good)}.lg.rb{background:var(--bad)}.lg.rg{background:var(--muted)}
 .strs{color:var(--bad)}
+.rtxt{gap:10px 4px!important;align-items:flex-start}
+.rwb{display:inline-flex;flex-direction:column;align-items:center;gap:2px;border-radius:8px;padding:2px}
+.rwb.ck{background:color-mix(in srgb,var(--mark) 45%,transparent)}
+.rw.now{background:var(--mark);color:var(--mark-fg)}
+.rw.pk{outline:2px solid var(--ink)}
+.rv{font:600 .82rem var(--f-body);color:var(--ink);white-space:nowrap}
+.rv .vs,.rvbig .vs,b.vs{color:var(--bad);font-weight:800}
+.rip{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.fin{font-style:normal;font-size:.72em;color:var(--bad);vertical-align:super;margin-left:1px}
+.lk{color:var(--bad);font-weight:800;font-size:1.3rem;align-self:center;margin:0 -2px}
+.rpop{border:2px solid var(--ink);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--ink) 5%,var(--surface))}
+.rvbig{font:700 1.5rem var(--f-body);color:var(--ink)}
+.rvbig>span.now{background:var(--mark);border-radius:6px}
+.vline{font-weight:600;color:var(--ink)}
+
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
 .mc{min-height:62px;border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;background:var(--surface);color:var(--fg);font:500 1.05rem var(--f-body);padding:10px 8px;cursor:pointer;line-height:1.25;transition:transform .08s}
 .mc:active{transform:translateY(2px)}
@@ -715,7 +730,7 @@ function vDrill(){const d=DR;if(!d){learnMode=null;return vLearn()}if(d.i>=d.ite
    <div class="row" style="justify-content:space-between"><span class="pill ${it.tag==="Ôn lại"?"bad":""}">${esc(it.tag||"")}</span><span class="muted small">${d.i+1}/${n}</span></div>
    ${tr?`<div class="label">Nói câu này bằng tiếng Anh</div><div class="phrase">${esc(it.vi)}</div>
      ${r?`<div class="label">Đáp án mẫu</div><div class="target">${esc(it.t)}</div>${r.T.some((w,i)=>!r.ok[i])&&r.heard&&!r.heard.startsWith("(")?`<div class="small muted">Từ bạn còn thiếu hoặc nói khác: <b>${esc(r.T.filter((w,i)=>!r.ok[i]).join(", "))}</b></div>`:""}`:d.hint?`<div class="tip">Gợi ý: <b>${esc(hintTxt)}</b> …</div>`:""}`
-    :`<div class="target">${tWords}</div>${it.ipa?`<div class="ipa">${esc(it.ipa)}</div>`:""}${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}${it.ex?`<div class="muted"><i>${esc(it.ex)}</i></div>`:""}${it.note?`<div class="small muted">${esc(it.note)}</div>`:""}`}
+    :`<div class="target">${tWords}</div>${it.ipa?`<div class="ipa">${esc(it.ipa)}</div>`:""}<div class="vline small">Đọc: ${it.ipa&&norm(it.t).length===1?viFromIPA(it.ipa):viLine(it.t)}</div>${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}${it.ex?`<div class="muted"><i>${esc(it.ex)}</i></div>`:""}${it.note?`<div class="small muted">${esc(it.note)}</div>`:""}`}
    <div class="row">${!tr||r?`<button class="btn" id="dl1">${IC.spk}Nghe</button><button class="btn" id="dl2">${IC.slow}Nghe chậm</button>`:`<button class="btn" id="dh">Gợi ý</button><button class="btn ghost" id="dshow">Xem đáp án</button>`}</div>
    <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic" id="dmic" aria-label="Bấm để nói, bấm lần nữa để dừng">${IC.mic}</button>
     <div style="flex:1;min-width:0" class="stack"><div class="label">Máy nghe được</div><div class="heard" id="dheard">${r?esc(r.heard):`<span class="muted">${tr?"Bấm micro và nói câu tiếng Anh…":"Nghe mẫu, rồi bấm micro và đọc theo…"}</span>`}</div></div>
@@ -799,7 +814,7 @@ function vDaily(){if(!S.daily||S.daily.d!==dkey())buildDaily();const D=S.daily;
  </div>`;
  wireBack();$("#dgo")&&($("#dgo").onclick=runStage);$("#dredo")&&($("#dredo").onclick=()=>{buildDaily();vDaily()})}
 // ===== Luyện đọc (shadowing / pronunciation) =====
-let RD={view:"home",tab:"type",text:"",items:[],i:0,res:null,retry:null,acc:"us",rate:.8,rec:!/Android/i.test(navigator.userAgent),audio:null,vt:0};
+let RD={view:"home",tab:"type",text:"",items:[],i:0,res:null,retry:null,acc:"us",rate:.8,show:"vi",pop:null,popRes:null,playing:false,rec:!/Android/i.test(navigator.userAgent),audio:null,vt:0};
 const IPA_MAP=(()=>{let m=null;return()=>{if(m)return m;m={};(VT||loadVTSync()||[]).forEach(t=>t.words.forEach(w=>{const k=w.en.toLowerCase().trim();if(/^[a-z'-]+$/.test(k)&&w.ipa&&!m[k])m[k]=w.ipa}));
  [["the","/ðə/"],["a","/ə/"],["is","/ɪz/"],["are","/ɑːr/"],["to","/tuː/"],["you","/juː/"],["i","/aɪ/"],["it","/ɪt/"],["and","/ænd/"],["of","/əv/"],["in","/ɪn/"],["my","/maɪ/"],["your","/jɔːr/"],["what","/wʌt/"],["this","/ðɪs/"],["that","/ðæt/"],["have","/hæv/"],["do","/duː/"],["can","/kæn/"],["like","/laɪk/"],["think","/θɪŋk/"],["thank","/θæŋk/"],["three","/θriː/"],["with","/wɪð/"],["work","/wɜːrk/"],["very","/ˈveri/"],["really","/ˈriːəli/"],["world","/wɜːrld/"],["water","/ˈwɔːtər/"],["would","/wʊd/"],["she","/ʃiː/"],["he","/hiː/"],["we","/wiː/"],["they","/ðeɪ/"],["there","/ðer/"],["where","/wer/"],["how","/haʊ/"],["for","/fɔːr/"],["at","/æt/"],["on","/ɑːn/"],["go","/ɡoʊ/"],["want","/wɑːnt/"],["need","/niːd/"],["good","/ɡʊd/"],["time","/taɪm/"],["people","/ˈpiːpl/"],["english","/ˈɪŋɡlɪʃ/"],["because","/bɪˈkɔːz/"],["about","/əˈbaʊt/"]].forEach(([k,v])=>{if(!m[k])m[k]=v});return m}})();
 function ipaHtml(ip){return esc(ip).replace(/ˈ(.)/g,'<b class="strs">ˈ$1</b>')}
@@ -846,7 +861,7 @@ function pbDue(){return Object.values(S.pbook||{}).filter(o=>o.due<=dkey())}
 function rdLog(score){S.rdlog=S.rdlog||{};const k=dkey();const o=S.rdlog[k]||(S.rdlog[k]={n:0,sum:0,best:0});o.n++;o.sum+=score;o.best=Math.max(o.best,score)}
 function rdStreak(){const L=S.rdlog||{};let n=0;for(let d=0;d<400;d++){const k=dkey(new Date(Date.now()-d*DAY));if(L[k]&&L[k].n)n++;else if(d>0)break}return n}
 function rdItemsFromText(t){return splitSent(t).map(s=>s.trim()).filter(s=>norm(s).length).slice(0,40)}
-function vRead(){const v=RD.view;if(v==="prac")return vReadPrac();if(v==="book")return vReadBook();return vReadHome()}
+function vRead(){if(S.settings.rdShow&&!RD._sh){RD.show=S.settings.rdShow;RD._sh=1}const v=RD.view;if(v==="prac")return vReadPrac();if(v==="book")return vReadBook();return vReadHome()}
 function vReadHome(){const vt=VT||loadVTSync()||[];const L=S.rdlog||{};const days=[...Array(7)].map((_,i)=>dkey(new Date(Date.now()-(6-i)*DAY)));const td=L[dkey()];
  const due=pbDue().length,tot=Object.keys(S.pbook||{}).length;
  $("#view").innerHTML=`<div class="stack">${backBar("Luyện đọc")}
@@ -872,19 +887,33 @@ function vReadHome(){const vt=VT||loadVTSync()||[];const L=S.rdlog||{};const day
  $("#rGoC")&&($("#rGoC").onclick=()=>{const t=vt[RD.vt];startItems(t.words.filter(w=>/[a-z]{2,}.*\s.*[a-z]/i.test(w.ctx)&&!/[ăâđêôơưáàảãạ]/i.test(w.ctx)).map(w=>({t:w.ctx})).concat(t.words.map(w=>({t:w.en.replace(/…/g,""),vi:w.vi,ipa:w.ipa}))).slice(0,30),t.title)});
  $("#rGoS")&&($("#rGoS").onclick=()=>{const [li,ti]=$("#rLs").value.split(".").map(Number);const tp=LESSONS[li].topics[ti];startItems(tp.items.map(s=>({t:s.t,vi:s.vi})),tp.name)})}
 function vReadPrac(){const it=RD.retry?{t:RD.retry.q[RD.retry.k]}:RD.items[RD.i];const r=RD.res;const M=IPA_MAP();const words=it.t.split(/\s+/).filter(Boolean);
- const nw=norm(it.t);const ipaLine=it.ipa?ipaHtml(it.ipa):words.map(w=>{const k=norm(w)[0];return k&&M[k]?`<span style="white-space:nowrap"><span class="muted">${esc(k)}</span> ${ipaHtml(M[k])}</span>`:""}).filter(Boolean).join(" · ");
+ const sv=RD.show==="vi"||RD.show==="both",si=RD.show==="ipa"||RD.show==="both";const single=words.length===1;
+ const ipaLine=si&&it.ipa&&!single?ipaHtml(it.ipa):"";const viWhole=sv&&it.ipa&&words.length>1&&norm(it.t).length===ipaTokens(it.ipa).filter(x=>x===" ").length+1;
  // map display words to norm index for coloring
- let ni=0;const disp=words.map(w=>{const k=norm(w);const idx=k.length?ni:-1;ni+=k.length;const cls=r&&idx>=0&&r.st[idx]?(r.st[idx]==="ok"?"rk":r.st[idx]==="bad"?"rb":"rg"):"";return`<button class="rw ${cls}" data-rw="${esc(w.replace(/[^A-Za-z'’-]/g,""))}" title="${r&&idx>=0&&r.st[idx]==="bad"?"Máy nghe thành: "+esc(r.got[idx]):"Chạm để nghe"}">${esc(w)}</button>`}).join(" ");
+ const wholeVi=viWhole?ipaToVi(it.ipa):null;
+ let ni=0;const disp=words.map((w,wi)=>{const k=norm(w);const idx=k.length?ni:-1;ni+=k.length;const cls=r&&idx>=0&&r.st[idx]?(r.st[idx]==="ok"?"rk":r.st[idx]==="bad"?"rb":"rg"):"";
+  const vv=sv?(wholeVi&&wholeVi[wi]?viHtml({syl:wholeVi[wi],guess:false}):single&&it.ipa?viFromIPA(it.ipa):viHtml(viSpell(w))):"";const ip=si?(single&&it.ipa?it.ipa:ipaOf(w)):"";
+  const lk=wi+1<words.length&&!/[,.;:!?…]$/.test(w)&&endsConsSound(w)&&startsVowelSound(words[wi+1]);
+  return`<span class="rwb"><button class="rw ${cls} ${RD.pop===wi?"pk":""}" data-k="${wi}" data-rw="${esc(w.replace(/[^A-Za-z'’-]/g,""))}" title="${r&&idx>=0&&r.st[idx]==="bad"?"Máy nghe thành: "+esc(r.got[idx]):"Chạm để xem cách đọc"}">${esc(w)}</button>${vv?`<span class="rv">${vv}</span>`:""}${ip?`<span class="rip">${ipaHtml(ip)}</span>`:""}</span>${lk?`<span class="lk" title="Nối âm: đọc liền hai từ">‿</span>`:""}`}).join("");
+ const pw=RD.pop!=null&&words[RD.pop]?words[RD.pop].replace(/[^A-Za-z'’-]/g,""):"";const pv=pw?(single&&it.ipa?{syl:ipaToVi(it.ipa)[0]||[],guess:false,ipa:it.ipa}:viSpell(pw)):null;
+ const pmean=pw?((VT||[]).flatMap(t=>t.words).find(x=>x.en.toLowerCase()===pw.toLowerCase())||{}).vi||it.vi&&single&&it.vi||"":"";
  const col=r?(r.score>=85?"var(--good)":r.score>=60?"var(--warn)":"var(--bad)"):"";const wrong=r?r.T.filter((w,i)=>r.st[i]!=="ok"):[];
  const n=RD.items.length;
  $("#view").innerHTML=`<div class="stack">${backBar(RD.retry?"Luyện lại từ sai":RD.title||"Luyện đọc")}
   ${RD.retry?`<p class="muted small" style="margin:0">Từ ${RD.retry.k+1}/${RD.retry.q.length} · đọc đúng (từ 80 điểm) để sang từ tiếp theo.</p>`:progBar(Math.round(RD.i/n*100))}
   <div class="panel stack">
-   <div class="row" style="justify-content:space-between"><span class="muted small">${RD.retry?"Từ đọc sai":`Câu ${RD.i+1}/${n}`} · chạm vào từng từ để nghe riêng</span>
+   <div class="row" style="justify-content:space-between"><span class="muted small">${RD.retry?"Từ đọc sai":`Câu ${RD.i+1}/${n}`} · chạm từ để xem cách đọc</span>
     <span class="row" style="gap:4px">${[["us","Mỹ"],["uk","Anh"]].map(([k,l])=>`<button class="chip ${RD.acc===k?"on":""}" data-acc="${k}" aria-pressed="${RD.acc===k}">${l}</button>`).join("")}</span></div>
+   <div class="row small" style="gap:6px"><span class="muted">Cách đọc:</span>${[["vi","Chữ Việt"],["ipa","IPA"],["both","Cả hai"],["off","Ẩn"]].map(([k,l])=>`<button class="chip ${RD.show===k?"on":""}" data-show="${k}" aria-pressed="${RD.show===k}">${l}</button>`).join("")}</div>
    <div class="target rtxt">${disp}</div>
-   ${ipaLine?`<div class="ipa">${ipaLine}</div>`:""}${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}
-   <div class="row" style="gap:6px">${[.6,.8,1].map(x=>`<button class="chip ${RD.rate===x?"on":""}" data-rate="${x}" aria-pressed="${RD.rate===x}">${x}x</button>`).join("")}<button class="btn" id="rL">${IC.spk}Nghe mẫu</button></div>
+   ${ipaLine?`<div class="ipa">${ipaLine}</div>`:""}
+   ${sv?`<p class="muted small" style="margin:0">Đọc theo dòng chữ Việt: âm tiết <b class="vs">IN HOA</b> đọc to và dài hơn (trọng âm), chữ <i class="fin">đỏ nhỏ</i> là âm cuối phải bật nhẹ ra, đừng nuốt. Dấu <span class="lk">‿</span> là nối liền hai từ.</p>`:""}
+   ${pw?`<div class="rpop"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:1.3rem">${esc(pw)}</b><button class="iconbtn" id="pClose" aria-label="Đóng">✕</button></div>
+     ${pv&&pv.syl.length?`<div class="rvbig">${viHtml(pv)}</div>`:""}${pv&&pv.ipa?`<div class="ipa">${ipaHtml(pv.ipa)}</div>`:""}${pmean?`<div style="font-weight:600">${esc(pmean)}</div>`:""}
+     <div class="row"><button class="btn" id="pN">${IC.spk}Nghe</button><button class="btn" id="pS">${IC.slow}Rất chậm</button><button class="btn" id="pSyl">Từng âm tiết</button><button class="mic" id="pMic" aria-label="Đọc thử từ này">${IC.mic}</button></div>
+     ${RD.popRes?`<div class="tip">${RD.popRes.score>=80?"<b>Đúng rồi!</b>":"<b>Chưa chuẩn.</b> Máy nghe thành “"+esc(RD.popRes.heard)+"”. Nghe Rất chậm rồi thử lại."} (${RD.popRes.score} điểm)</div>`:""}</div>`:""}${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}
+   <div class="row" style="gap:6px">${[.6,.8,1].map(x=>`<button class="chip ${RD.rate===x?"on":""}" data-rate="${x}" aria-pressed="${RD.rate===x}">${x}x</button>`).join("")}<button class="btn" id="rL">${IC.spk}Nghe mẫu</button>${words.length>3?`<button class="btn ${RD.playing?"primary":""}" id="rCk">${RD.playing?"Dừng":"Đọc từng cụm"}</button>`:""}</div>
+   <div class="small" id="rStat" style="min-height:1.2em;font-weight:600;color:var(--ink)"></div>
    <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic big" id="rMic" aria-label="Bấm để đọc, bấm lần nữa để dừng">${IC.mic}</button>
     <div style="flex:1;min-width:0" class="stack"><div class="label row" style="justify-content:space-between"><span>Máy nghe được</span><span class="lvl" aria-hidden="true"><i id="rLvl"></i></span></div><div class="heard" id="rHeard">${r?esc(r.heard):'<span class="muted">Bấm micro rồi đọc to, rõ ràng…</span>'}</div></div>
     ${r?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
@@ -898,10 +927,24 @@ function vReadPrac(){const it=RD.retry?{t:RD.retry.q[RD.retry.k]}:RD.items[RD.i]
     ${RD.retry?`<button class="btn primary" id="rRnext">${r&&r.score>=80?"Từ tiếp ›":"Bỏ qua ›"}</button>`:`<button class="btn" id="rPrev">‹</button><button class="btn primary" id="rNext">${RD.i+1<n?"Câu tiếp ›":"Xong ›"}</button>`}</div>
   </div></div>`;
  wireBack(()=>{recStop();if(RD.retry){RD.retry=null;RD.res=null;vRead();return}RD.view=RD.from==="book"?"book":"home";RD.res=null;vRead();window.scrollTo(0,0)});
- document.querySelectorAll("[data-rw]").forEach(b=>b.onclick=()=>{if(b.dataset.rw)rdSpeak(b.dataset.rw,Math.min(RD.rate,.9))});
+ document.querySelectorAll("[data-rw]").forEach(b=>b.onclick=()=>{if(!b.dataset.rw)return;const k=+b.dataset.k;if(RD.pop!==k){RD.pop=k;RD.popRes=null;vReadPrac()}rdSpeak(b.dataset.rw,Math.min(RD.rate,.8))});
+ document.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{RD.show=b.dataset.show;S.settings.rdShow=RD.show;save();vReadPrac()});
+ $("#pClose")&&($("#pClose").onclick=()=>{RD.pop=null;RD.popRes=null;vReadPrac()});
+ $("#pN")&&($("#pN").onclick=()=>rdSpeak(pw,.85));$("#pS")&&($("#pS").onclick=()=>{rdBrowser(pw,.5)});
+ $("#pSyl")&&($("#pSyl").onclick=async()=>{const sy=pv&&pv.syl.length>1?pv.syl:null;if(!sy){rdBrowser(pw,.5);return}const el=$(".rvbig");const sp=el?[...el.querySelectorAll(":scope>span")]:[];
+  for(let i=0;i<sy.length;i++){sp.forEach((x,k)=>x.classList.toggle("now",k===i));await rdSleep(650)}sp.forEach(x=>x.classList.remove("now"));await speakWait(pw,.6)});
+ $("#pMic")&&($("#pMic").onclick=e=>startMic({partial:()=>{},done:(h,segs)=>{h=bestHeard(pw,segs,h);if(!h){toast("Chưa nghe thấy gì, thử lại nhé");return}const a=align3(pw,h);RD.popRes={score:a.score,heard:h};const w=norm(pw)[0];if(a.score<80)pbAdd(w);else pbHit(w,a.score);save();vReadPrac()}},e.currentTarget));
+ const markNow=k=>document.querySelectorAll(".rw").forEach(x=>x.classList.toggle("now",+x.dataset.k===k));
+ const markChunk=(a,b)=>document.querySelectorAll(".rwb").forEach((x,k)=>x.classList.toggle("ck",k>=a&&k<b));
+ const stat=t=>{const el=$("#rStat");if(el)el.textContent=t};
+ $("#rCk")&&($("#rCk").onclick=async()=>{if(RD.playing){RD.playing=false;rdPlay++;try{speechSynthesis.cancel();TTS&&TTS.stop()}catch(e){}vReadPrac();return}
+  RD.playing=true;vReadPrac();const ch=chunkWords(words);
+  for(let i=0;i<ch.length;i++){if(!RD.playing)return;const[a,b]=ch[i];markChunk(a,b);stat(`🔊 Nghe cụm ${i+1}/${ch.length}`);await speakWait(words.slice(a,b).join(" "),RD.rate,k=>markNow(a+k));if(!RD.playing)return;markNow(-1);
+   stat(`🗣 Đến lượt bạn: nhắc lại “${words.slice(a,b).join(" ")}”`);await rdSleep(Math.max(1500,estDur(words.slice(a,b).join(" "),RD.rate)*1.5));}
+  if(!RD.playing)return;markChunk(-1,-1);stat("🔊 Giờ nghe cả câu…");await speakWait(it.t,RD.rate,markNow);markNow(-1);if(!RD.playing)return;RD.playing=false;vReadPrac();const s2=$("#rStat");if(s2)s2.textContent="🗣 Bấm micro và đọc cả câu nhé!"});
  document.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{RD.acc=b.dataset.acc;vReadPrac();rdSpeak(it.t)});
  document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{RD.rate=+b.dataset.rate;vReadPrac();rdSpeak(it.t)});
- $("#rL").onclick=()=>rdSpeak(it.t);$("#rRec").onchange=e=>{RD.rec=e.target.checked};
+ $("#rL").onclick=async()=>{await speakWait(it.t,RD.rate,markNow);markNow(-1)};$("#rRec").onchange=e=>{RD.rec=e.target.checked};
  const fin=h=>{recStop();const a=align3(it.t,h);RD.res={...a,heard:h};rdLog(a.score);
   if(RD.retry){pbHit(RD.retry.q[RD.retry.k],a.score)}
   else{a.T.forEach((w,i)=>{if(a.st[i]!=="ok")pbAdd(w);else if(S.pbook&&S.pbook[w]&&RD.from==="book")pbHit(w,100)});if(a.score<70&&it.t.split(" ").length>2)revAdd({t:it.t,vi:it.vi||"",k:"say",src:"Luyện đọc"})}
@@ -911,10 +954,10 @@ function vReadPrac(){const it=RD.retry?{t:RD.retry.q[RD.retry.k]}:RD.items[RD.i]
  $("#rMine")&&($("#rMine").onclick=()=>{if(RD.audio)new Audio(RD.audio).play().catch(()=>toast("Không phát được bản ghi"))});
  $("#rCmp")&&($("#rCmp").onclick=()=>{if(!RD.audio)return;const a=new Audio(RD.audio);a.onended=()=>setTimeout(()=>rdSpeak(it.t),300);a.play().catch(()=>rdSpeak(it.t))});
  $("#rRetry")&&($("#rRetry").onclick=()=>{RD.retry={q:[...new Set(wrong)],k:0,back:RD.i};RD.res=null;vReadPrac();setTimeout(()=>RD.retry&&rdSpeak(RD.retry.q[0],.8),150)});
- $("#rAgain")&&($("#rAgain").onclick=()=>{RD.res=null;vReadPrac()});
+ $("#rAgain")&&($("#rAgain").onclick=()=>{RD.res=null;RD.pop=null;RD.popRes=null;RD.playing=false;vReadPrac()});
  $("#rRnext")&&($("#rRnext").onclick=()=>{RD.retry.k++;RD.res=null;if(RD.retry.k>=RD.retry.q.length){RD.retry=null;toast("Xong các từ sai! Đọc lại cả câu nhé")}vReadPrac();if(RD.retry)setTimeout(()=>RD.retry&&rdSpeak(RD.retry.q[RD.retry.k],.8),150)});
- $("#rPrev")&&($("#rPrev").onclick=()=>{RD.i=Math.max(0,RD.i-1);RD.res=null;vReadPrac()});
- $("#rNext")&&($("#rNext").onclick=()=>{RD.res=null;if(RD.i+1>=n){RD.view=RD.from==="book"?"book":"home";toast("Hoàn thành bài đọc!");vRead();window.scrollTo(0,0);return}RD.i++;vReadPrac();window.scrollTo(0,0)});
+ $("#rPrev")&&($("#rPrev").onclick=()=>{RD.pop=null;RD.popRes=null;RD.playing=false;RD.i=Math.max(0,RD.i-1);RD.res=null;vReadPrac()});
+ $("#rNext")&&($("#rNext").onclick=()=>{RD.res=null;RD.pop=null;RD.popRes=null;RD.playing=false;if(RD.i+1>=n){RD.view=RD.from==="book"?"book":"home";toast("Hoàn thành bài đọc!");vRead();window.scrollTo(0,0);return}RD.i++;vReadPrac();window.scrollTo(0,0)});
  save()}
 function vReadBook(){const all=Object.values(S.pbook||{}).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.n-a.n);const due=pbDue();const M=IPA_MAP();
  $("#view").innerHTML=`<div class="stack">${backBar("Sổ phát âm")}
@@ -980,6 +1023,73 @@ function vMatchHome(){const vt=VT||loadVTSync()||[];const BI=Math.max(0,vt.findI
    <div class="row"><button class="btn primary" id="mGoT">Bắt đầu ›</button>${nl>=4?`<button class="btn" id="mGoL">Ôn ${nl} từ đã thuộc</button>`:""}</div></div></div>`;
  wireBack();$("#mSel").onchange=e=>{mtSrc=+e.target.value};
  $("#mBasic").onclick=()=>mtStart(BI);$("#mGoT").onclick=()=>mtStart(mtSrc);$("#mGoL")&&($("#mGoL").onclick=()=>mtStart("learned"))}
+// ===== Vietnamese-style respelling from IPA =====
+const VV={"iː":"i","i":"i","ɪ":"i","e":"e","ɛ":"e","æ":"e","ʌ":"ă","ɑː":"a","ɑ":"a","a":"a","ɒ":"o","ɔː":"o","ɔ":"o","o":"ô","ʊ":"u","uː":"u","u":"u","ɜː":"ơ","ɜ":"ơ","ə":"ơ","ɚ":"ơ","eɪ":"ây","aɪ":"ai","ɔɪ":"oi","aʊ":"ao","oʊ":"âu","əʊ":"âu","ɪə":"ia","eə":"e","ʊə":"ua"};
+const VC={"p":"p","b":"b","t":"t","d":"đ","k":"c","ɡ":"g","g":"g","f":"ph","v":"v","θ":"th","ð":"đ","s":"x","z":"d","ʃ":"s","ʒ":"gi","tʃ":"ch","ʧ":"ch","dʒ":"gi","ʤ":"gi","h":"h","m":"m","n":"n","ŋ":"ng","l":"l","r":"r","j":"i","w":"u"};
+const CODA_OK={"p":"p","t":"t","k":"c","m":"m","n":"n","ŋ":"ng"};
+const CODA_X={"s":"x","z":"x","l":"l","f":"ph","v":"v","d":"đ","b":"b","ɡ":"g","g":"g","θ":"th","ð":"đ","ʃ":"s","ʒ":"s","tʃ":"ch","ʧ":"ch","dʒ":"ch","ʤ":"ch","r":"r","j":"","w":""};
+const IPA_TOK=["tʃ","dʒ","eɪ","aɪ","ɔɪ","aʊ","oʊ","əʊ","ɪə","eə","ʊə","iː","uː","ɑː","ɔː","ɜː"];
+function ipaTokens(ip){ip=ip.replace(/[\/()\[\]̃]/g,"").replace(/[.·]/g,"").replace(/ˌ/g,"").replace(/ɝ/g,"ɜːr").trim();const out=[];let i=0;
+ while(i<ip.length){const c=ip[i];if(c===" "){out.push(" ");i++;continue}if(c==="ˈ"){out.push("ˈ");i++;continue}
+  const two=ip.slice(i,i+2);if(IPA_TOK.includes(two)){out.push(two);i+=2;continue}if(c==="ː"){i++;continue}out.push(c);i++}return out}
+const isV=t=>t in VV;
+function vTone(s,tone){if(!tone)return s;const mark=tone==="s"?"́":"̀";const V="aăâeêioôơuưy";const low=s.toLowerCase();
+ let idx=-1;for(const ch of "ơôêâăư"){const k=low.indexOf(ch);if(k>=0){idx=k;break}}
+ if(idx<0){const vs=[...low].map((c,i)=>V.includes(c)?i:-1).filter(i=>i>=0);if(!vs.length)return s;const endsV=V.includes(low[low.length-1]);
+  idx=vs.length>=2&&endsV?vs[vs.length-2]:vs[vs.length-1];if(/^(qu|gi)/.test(low)&&vs[0]===1&&vs.length>1)idx=vs[vs.length-1]}
+ return(s.slice(0,idx+1)+mark+s.slice(idx+1)).normalize("NFC")}
+function cMap(c,v){let m=VC[c]??c;if(m==="c"&&/^[ieêy]/.test(v))m="k";if(m==="g"&&/^[ieê]/.test(v))m="gh";if(m==="ng"&&/^[ieê]/.test(v))m="ngh";return m}
+// returns [{t:text,st:bool,fin:"x"}] per word
+function ipaToVi(ip){const words=[];let cur=[];for(const t of ipaTokens(ip)){if(t===" "){if(cur.length)words.push(cur);cur=[]}else cur.push(t)}if(cur.length)words.push(cur);
+ return words.map(tok=>{// mark stress & r-colouring
+  let st=-1;const ph=[];tok.forEach(t=>{if(t==="ˈ")st=ph.length;else ph.push(t)});
+  // r after vowel => part of vowel
+  const nuc=[];ph.forEach((t,i)=>{if(isV(t))nuc.push(i)});if(!nuc.length)return[{t:ph.map(c=>VC[c]??c).join(""),st:false,fin:""}];
+  const syl=[];let start=0;
+  nuc.forEach((ni,k)=>{const next=nuc[k+1];let end;if(next==null)end=ph.length;else{const cons=ph.slice(ni+1,next).filter(x=>!isV(x));const nc=cons.length;
+    end=nc<=1?ni+1:ni+1+(ph[ni+1]==="r"&&nc>=2?1:nc-1);if(nc===2&&/^(s|ʃ)$/.test(ph[ni+1])===false&&["pl","bl","kl","ɡl","pr","br","tr","dr","kr","ɡr","fr","θr","fl","sl"].includes(ph[ni+1]+ph[ni+2]))end=ni+1}
+   syl.push({on:ph.slice(start,ni),v:ph[ni],co:ph.slice(ni+1,end)});start=end});
+  const stIdx=st<0?-1:syl.findIndex((s,i)=>{let acc=0;for(let k=0;k<=i;k++)acc+=syl[k].on.length+1+syl[k].co.length;return st<acc});
+  return syl.map((s,i)=>{let co=s.co.slice();let vow=VV[s.v];if(co[0]==="r"){co.shift();if(vow==="a")vow="a";else if(vow==="o"||vow==="ô")vow="o";else if(vow==="i")vow="ia";else if(vow==="e")vow="e";else if(vow==="u")vow="ua";else if(vow==="ơ")vow="ơ";else if(vow==="ai")vow="ai-ơ"}
+   let on=s.on.map((c,k)=>k===s.on.length-1?cMap(c,vow):(VC[c]??c)).join("");
+   if(on==="u"&&/^[ơoôua]/.test(vow))on="u";if(on.endsWith("i")&&s.on[s.on.length-1]==="j"&&/^i/.test(vow))on=on.slice(0,-1);
+   if(!on&&/^[iy]/.test(vow)&&vow.length===1)vow="i";
+   let fin="";const keep=[],extra=[];co.forEach((c,k)=>{if(k===0&&CODA_OK[c]!=null)keep.push(c);else if(CODA_X[c]!=null){if(CODA_X[c])extra.push(CODA_X[c])}else extra.push(c)});
+   let rime=vow;if(keep.length){if(vow.length>1&&/[iyuoô]$/.test(vow)&&vow!=="uơ")extra.unshift(keep[0]==="k"?"k":CODA_OK[keep[0]]);else rime+=CODA_OK[keep[0]]}
+   fin=extra.join("");if(fin==="r")fin="";
+   const stressed=i===stIdx;const tone=syl.length>1?(stressed?"s":(s.v==="ə"||s.v==="ɚ"||s.v==="ɪ"&&i===syl.length-1?"h":"")):"";
+   return{t:on+vTone(rime,tone),st:stressed&&syl.length>1,fin}})})}
+// spelling → rough IPA for unknown words
+function guessIPA(w){w=w.toLowerCase().replace(/[^a-z]/g,"");if(!w)return"";const P=[];const ph=x=>{P.push(x);return"\u0001"+(P.length-1)+"\u0002"};let s=w;
+ const R=[[/tion$/,"ʃən"],[/sion$/,"ʒən"],[/ture$/,"tʃər"],[/ous$/,"əs"],[/ight/,"aɪt"],[/igh/,"aɪ"],[/tch/g,"tʃ"],[/ph/g,"f"],[/th/g,"θ"],[/sh/g,"ʃ"],[/ch/g,"tʃ"],[/ck/g,"k"],[/wh/g,"w"],[/qu/g,"kw"],[/ng$/,"ŋ"],[/x/g,"ks"],
+  [/ee|ea/g,"iː"],[/oo/g,"uː"],[/ai|ay/g,"eɪ"],[/oa/g,"oʊ"],[/ow$/,"oʊ"],[/ou|ow/g,"aʊ"],[/oi|oy/g,"ɔɪ"],[/au|aw/g,"ɔː"],[/er$/,"ər"],[/ar/g,"ɑːr"],[/or/g,"ɔːr"],[/ir|ur|er/g,"ɜːr"],
+  [/a([bcdfgklmnpstvz])e$/,"eɪ$1"],[/i([bcdfgklmnpstvz])e$/,"aɪ$1"],[/o([bcdfgklmnpstvz])e$/,"oʊ$1"],[/u([bcdfgklmnpstvz])e$/,"juː$1"],[/le$/,"əl"],[/e$/,""],[/y$/,"i"],
+  [/c(?=[eiy])/g,"s"],[/c/g,"k"],[/([bdfgklmnprstvz])\1/g,"$1"],[/a/g,"æ"],[/e/g,"e"],[/i/g,"ɪ"],[/o/g,"ɑ"],[/u/g,"ʌ"],[/y/g,"j"],[/g/g,"ɡ"]];
+ for(const[a,b]of R)s=s.replace(a,(...m)=>{let out=b;if(out.includes("$1"))out=out.replace("$1",m[1]);const tail=out.match(/[bcdfgklmnpstvz]$/)&&out.includes("$")?"":"";return ph(out)});
+ s=s.replace(/\u0001(\d+)\u0002/g,(m,n)=>P[+n]);const nv=ipaTokens(s).filter(isV).length;return"/"+(nv>1?"ˈ":"")+s+"/"}
+function viSpell(word){const k=norm(word)[0];if(!k)return null;const M=IPA_MAP();const ip=M[k];const res=ipaToVi(ip||guessIPA(k))[0]||[];return{syl:res,guess:!ip,ipa:ip||""}}
+function viHtml(v){if(!v||!v.syl.length)return"";return v.syl.map(s=>`<span class="${s.st?"vs":""}">${esc(s.st?s.t.toUpperCase():s.t)}${s.fin?`<i class="fin">${esc(s.fin)}</i>`:""}</span>`).join("-")+(v.guess?'<sup class="muted">≈</sup>':"")}
+function viText(v){return v&&v.syl.length?v.syl.map(s=>(s.st?s.t.toUpperCase():s.t)+(s.fin?"("+s.fin+")":"")).join("-"):""}
+
+function viFromIPA(ip){return ipaToVi(ip).map(syl=>viHtml({syl,guess:false})).join(" ")}
+function viLine(text){return text.split(/\s+/).filter(Boolean).map(w=>viHtml(viSpell(w))).filter(Boolean).join(" ")}
+function ipaOf(w){const k=norm(w)[0];if(!k)return"";return IPA_MAP()[k]||""}
+function startsVowelSound(w){const k=norm(w)[0];if(!k)return false;const ip=IPA_MAP()[k];if(ip){const t=ipaTokens(ip).filter(x=>x!=="ˈ");return t.length&&isV(t[0])}return/^[aeio]/.test(k)||/^u[^n]/.test(k)&&!/^u[sn]i/.test(k)}
+function endsConsSound(w){const k=norm(w)[0];if(!k)return false;const ip=IPA_MAP()[k];if(ip){const t=ipaTokens(ip);const l=t[t.length-1];return l&&!isV(l)&&l!=="ˈ"&&l!=="r"}return/[bcdfgklmnpstvxz]$/.test(k)&&!/[^aeiou]e$/.test(k)}
+const CH_BREAK=new Set(["and","but","or","because","so","to","in","on","at","for","with","of","that","when","if","from","about","after","before","than","which","who"]);
+function chunkWords(ws){const out=[];let a=0;for(let i=0;i<ws.length;i++){const len=i-a+1;const punct=/[,.;:!?…]$/.test(ws[i]);const nb=ws[i+1]&&CH_BREAK.has(norm(ws[i+1])[0]||"");if(punct||len>=4||(nb&&len>=2)||i===ws.length-1){out.push([a,i+1]);a=i+1}}return out}
+let rdPlay=0;
+function estDur(t,rate){const syl=norm(t).reduce((a,w)=>a+Math.max(1,(w.match(/[aeiouy]+/g)||[]).length),0);return(syl*270+250)/rate}
+function rdSleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function speakWait(text,rate,onWord){const tok=++rdPlay;return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};const words=text.split(/\s+/).filter(Boolean);
+ let gotB=false;const startTimer=()=>{const per=words.map(w=>Math.max(1,(w.toLowerCase().match(/[aeiouy]+/g)||[]).length));const tot=per.reduce((a,b)=>a+b,0);const D=estDur(text,rate);let t=0;
+  words.forEach((w,k)=>{setTimeout(()=>{if(tok===rdPlay&&!gotB&&!done)onWord&&onWord(k)},t);t+=D*per[k]/tot})};
+ let useB=false;try{useB="speechSynthesis" in window&&!!(VOICES.length||loadVoices().length)&&!(TTS&&RD.acc==="us"&&rate>=.7)}catch(e){}
+ if(useB){try{speechSynthesis.cancel();const v=voiceFor(RD.acc);const u=new SpeechSynthesisUtterance(text);if(v){u.voice=v;u.lang=v.lang}u.rate=Math.max(.5,rate);
+   const starts=[];let p=0;words.forEach(w=>{const i=text.indexOf(w,p);starts.push(i);p=i+w.length});
+   u.onboundary=e=>{if(tok!==rdPlay||(e.name&&e.name!=="word"))return;gotB=true;let k=0;while(k+1<starts.length&&starts[k+1]<=e.charIndex)k++;onWord&&onWord(k)};
+   u.onstart=()=>setTimeout(()=>{if(!gotB)startTimer()},350);u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);setTimeout(fin,estDur(text,rate)*2.5+2500)}catch(e){fin()}}
+ else{rdSpeak(text,rate);startTimer();setTimeout(fin,estDur(text,rate)+400)}})}
 let learnMode=null,sentTopic=null,wordSel=null,lsn=null;
 function pct(a,b){return b?Math.round(a/b*100):0}
 function sentDone(items){return items.filter(s=>(S.shadow[s.id]||0)>=80).length}
@@ -1038,7 +1148,7 @@ function vWords(){S.words=S.words||{};
  const T=VT[vtTopic],ws=vtFilter(T.words),sel=vtSel&&T.words.find(w=>w.id===vtSel);const d=ws.filter(w=>S.words[w.id]).length;
  $("#view").innerHTML=`<div class="stack">${backBar(T.title)}${lvChips}${progBar(pct(d,ws.length))}
   ${sel?`<div class="panel wcard" style="margin:0;border-top:0;padding-top:16px">
-   <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><div class="phrase">${esc(sel.en)}</div><div class="ipa">${esc(sel.ipa)}</div></div><span>${sel.nw?`<span class="pill" style="margin-right:4px">Mới</span>`:""}<span class="pill lv-${sel.lv}">${sel.lv}</span></span></div>
+   <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><div class="phrase">${esc(sel.en)}</div><div class="ipa">${esc(sel.ipa)}</div><div class="vline small">Đọc: ${viFromIPA(sel.ipa)}</div></div><span>${sel.nw?`<span class="pill" style="margin-right:4px">Mới</span>`:""}<span class="pill lv-${sel.lv}">${sel.lv}</span></span></div>
    <div style="color:var(--ink);font-weight:600;font-size:1.1rem">${esc(sel.vi)}</div><div class="muted">${esc(sel.ctx)}</div>
    <div class="row"><button class="btn" id="wsp">${IC.spk}Nghe</button><button class="btn" id="wss">${IC.slow}Chậm</button><button class="btn ${S.words[sel.id]?"":"primary"}" id="wok">${S.words[sel.id]?"Bỏ đánh dấu":"Đã thuộc"}</button></div>
    <div class="row"><button class="btn ghost" id="wadd">Thêm vào thẻ nhớ</button><button class="btn ghost" id="wprev">‹ Từ trước</button><button class="btn ghost" id="wnext">Từ tiếp ›</button></div></div>`:`<p class="muted" style="margin:0">Chạm vào ngôi sao để mở từ. Từ đã thuộc hiện màu xanh.</p>`}
