@@ -209,6 +209,21 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .chips{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-top:4px}
 .chip{border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:99px;padding:7px 14px;font:600 .9rem var(--f-body);cursor:pointer;text-align:right;max-width:85%}
 .chip:hover{background:var(--ink);color:var(--surface)}
+.rtxt{display:flex;flex-wrap:wrap;gap:4px 6px}
+.rw{font:inherit;color:inherit;background:none;border:0;padding:1px 4px;border-radius:6px;cursor:pointer;border-bottom:2px dotted var(--line)}
+.rw:hover{background:var(--line)}
+.rw.rk{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);border-bottom-color:var(--good)}
+.rw.rb{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border-bottom-color:var(--bad)}
+.rw.rg{color:var(--muted);text-decoration:line-through;border-bottom-color:var(--muted)}
+.lg{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.lg.rk{background:var(--good)}.lg.rb{background:var(--bad)}.lg.rg{background:var(--muted)}
+.strs{color:var(--bad)}
+.chip.on{background:var(--ink);color:var(--surface)}
+.rbars{display:flex;gap:8px;align-items:flex-end;height:80px}
+.rbars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
+.rbars i{display:block;width:100%;max-width:26px;background:var(--ink);border-radius:4px 4px 0 0}
+.rbars span{font-size:.7rem;color:var(--muted)}
+
 .compose{align-items:center}.compose input{flex:1;border-radius:99px;padding:12px 16px;min-width:0}
 .compose .mic{width:52px;height:52px}.sendb{width:40px;height:40px}
 .ipagrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
@@ -471,6 +486,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div class="row" style="justify-content:space-between"><span class="label">Bài học hôm nay · 15 phút</span><span class="pill ${st>=5?"good":""}">${st>=5?"Đã xong":st+"/5 phần"}</span></div>
    <b style="font-size:1.15rem">${st>=5?"Xong rồi! Hẹn bạn ngày mai":st?"Học tiếp bài hôm nay ›":"Bấm để bắt đầu ›"}</b>
    <span class="muted small">5 từ mới · 5 câu nói theo · ôn câu sai · 3 câu dịch nói · trò chuyện với Sam</span>${progBar(st*20)}</button>`})()}
+  ${pbDue().length?`<button class="panel row" id="qPb" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>${pbDue().length} từ trong Sổ phát âm cần ôn</b><br><span class="muted small">Đọc lại các từ hay sai để nhớ lâu</span></span><span class="muted">›</span></button>`:""}
   ${revDue().length?`<button class="panel row" id="qRev" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>${revDue().length} câu nói sai cần ôn</b><br><span class="muted small">Ôn ngay để không lặp lại lỗi cũ</span></span><span class="muted">›</span></button>`:""}
   ${true?`<div class="hero stack">
    <div class="label" style="color:inherit;opacity:.8">${SAMPLE?"Luyện nói với AI":"Luyện nói với gia sư"}</div>
@@ -491,7 +507,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
  </div>`;
  document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else if(x.mode)openMode(x.mode);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
  $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
- $("#qDaily").onclick=()=>openMode("daily");$("#qRev")&&($("#qRev").onclick=()=>openMode("review"));
+ $("#qDaily").onclick=()=>openMode("daily");$("#qRev")&&($("#qRev").onclick=()=>openMode("review"));$("#qPb")&&($("#qPb").onclick=()=>{openMode("read");RD.view="book";vRead()});
  if(true){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
   $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>openMode("photo")}}
 function todayChar(){return CHARS[dayIndex()%CHARS.length]}
@@ -638,6 +654,7 @@ const MODES=[
  {id:"chat",t:"Trò chuyện",d:"Nói chuyện tự do với gia sư AI, có gợi ý câu trả lời và dịch nghĩa.",c:"y",ai:true,svg:'<rect x="14" y="16" width="44" height="30" rx="10"/><path d="M24 46l-6 10 16-10"/><rect x="42" y="34" width="42" height="28" rx="10" class="f2"/><circle cx="56" cy="48" r="3" class="dot"/><circle cx="64" cy="48" r="3" class="dot"/><circle cx="72" cy="48" r="3" class="dot"/>'},
  {id:"call",t:"Gọi thoại",d:"Chỉ nói và nghe như một cuộc gọi, luyện phản xạ nói.",c:"b",ai:true,svg:'<rect x="34" y="10" width="30" height="56" rx="7"/><circle cx="49" cy="30" r="8" class="f2"/><path d="M39 52c3-7 17-7 20 0" class="f2"/><path d="M72 26c5 4 5 16 0 20M78 20c9 7 9 25 0 32" class="ln"/>'},
  {id:"sent",t:"Chế độ câu",d:"Học các câu giao tiếp hằng ngày theo bài, nói theo và được chấm phát âm.",c:"g",ai:false,svg:'<path d="M14 40h4M22 32v16M28 26v28M34 34v12M40 29v22M46 36v8" class="ln"/><rect x="54" y="22" width="32" height="36" rx="8"/><path d="M61 34h18M61 42h12" class="ln2"/>'},
+ {id:"read",t:"Luyện đọc",d:"Gõ, dán đoạn văn hoặc chọn từ chủ đề. Nghe mẫu Mỹ/Anh, đọc theo, chấm từng từ và lưu Sổ phát âm.",c:"g",ai:false,svg:'<rect x="12" y="14" width="52" height="46" rx="6"/><path d="M20 26h34M20 34h28M20 42h32M20 50h20" class="ln2"/><rect x="62" y="30" width="18" height="28" rx="9" class="f2"/><path d="M58 50a13 13 0 0 0 26 0M71 63v6" class="ln2"/>'},
  {id:"trans",t:"Dịch nói",d:"Nhìn câu tiếng Việt, nói lại bằng tiếng Anh, micro chấm ngay.",c:"o",ai:false,svg:'<rect x="10" y="14" width="40" height="30" rx="8"/><text x="30" y="35" text-anchor="middle" font-size="14" font-weight="700" class="dot">VI</text><rect x="46" y="32" width="40" height="30" rx="8" class="f2"/><text x="66" y="53" text-anchor="middle" font-size="14" font-weight="700" class="dot">EN</text>'},
  {id:"review",t:"Ôn câu nói sai",get d(){const n=revDue().length,a=revAll().length;return a?`${n} câu cần ôn hôm nay, ${a} câu trong danh sách. App tự gom từ mọi chế độ.`:"App tự gom những câu bạn nói chưa đúng để ôn lại vào hôm sau."},c:"p",ai:false,svg:'<circle cx="48" cy="38" r="24"/><path d="M48 24v14l9 6" class="ln2"/><path d="M20 20l6 8 8-5" class="ln2"/>'},
  {id:"words",t:"Chế độ từ vựng",d:"32 chủ đề, 1.218 từ có phiên âm, nghĩa, ngữ cảnh và trình độ A1 đến C2.",c:"p",ai:false,svg:'<rect x="20" y="16" width="30" height="42" rx="5" transform="rotate(-10 35 37)"/><rect x="46" y="18" width="30" height="42" rx="5" class="f2" transform="rotate(8 61 39)"/><path d="M61 30l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z" class="dot"/>'},
@@ -762,6 +779,124 @@ function vDaily(){if(!S.daily||S.daily.d!==dkey())buildDaily();const D=S.daily;
    :`<button class="btn primary big" id="dgo">${D.step?"Tiếp tục":"Bắt đầu"}: ${esc(st[D.step].t)} ›</button>${D.step===4&&D.conv0!=null?`<p class="muted small" style="margin:0">Đã trả lời ${(today().conv||0)-D.conv0}/4 lượt với Sam.</p>`:""}`}
  </div>`;
  wireBack();$("#dgo")&&($("#dgo").onclick=runStage);$("#dredo")&&($("#dredo").onclick=()=>{buildDaily();vDaily()})}
+// ===== Luyện đọc (shadowing / pronunciation) =====
+let RD={view:"home",tab:"type",text:"",items:[],i:0,res:null,retry:null,acc:"us",rate:.8,rec:true,audio:null,vt:0};
+const IPA_MAP=(()=>{let m=null;return()=>{if(m)return m;m={};(VT||loadVTSync()||[]).forEach(t=>t.words.forEach(w=>{const k=w.en.toLowerCase().trim();if(/^[a-z'-]+$/.test(k)&&w.ipa&&!m[k])m[k]=w.ipa}));
+ [["the","/ðə/"],["a","/ə/"],["is","/ɪz/"],["are","/ɑːr/"],["to","/tuː/"],["you","/juː/"],["i","/aɪ/"],["it","/ɪt/"],["and","/ænd/"],["of","/əv/"],["in","/ɪn/"],["my","/maɪ/"],["your","/jɔːr/"],["what","/wʌt/"],["this","/ðɪs/"],["that","/ðæt/"],["have","/hæv/"],["do","/duː/"],["can","/kæn/"],["like","/laɪk/"],["think","/θɪŋk/"],["thank","/θæŋk/"],["three","/θriː/"],["with","/wɪð/"],["work","/wɜːrk/"],["very","/ˈveri/"],["really","/ˈriːəli/"],["world","/wɜːrld/"],["water","/ˈwɔːtər/"],["would","/wʊd/"],["she","/ʃiː/"],["he","/hiː/"],["we","/wiː/"],["they","/ðeɪ/"],["there","/ðer/"],["where","/wer/"],["how","/haʊ/"],["for","/fɔːr/"],["at","/æt/"],["on","/ɑːn/"],["go","/ɡoʊ/"],["want","/wɑːnt/"],["need","/niːd/"],["good","/ɡʊd/"],["time","/taɪm/"],["people","/ˈpiːpl/"],["english","/ˈɪŋɡlɪʃ/"],["because","/bɪˈkɔːz/"],["about","/əˈbaʊt/"]].forEach(([k,v])=>{if(!m[k])m[k]=v});return m}})();
+function ipaHtml(ip){return esc(ip).replace(/ˈ(.)/g,'<b class="strs">ˈ$1</b>')}
+// edit-distance alignment: ok / bad (said differently) / gone (missing)
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function sim(a,b){a=a.replace(/'/g,"");b=b.replace(/'/g,"");if(a===b)return 1;return 1-lev(a,b)/Math.max(a.length,b.length)}
+function align3(target,heard){const T=norm(target),H=norm(heard||"");const n=T.length,m=H.length;const D=Array.from({length:n+1},()=>Array(m+1).fill(0));
+ for(let i=0;i<=n;i++)D[i][0]=i;for(let j=0;j<=m;j++)D[0][j]=j*.6;
+ for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){const s=sim(T[i-1],H[j-1]);D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+.6,D[i-1][j-1]+(s===1?0:s>=.5?.7:1.3))}
+ const st=Array(n).fill("gone"),got=Array(n).fill("");let i=n,j=m;
+ while(i>0&&j>0){const s=sim(T[i-1],H[j-1]);const c=D[i-1][j-1]+(s===1?0:s>=.5?.7:1.3);
+  if(Math.abs(D[i][j]-c)<1e-9){st[i-1]=s===1?"ok":"bad";got[i-1]=H[j-1];i--;j--}else if(Math.abs(D[i][j]-(D[i-1][j]+1))<1e-9){i--}else j--}
+ const sc=n?Math.round(st.reduce((a,x)=>a+(x==="ok"?1:x==="bad"?.35:0),0)/n*100):0;return{T,st,got,score:sc,ok:st.map(x=>x==="ok")}}
+function linkTips(T,st){const tips=[];for(let k=0;k+1<T.length;k++){if(st[k]!=="ok"||st[k+1]!=="ok"){if(/[bcdfgklmnprstvz]$/.test(T[k])&&/^[aeiou]/.test(T[k+1])){tips.push(`Nối âm: “${T[k]} ${T[k+1]}” đọc liền thành “${T[k]}‿${T[k+1]}”, âm cuối của từ trước nối sang nguyên âm của từ sau.`);break}}}return tips}
+function readTips(r){const bad=r.T.filter((w,i)=>r.st[i]!=="ok");const t=new Set(tipsFor(r.T,r.ok));
+ bad.forEach(w=>{if(/^l|l$/.test(w))t.add("Âm /l/ cuối từ (well, feel): cong nhẹ lưỡi chạm chân răng trên, đừng bỏ hẳn như tiếng Việt.");if(/^(sh|ch)/.test(w))t.add("Âm /ʃ/ (she) tròn môi và đẩy hơi, khác /s/ (see) môi dẹt.");if(/^z|z/.test(w))t.add("Âm /z/: rung cổ họng như tiếng ong “zzz”, không đọc thành /d/ hay /s/.")});
+ linkTips(r.T,r.st).forEach(x=>t.add(x));return[...t].slice(0,4)}
+// voices per accent
+function voiceFor(acc){if(!VOICES.length)loadVoices();const rx=acc==="uk"?/en[-_]gb/i:/en[-_]us/i;return VOICES.find(v=>rx.test(v.lang))||VOICES[0]||null}
+function rdSpeak(text,rate){rate=rate||RD.rate;
+ if(TTS&&RD.acc==="us"&&rate>=.7){TTS.speak(text,{voice:S.settings.voice,rate,language:"en"}).catch(()=>rdBrowser(text,rate));return}
+ rdBrowser(text,rate)}
+function rdBrowser(text,rate){try{const v=voiceFor(RD.acc);speechSynthesis.cancel();splitSent(text).forEach(x=>{const u=new SpeechSynthesisUtterance(x);u.lang=v?v.lang:(RD.acc==="uk"?"en-GB":"en-US");if(v)u.voice=v;u.rate=Math.max(.5,rate);speechSynthesis.speak(u)})}catch(e){toast("Thiết bị này chưa đọc được âm thanh")}}
+// own-voice recording (optional, browser only)
+let rdRec=null,rdChunks=[];
+async function recStart(){if(!RD.rec||!navigator.mediaDevices||!window.MediaRecorder)return;try{const s=await navigator.mediaDevices.getUserMedia({audio:true});rdChunks=[];rdRec=new MediaRecorder(s);rdRec.ondataavailable=e=>e.data.size&&rdChunks.push(e.data);
+ rdRec.onstop=()=>{s.getTracks().forEach(t=>t.stop());if(rdChunks.length){if(RD.audio)URL.revokeObjectURL(RD.audio);RD.audio=URL.createObjectURL(new Blob(rdChunks,{type:rdRec.mimeType||"audio/webm"}));if(RD.view==="prac")rdPracHtmlAudio()}};rdRec.start()}catch(e){rdRec=null}}
+function recStop(){try{rdRec&&rdRec.state!=="inactive"&&rdRec.stop()}catch(e){}}
+function rdPracHtmlAudio(){const b=$("#rMine");if(b)b.disabled=!RD.audio}
+// pronunciation book (Sổ phát âm) — Leitner boxes
+const PB_IVL=[1,2,4,7,15,30];
+function pbAdd(w){if(!w||w.length<2||/^(a|an|the|to|of|is|i|it)$/.test(w))return;S.pbook=S.pbook||{};const o=S.pbook[w];
+ if(o){o.n++;o.box=0;o.due=dPlus(1)}else S.pbook[w]={w,n:1,box:0,due:dPlus(1),at:dkey()}}
+function pbHit(w,score){const o=S.pbook&&S.pbook[w];if(!o)return;if(score>=80){o.box=Math.min(o.box+1,PB_IVL.length);if(o.box>=PB_IVL.length){delete S.pbook[w];return"done"}o.due=dPlus(PB_IVL[o.box])}else{o.box=0;o.n++;o.due=dPlus(1)}}
+function pbDue(){return Object.values(S.pbook||{}).filter(o=>o.due<=dkey())}
+// stats
+function rdLog(score){S.rdlog=S.rdlog||{};const k=dkey();const o=S.rdlog[k]||(S.rdlog[k]={n:0,sum:0,best:0});o.n++;o.sum+=score;o.best=Math.max(o.best,score)}
+function rdStreak(){const L=S.rdlog||{};let n=0;for(let d=0;d<400;d++){const k=dkey(new Date(Date.now()-d*DAY));if(L[k]&&L[k].n)n++;else if(d>0)break}return n}
+function rdItemsFromText(t){return splitSent(t).map(s=>s.trim()).filter(s=>norm(s).length).slice(0,40)}
+function vRead(){const v=RD.view;if(v==="prac")return vReadPrac();if(v==="book")return vReadBook();return vReadHome()}
+function vReadHome(){const vt=VT||loadVTSync()||[];const L=S.rdlog||{};const days=[...Array(7)].map((_,i)=>dkey(new Date(Date.now()-(6-i)*DAY)));const td=L[dkey()];
+ const due=pbDue().length,tot=Object.keys(S.pbook||{}).length;
+ $("#view").innerHTML=`<div class="stack">${backBar("Luyện đọc")}
+  <p class="muted" style="margin:0">Nhập câu hoặc đoạn văn, nghe giọng mẫu, đọc theo vào micro. App chấm điểm từng từ, chỉ lỗi và lưu từ hay sai vào Sổ phát âm.</p>
+  <div class="panel stack" style="gap:8px"><div class="row" style="justify-content:space-between"><span class="label">Thống kê luyện đọc</span><span class="pill ${rdStreak()?"good":""}">Chuỗi ${rdStreak()} ngày</span></div>
+   <div class="row" style="gap:18px"><div><div class="score" style="font-size:1.8rem">${td?Math.round(td.sum/td.n):"–"}</div><div class="label">Điểm TB hôm nay</div></div><div><div class="score" style="font-size:1.8rem">${td?td.n:0}</div><div class="label">Lượt đọc</div></div><div><div class="score" style="font-size:1.8rem">${td?td.best:"–"}</div><div class="label">Cao nhất</div></div></div>
+   <div class="rbars" aria-label="Điểm trung bình 7 ngày">${days.map(k=>{const o=L[k];const a=o?Math.round(o.sum/o.n):0;return`<div><i style="height:${Math.max(4,a*.6)}px" title="${a}"></i><span>${k.slice(8)}</span></div>`}).join("")}</div></div>
+  <button class="panel row" id="rBook" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>Sổ phát âm</b><br><span class="muted small">${tot?`${due} từ cần ôn hôm nay · ${tot} từ trong sổ`:"Từ bạn đọc sai sẽ được lưu ở đây để ôn ngắt quãng"}</span></span><span class="muted">›</span></button>
+  <div class="topics" role="group" aria-label="Cách nhập">${[["type","Gõ hoặc dán"],["vocab","Chọn từ chủ đề"],["sent","Câu mẫu"]].map(([k,l])=>`<button data-rt="${k}" aria-pressed="${RD.tab===k}">${l}</button>`).join("")}</div>
+  ${RD.tab==="type"?`<div class="panel stack"><textarea id="rTxt" rows="5" placeholder="Gõ một từ, một câu hoặc dán cả đoạn văn tiếng Anh vào đây…">${esc(RD.text)}</textarea>
+    <div class="row"><button class="btn primary" id="rGo">Bắt đầu luyện đọc ›</button><button class="btn ghost" id="rEx">Lấy đoạn mẫu</button></div><span class="muted small">Đoạn dài sẽ được tách thành từng câu để luyện lần lượt.</span></div>`
+   :RD.tab==="vocab"?`<div class="panel stack"><select id="rVt">${vt.map((t,i)=>`<option value="${i}" ${RD.vt==i?"selected":""}>${i+1}. ${esc(t.title)}</option>`).join("")}</select>
+    <div class="row"><button class="btn primary" id="rGoW">Đọc từ vựng (${vt[RD.vt]?vt[RD.vt].words.length:0} từ) ›</button><button class="btn" id="rGoC">Đọc câu ngữ cảnh ›</button></div><span class="muted small">Đọc từ để luyện trọng âm từng từ, đọc câu ngữ cảnh để luyện nối âm.</span></div>`
+   :`<div class="panel stack"><select id="rLs">${LESSONS.map((l,li)=>l.topics.map((t,ti)=>`<option value="${li}.${ti}">${esc(l.title.slice(0,40))} · ${esc(t.name)}</option>`).join("")).join("")}</select><button class="btn primary" id="rGoS" style="align-self:flex-start">Luyện các câu này ›</button></div>`}
+ </div>`;
+ wireBack();document.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{RD.tab=b.dataset.rt;vReadHome()});
+ $("#rBook").onclick=()=>{RD.view="book";vRead()};
+ const startItems=(items,title)=>{if(!items.length){toast("Chưa có nội dung để đọc");return}RD.from="home";RD.items=items;RD.i=0;RD.res=null;RD.retry=null;RD.title=title;RD.view="prac";vRead();window.scrollTo(0,0)};
+ $("#rGo")&&($("#rGo").onclick=()=>{RD.text=$("#rTxt").value;startItems(rdItemsFromText(RD.text).map(t=>({t})),"Đoạn của bạn")});
+ $("#rEx")&&($("#rEx").onclick=()=>{RD.text="Good morning! My name is Thang, and I live in Hanoi. I usually get up at six and drink a cup of coffee. Then I ride my motorbike to work. In the evening, I practice English for twenty minutes. I think it's the best part of my day.";vReadHome()});
+ $("#rVt")&&($("#rVt").onchange=e=>{RD.vt=+e.target.value;vReadHome()});
+ $("#rGoW")&&($("#rGoW").onclick=()=>{const t=vt[RD.vt];startItems(t.words.map(w=>({t:w.en.replace(/…/g,""),vi:w.vi,ipa:w.ipa})),t.title)});
+ $("#rGoC")&&($("#rGoC").onclick=()=>{const t=vt[RD.vt];startItems(t.words.filter(w=>/[a-z]{2,}.*\s.*[a-z]/i.test(w.ctx)&&!/[ăâđêôơưáàảãạ]/i.test(w.ctx)).map(w=>({t:w.ctx})).concat(t.words.map(w=>({t:w.en.replace(/…/g,""),vi:w.vi,ipa:w.ipa}))).slice(0,30),t.title)});
+ $("#rGoS")&&($("#rGoS").onclick=()=>{const [li,ti]=$("#rLs").value.split(".").map(Number);const tp=LESSONS[li].topics[ti];startItems(tp.items.map(s=>({t:s.t,vi:s.vi})),tp.name)})}
+function vReadPrac(){const it=RD.retry?{t:RD.retry.q[RD.retry.k]}:RD.items[RD.i];const r=RD.res;const M=IPA_MAP();const words=it.t.split(/\s+/).filter(Boolean);
+ const nw=norm(it.t);const ipaLine=it.ipa?ipaHtml(it.ipa):words.map(w=>{const k=norm(w)[0];return k&&M[k]?`<span style="white-space:nowrap"><span class="muted">${esc(k)}</span> ${ipaHtml(M[k])}</span>`:""}).filter(Boolean).join(" · ");
+ // map display words to norm index for coloring
+ let ni=0;const disp=words.map(w=>{const k=norm(w);const idx=k.length?ni:-1;ni+=k.length;const cls=r&&idx>=0&&r.st[idx]?(r.st[idx]==="ok"?"rk":r.st[idx]==="bad"?"rb":"rg"):"";return`<button class="rw ${cls}" data-rw="${esc(w.replace(/[^A-Za-z'’-]/g,""))}" title="${r&&idx>=0&&r.st[idx]==="bad"?"Máy nghe thành: "+esc(r.got[idx]):"Chạm để nghe"}">${esc(w)}</button>`}).join(" ");
+ const col=r?(r.score>=85?"var(--good)":r.score>=60?"var(--warn)":"var(--bad)"):"";const wrong=r?r.T.filter((w,i)=>r.st[i]!=="ok"):[];
+ const n=RD.items.length;
+ $("#view").innerHTML=`<div class="stack">${backBar(RD.retry?"Luyện lại từ sai":RD.title||"Luyện đọc")}
+  ${RD.retry?`<p class="muted small" style="margin:0">Từ ${RD.retry.k+1}/${RD.retry.q.length} · đọc đúng (từ 80 điểm) để sang từ tiếp theo.</p>`:progBar(Math.round(RD.i/n*100))}
+  <div class="panel stack">
+   <div class="row" style="justify-content:space-between"><span class="muted small">${RD.retry?"Từ đọc sai":`Câu ${RD.i+1}/${n}`} · chạm vào từng từ để nghe riêng</span>
+    <span class="row" style="gap:4px">${[["us","Mỹ"],["uk","Anh"]].map(([k,l])=>`<button class="chip ${RD.acc===k?"on":""}" data-acc="${k}" aria-pressed="${RD.acc===k}">${l}</button>`).join("")}</span></div>
+   <div class="target rtxt">${disp}</div>
+   ${ipaLine?`<div class="ipa">${ipaLine}</div>`:""}${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}
+   <div class="row" style="gap:6px">${[.6,.8,1].map(x=>`<button class="chip ${RD.rate===x?"on":""}" data-rate="${x}" aria-pressed="${RD.rate===x}">${x}x</button>`).join("")}<button class="btn" id="rL">${IC.spk}Nghe mẫu</button></div>
+   <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic big" id="rMic" aria-label="Bấm để đọc, bấm lần nữa để dừng">${IC.mic}</button>
+    <div style="flex:1;min-width:0" class="stack"><div class="label">Máy nghe được</div><div class="heard" id="rHeard">${r?esc(r.heard):'<span class="muted">Bấm micro rồi đọc to, rõ ràng…</span>'}</div></div>
+    ${r?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
+   ${DICT?"":`<form id="rType" class="row" style="flex-wrap:nowrap"><input type="text" id="rTin" placeholder="Không có micro? Gõ lại câu bạn đọc" autocomplete="off"><button class="btn">Chấm</button></form>`}
+   <label class="row small muted" style="gap:6px"><input type="checkbox" id="rRec" ${RD.rec?"checked":""}> Ghi âm để nghe lại giọng mình</label>
+   ${r?`<div class="row small" style="gap:12px"><span><i class="lg rk"></i>Đúng</span><span><i class="lg rb"></i>Đọc sai</span><span><i class="lg rg"></i>Bị thiếu</span></div>
+    <div class="row"><button class="btn" id="rMine" ${RD.audio?"":"disabled"}>${IC.spk}Giọng tôi</button><button class="btn" id="rCmp" ${RD.audio?"":"disabled"}>So sánh: tôi rồi mẫu</button></div>
+    ${readTips(r).map(t=>`<div class="tip">${esc(t)}</div>`).join("")}`:""}
+   <div class="row">${r&&wrong.length&&!RD.retry?`<button class="btn mark" id="rRetry">Luyện lại ${wrong.length} từ sai</button>`:""}${r?`<button class="btn" id="rAgain">Đọc lại</button>`:""}
+    ${RD.retry?`<button class="btn primary" id="rRnext">${r&&r.score>=80?"Từ tiếp ›":"Bỏ qua ›"}</button>`:`<button class="btn" id="rPrev">‹</button><button class="btn primary" id="rNext">${RD.i+1<n?"Câu tiếp ›":"Xong ›"}</button>`}</div>
+  </div></div>`;
+ wireBack(()=>{recStop();if(RD.retry){RD.retry=null;RD.res=null;vRead();return}RD.view=RD.from==="book"?"book":"home";RD.res=null;vRead();window.scrollTo(0,0)});
+ document.querySelectorAll("[data-rw]").forEach(b=>b.onclick=()=>{if(b.dataset.rw)rdSpeak(b.dataset.rw,Math.min(RD.rate,.9))});
+ document.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{RD.acc=b.dataset.acc;vReadPrac();rdSpeak(it.t)});
+ document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{RD.rate=+b.dataset.rate;vReadPrac();rdSpeak(it.t)});
+ $("#rL").onclick=()=>rdSpeak(it.t);$("#rRec").onchange=e=>{RD.rec=e.target.checked};
+ const fin=h=>{recStop();const a=align3(it.t,h);RD.res={...a,heard:h};rdLog(a.score);
+  if(RD.retry){pbHit(RD.retry.q[RD.retry.k],a.score)}
+  else{a.T.forEach((w,i)=>{if(a.st[i]!=="ok")pbAdd(w);else if(S.pbook&&S.pbook[w]&&RD.from==="book")pbHit(w,100)});if(a.score<70&&it.t.split(" ").length>2)revAdd({t:it.t,vi:it.vi||"",k:"say",src:"Luyện đọc"})}
+  addXp(Math.max(1,Math.round(a.score/10)),"shadow");vReadPrac()};
+ $("#rMic").onclick=e=>{const on=DICT&&DICT.active&&DICT.active();if(!on){RD.res=null;recStart()}startMic({partial:t=>{const el=$("#rHeard");if(el)el.textContent=t},done:h=>{if(!h){recStop();toast("Chưa nghe thấy gì, thử nói to và gần micro hơn");return}fin(h)}},e.currentTarget)};
+ $("#rType")&&($("#rType").onsubmit=e=>{e.preventDefault();const v=$("#rTin").value.trim();if(v)fin(v)});
+ $("#rMine")&&($("#rMine").onclick=()=>{if(RD.audio)new Audio(RD.audio).play().catch(()=>toast("Không phát được bản ghi"))});
+ $("#rCmp")&&($("#rCmp").onclick=()=>{if(!RD.audio)return;const a=new Audio(RD.audio);a.onended=()=>setTimeout(()=>rdSpeak(it.t),300);a.play().catch(()=>rdSpeak(it.t))});
+ $("#rRetry")&&($("#rRetry").onclick=()=>{RD.retry={q:[...new Set(wrong)],k:0,back:RD.i};RD.res=null;vReadPrac();setTimeout(()=>RD.retry&&rdSpeak(RD.retry.q[0],.8),150)});
+ $("#rAgain")&&($("#rAgain").onclick=()=>{RD.res=null;vReadPrac()});
+ $("#rRnext")&&($("#rRnext").onclick=()=>{RD.retry.k++;RD.res=null;if(RD.retry.k>=RD.retry.q.length){RD.retry=null;toast("Xong các từ sai! Đọc lại cả câu nhé")}vReadPrac();if(RD.retry)setTimeout(()=>RD.retry&&rdSpeak(RD.retry.q[RD.retry.k],.8),150)});
+ $("#rPrev")&&($("#rPrev").onclick=()=>{RD.i=Math.max(0,RD.i-1);RD.res=null;vReadPrac()});
+ $("#rNext")&&($("#rNext").onclick=()=>{RD.res=null;if(RD.i+1>=n){RD.view=RD.from==="book"?"book":"home";toast("Hoàn thành bài đọc!");vRead();window.scrollTo(0,0);return}RD.i++;vReadPrac();window.scrollTo(0,0)});
+ save()}
+function vReadBook(){const all=Object.values(S.pbook||{}).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.n-a.n);const due=pbDue();const M=IPA_MAP();
+ $("#view").innerHTML=`<div class="stack">${backBar("Sổ phát âm")}
+  <p class="muted" style="margin:0">Những từ bạn đọc sai hoặc bị thiếu được lưu ở đây. Mỗi lần đọc đúng, từ sẽ được hẹn ôn xa hơn (1, 2, 4, 7, 15, 30 ngày). Đọc đúng đủ 6 lần là thuộc và tự xóa khỏi sổ.</p>
+  <div class="panel row" style="justify-content:space-between"><span><b>${due.length}</b> từ cần ôn hôm nay · ${all.length} từ trong sổ</span><button class="btn primary" id="pbGo" ${all.length?"":"disabled"}>${due.length?"Ôn ngay":"Ôn trước"}</button></div>
+  ${all.length?`<div class="panel"><div class="list">${all.map(o=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;padding:8px 0;border-bottom:1px solid var(--line)"><span><b>${esc(o.w)}</b> ${M[o.w]?`<span class="ipa">${ipaHtml(M[o.w])}</span>`:""}<br><span class="muted small">sai ${o.n} lần · ${o.due<=dkey()?"cần ôn hôm nay":"ôn lại "+o.due.slice(5).split("-").reverse().join("/")} · mức ${o.box}/6</span></span><button class="iconbtn" data-pw="${esc(o.w)}" aria-label="Nghe">${IC.spk}</button></div>`).join("")}</div></div>`
+   :`<div class="panel"><p class="muted" style="margin:0">Sổ đang trống. Hãy luyện đọc vài câu, từ nào bạn đọc chưa chuẩn sẽ tự được thêm vào.</p></div>`}</div>`;
+ wireBack(()=>{RD.view="home";vRead()});document.querySelectorAll("[data-pw]").forEach(b=>b.onclick=()=>rdSpeak(b.dataset.pw,.8));
+ $("#pbGo").onclick=()=>{const list=(due.length?due:all).slice(0,15);RD.items=list.map(o=>({t:o.w,ipa:M[o.w]||""}));RD.i=0;RD.res=null;RD.retry=null;RD.title="Ôn Sổ phát âm";RD.from="book";RD.view="prac";vRead()}}
 let learnMode=null,sentTopic=null,wordSel=null,lsn=null;
 function pct(a,b){return b?Math.round(a/b*100):0}
 function sentDone(items){return items.filter(s=>(S.shadow[s.id]||0)>=80).length}
@@ -775,6 +910,7 @@ function vLearn(){
  if(learnMode==="abc")return vABC();
  if(learnMode==="num")return vNum();
  if(learnMode==="drill")return vDrill();
+ if(learnMode==="read")return vRead();
  if(learnMode==="review")return vReviewList();
  if(learnMode==="daily")return vDaily();
  const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg></div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
@@ -787,6 +923,7 @@ function vLearn(){
 function openMode(m){
  if(m==="trans")return startDrill({title:"Dịch nói",sub:"Đọc câu tiếng Việt, bấm micro và nói bằng tiếng Anh. Có nhiều cách nói đúng, app so với câu mẫu nên hãy nghe đáp án để học cách nói tự nhiên.",items:pickTrans(10),mode:"trans"});
  if(m!=="chat")dailyChat=false;
+ if(m==="read"){RD.view="home";RD.res=null;RD.retry=null}
  if(m==="chat"||m==="call"){callMode=m==="call";chatScen=TUTOR;chatMsgs=null;summary=null;learnMode="chat"}
  else if(m==="role"){chatScen=null;callMode=false;learnMode="role"}
  else{learnMode=m;sentTopic=null;wordSel=null;vtTopic=null;vtSel=null;lsn=null;phScene=null;phRes=null}
