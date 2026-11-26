@@ -218,6 +218,17 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 .lg{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .lg.rk{background:var(--good)}.lg.rb{background:var(--bad)}.lg.rg{background:var(--muted)}
 .strs{color:var(--bad)}
+.rxbar{height:8px;background:var(--sunk);border-radius:99px;overflow:hidden}.rxbar i{display:block;height:100%;width:100%;background:var(--warn);border-radius:99px}
+.cando{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:4px}.cando li{padding-left:22px;position:relative}.cando li::before{content:"✓";position:absolute;left:2px;color:var(--good);font-weight:700}
+.lesson.locked{opacity:.62}
+.t3clock{font:700 2.6rem var(--f-body);text-align:center;color:var(--ink);font-variant-numeric:tabular-nums}
+.t3s{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px}.t3s span{background:var(--sunk);border-radius:10px;padding:8px;text-align:center;display:flex;flex-direction:column}.t3s b{font-size:1.35rem;color:var(--ink)}.t3s i{font-style:normal;font-size:.75rem;color:var(--muted)}
+.t3t{width:100%;border-collapse:collapse;font-size:.9rem}.t3t th,.t3t td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:center}.t3t td:first-child,.t3t th:first-child{text-align:left}
+.cchk input{width:22px;height:22px;flex:none;accent-color:var(--good)}
+.btn.plo.good{background:var(--good-bg);border-color:var(--good);color:var(--fg)}.btn.plo.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--fg)}
+.sw{width:42px;height:24px;border-radius:99px;background:var(--line);position:relative;flex:none}.sw i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--surface);transition:left .15s}.sw.on{background:var(--good)}.sw.on i{left:21px}
+#t3type{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+
 .rtxt{gap:10px 4px!important;align-items:flex-start}
 .rwb{display:inline-flex;flex-direction:column;align-items:center;gap:2px;border-radius:8px;padding:2px}
 .rwb.ck{background:color-mix(in srgb,var(--mark) 45%,transparent)}
@@ -293,8 +304,9 @@ table.mini td:last-child{text-align:right;font-family:var(--f-mono);font-variant
 
   <nav class="tabs" role="tablist" aria-label="Các phần của app">
     <button role="tab" data-tab="today" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Trang chủ</button>
-    <button role="tab" data-tab="learn" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Học</button>
-    <button role="tab" data-tab="vocab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Thẻ nhớ</button>
+    <button role="tab" data-tab="road" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/><circle cx="18" cy="19" r="2"/><path d="M5 19h11"/></svg>Lộ trình</button>
+    <button role="tab" data-tab="learn" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Luyện tập</button>
+    <button role="tab" data-tab="review" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/></svg>Ôn tập</button>
     <button role="tab" data-tab="stats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Tiến độ</button>
   </nav>
 
@@ -496,10 +508,10 @@ const IC={spk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 function hdr(){$("#hdrStreak").textContent=streak();$("#hdrXp").textContent=today().xp}
 let TAB="today";
-document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.tab));
-function go(t){TAB=t;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t!==TAB&&(t==="road"||t==="review"||TAB==="road"||TAB==="review"||TAB==="vocab")){learnMode=null;DR=null;RP=null;T3=null;PLC=null;WK=null;clearInterval(t3Int)}if(t==="road"&&TAB==="road")UNIT=null;go(t)});
+function go(t){TAB=t;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t||(t==="vocab"&&b.dataset.tab==="review")));
   if(location.hash.slice(1)!==t)history.replaceState(null,"","#"+t);render();window.scrollTo(0,0)}
-function render(){hdr();({today:vToday,vocab:vVocab,learn:vLearn,stats:vStats}[TAB]||vToday)()}
+function render(){hdr();({today:vToday,road:vRoad,review:vReview,vocab:vVocab,learn:vLearn,stats:vStats}[TAB]||vToday)()}
 
 /* ---------------- TODAY ---------------- */
 function dayIndex(){return Math.floor((Date.now()-new Date(2026,0,1))/DAY)}
@@ -519,8 +531,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
    <div class="row" style="justify-content:space-between"><span class="label">Bài học hôm nay · 15 phút</span><span class="pill ${st>=5?"good":""}">${st>=5?"Đã xong":st+"/5 phần"}</span></div>
    <b style="font-size:1.15rem">${st>=5?"Xong rồi! Hẹn bạn ngày mai":st?"Học tiếp bài hôm nay ›":"Bấm để bắt đầu ›"}</b>
    <span class="muted small">5 từ mới · 5 câu nói theo · ôn câu sai · 3 câu dịch nói · trò chuyện với Sam</span>${progBar(st*20)}</button>`})()}
-  ${pbDue().length?`<button class="panel row" id="qPb" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>${pbDue().length} từ trong Sổ phát âm cần ôn</b><br><span class="muted small">Đọc lại các từ hay sai để nhớ lâu</span></span><span class="muted">›</span></button>`:""}
-  ${revDue().length?`<button class="panel row" id="qRev" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>${revDue().length} câu nói sai cần ôn</b><br><span class="muted small">Ôn ngay để không lặp lại lỗi cũ</span></span><span class="muted">›</span></button>`:""}
+  ${homeRoad()}
   ${true?`<div class="hero stack">
    <div class="label" style="color:inherit;opacity:.8">${SAMPLE?"Luyện nói với AI":"Luyện nói với gia sư"}</div>
    <h2 style="color:inherit">Sam đang chờ bạn. Nói vài câu nhé?</h2>
@@ -540,7 +551,7 @@ function vToday(){const t=today();const q=queue();const pod=SEED[dayIndex()%SEED
  </div>`;
  document.querySelectorAll(".plan li").forEach(li=>{const x=tasks[li.dataset.i];const f=()=>{if(x.scen)openScen(x.scen);else if(x.mode)openMode(x.mode);else go(x.go)};li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}});
  $("#podSpk").onclick=()=>speak(pod.en+". "+pod.ex);
- $("#qDaily").onclick=()=>openMode("daily");$("#qRev")&&($("#qRev").onclick=()=>openMode("review"));$("#qPb")&&($("#qPb").onclick=()=>{openMode("read");RD.view="book";vRead()});
+ $("#qDaily").onclick=()=>openMode("daily");wireHomeRoad();$("#qRev")&&($("#qRev").onclick=()=>openMode("review"));$("#qPb")&&($("#qPb").onclick=()=>{openMode("read");RD.view="book";vRead()});
  if(true){$("#qCall").onclick=()=>openMode("call");$("#qTalk").onclick=()=>openMode("chat");$("#qChar").onclick=()=>quick(todayChar(),false);$("#qDeb").onclick=()=>quick(todayDeb(),false);
   $("#qScen").onclick=()=>quick(sc,false);$("#qPhoto").onclick=()=>openMode("photo")}}
 function todayChar(){return CHARS[dayIndex()%CHARS.length]}
@@ -688,6 +699,9 @@ const MODES=[
  {id:"call",t:"Gọi thoại",d:"Chỉ nói và nghe như một cuộc gọi, luyện phản xạ nói.",c:"b",ai:true,svg:'<rect x="34" y="10" width="30" height="56" rx="7"/><circle cx="49" cy="30" r="8" class="f2"/><path d="M39 52c3-7 17-7 20 0" class="f2"/><path d="M72 26c5 4 5 16 0 20M78 20c9 7 9 25 0 32" class="ln"/>'},
  {id:"sent",t:"Chế độ câu",d:"Học các câu giao tiếp hằng ngày theo bài, nói theo và được chấm phát âm.",c:"g",ai:false,svg:'<path d="M14 40h4M22 32v16M28 26v28M34 34v12M40 29v22M46 36v8" class="ln"/><rect x="54" y="22" width="32" height="36" rx="8"/><path d="M61 34h18M61 42h12" class="ln2"/>'},
  {id:"read",t:"Luyện đọc",d:"Gõ, dán đoạn văn hoặc chọn từ chủ đề. Nghe mẫu Mỹ/Anh, đọc theo, chấm từng từ và lưu Sổ phát âm.",c:"g",ai:false,svg:'<rect x="12" y="14" width="52" height="46" rx="6"/><path d="M20 26h34M20 34h28M20 42h32M20 50h20" class="ln2"/><rect x="62" y="30" width="18" height="28" rx="9" class="f2"/><path d="M58 50a13 13 0 0 0 26 0M71 63v6" class="ln2"/>'},
+ {id:"rp3",t:"Nhập vai 3 vòng",d:"Nói theo câu mẫu, rồi hội thoại có gợi ý, rồi tự nói. 8 tình huống thực tế.",c:"p",ai:false,svg:'<rect x="10" y="14" width="34" height="24" rx="8"/><rect x="52" y="38" width="34" height="24" rx="8" class="f2"/><text x="27" y="31" text-anchor="middle" font-size="13" font-weight="700">1</text><text x="69" y="55" text-anchor="middle" font-size="13" font-weight="700">3</text>'},
+ {id:"talk3",t:"Nói 3 lần",d:"Cùng một chủ đề nói 90, 60, 45 giây. Sửa lỗi giữa các lần để nói trôi chảy hơn.",c:"o",ai:false,svg:'<circle cx="48" cy="40" r="24" class="f2"/><path d="M48 24v16l11 7" class="ln2"/><text x="48" y="72" text-anchor="middle" font-size="11" font-weight="700">90·60·45</text>'},
+ {id:"reflex",t:"Mẫu câu phản xạ",d:"Nhìn tiếng Việt, dùng mẫu câu để nói tiếng Anh trong 5 giây.",c:"t",ai:false,svg:'<path d="M50 10L30 44h16l-4 24 22-36H48z"/>'},
  {id:"trans",t:"Dịch nói",d:"Nhìn câu tiếng Việt, nói lại bằng tiếng Anh, micro chấm ngay.",c:"o",ai:false,svg:'<rect x="10" y="14" width="40" height="30" rx="8"/><text x="30" y="35" text-anchor="middle" font-size="14" font-weight="700" class="dot">VI</text><rect x="46" y="32" width="40" height="30" rx="8" class="f2"/><text x="66" y="53" text-anchor="middle" font-size="14" font-weight="700" class="dot">EN</text>'},
  {id:"review",t:"Ôn câu nói sai",get d(){const n=revDue().length,a=revAll().length;return a?`${n} câu cần ôn hôm nay, ${a} câu trong danh sách. App tự gom từ mọi chế độ.`:"App tự gom những câu bạn nói chưa đúng để ôn lại vào hôm sau."},c:"p",ai:false,svg:'<circle cx="48" cy="38" r="24"/><path d="M48 24v14l9 6" class="ln2"/><path d="M20 20l6 8 8-5" class="ln2"/>'},
  {id:"match",t:"Ghép cặp",d:"Nhấn vào các cặp Việt và Anh tương ứng. Có bộ 100 từ cơ bản hay dùng.",c:"y",ai:false,svg:'<rect x="10" y="12" width="34" height="20" rx="6"/><rect x="52" y="12" width="34" height="20" rx="6" class="f2"/><rect x="10" y="44" width="34" height="20" rx="6" class="f2"/><rect x="52" y="44" width="34" height="20" rx="6"/><path d="M44 22h8M44 54h8" class="ln2"/>'},
@@ -716,7 +730,7 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor
 function pickTrans(n){S.tr=S.tr||{};const pool=ALL_SENT.filter(s=>s.vi&&s.t.split(" ").length>=3&&s.t.split(" ").length<=14);
  const fresh=shuffle(pool.filter(s=>(S.tr[s.id]||0)<85));const done=shuffle(pool.filter(s=>(S.tr[s.id]||0)>=85));
  return fresh.concat(done).slice(0,n).map(s=>({t:s.t,vi:s.vi,k:"tr",sid:s.id,tag:"Dịch nói",f:s.f}))}
-function startDrill(o){DR={i:0,res:null,hint:0,good:0,scored:{},...o};learnMode="drill";if(TAB!=="learn")go("learn");else{vDrill();window.scrollTo(0,0)}}
+function startDrill(o){DR={i:0,res:null,hint:0,good:0,scored:{},...o};learnMode="drill";if(TAB!=="learn"&&TAB!=="road"&&TAB!=="review")go("learn");else{vDrill();window.scrollTo(0,0)}}
 function drillBack(){const d=DR;DR=null;if(d&&d.onBack)return d.onBack();learnMode=null;vLearn();window.scrollTo(0,0)}
 function vDrill(){const d=DR;if(!d){learnMode=null;return vLearn()}if(d.i>=d.items.length)return drillEnd();
  const it=d.items[d.i],tr=it.k==="tr",r=d.res;const n=d.items.length;
@@ -728,15 +742,15 @@ function vDrill(){const d=DR;if(!d){learnMode=null;return vLearn()}if(d.i>=d.ite
   ${progBar(Math.round(d.i/n*100))}
   <div class="panel stack">
    <div class="row" style="justify-content:space-between"><span class="pill ${it.tag==="Ôn lại"?"bad":""}">${esc(it.tag||"")}</span><span class="muted small">${d.i+1}/${n}</span></div>
-   ${tr?`<div class="label">Nói câu này bằng tiếng Anh</div><div class="phrase">${esc(it.vi)}</div>
+   ${tr?`<div class="label">Nói câu này bằng tiếng Anh</div><div class="phrase">${esc(it.vi)}</div>${it.pat?`<div class="small muted">Mẫu câu: <b>${esc(it.pat)}</b></div>`:""}${d.timed&&!r?`<div class="rxbar" aria-hidden="true"><i id="rxi"></i></div>`:""}
      ${r?`<div class="label">Đáp án mẫu</div><div class="target">${esc(it.t)}</div>${r.T.some((w,i)=>!r.ok[i])&&r.heard&&!r.heard.startsWith("(")?`<div class="small muted">Từ bạn còn thiếu hoặc nói khác: <b>${esc(r.T.filter((w,i)=>!r.ok[i]).join(", "))}</b></div>`:""}`:d.hint?`<div class="tip">Gợi ý: <b>${esc(hintTxt)}</b> …</div>`:""}`
     :`<div class="target">${tWords}</div>${it.ipa?`<div class="ipa">${esc(it.ipa)}</div>`:""}<div class="vline small">Đọc: ${it.ipa&&norm(it.t).length===1?viFromIPA(it.ipa):viLine(it.t)}</div>${it.vi?`<div style="color:var(--ink);font-weight:600">${esc(it.vi)}</div>`:""}${it.ex?`<div class="muted"><i>${esc(it.ex)}</i></div>`:""}${it.note?`<div class="small muted">${esc(it.note)}</div>`:""}`}
    <div class="row">${!tr||r?`<button class="btn" id="dl1">${IC.spk}Nghe</button><button class="btn" id="dl2">${IC.slow}Nghe chậm</button>`:`<button class="btn" id="dh">Gợi ý</button><button class="btn ghost" id="dshow">Xem đáp án</button>`}</div>
    <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic" id="dmic" aria-label="Bấm để nói, bấm lần nữa để dừng">${IC.mic}</button>
     <div style="flex:1;min-width:0" class="stack"><div class="label">Máy nghe được</div><div class="heard" id="dheard">${r?esc(r.heard):`<span class="muted">${tr?"Bấm micro và nói câu tiếng Anh…":"Nghe mẫu, rồi bấm micro và đọc theo…"}</span>`}</div></div>
-    ${r?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
+    ${r&&!calm()?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
    ${DICT?"":`<form id="dtype" class="row" style="flex-wrap:nowrap"><input type="text" id="dtin" placeholder="Không có micro? Gõ câu tiếng Anh vào đây" autocomplete="off"><button class="btn">Chấm</button></form>`}
-   ${r?`<div class="tip">${r.score>=85?"<b>Chính xác!</b> Câu này bạn nói rất tốt.":r.score>=60?"<b>Gần đúng.</b> Nghe lại đáp án và nói thêm lần nữa."+(r.added?" Câu này đã vào danh sách ôn.":""):"<b>Chưa đúng.</b> "+(r.added?"Câu này đã vào danh sách <b>Ôn câu nói sai</b>, app sẽ nhắc bạn ôn lại.":"Nghe lại rồi thử lần nữa nhé.")}${r.cleared?" Bạn đã thuộc câu này, đã xóa khỏi danh sách ôn.":""}</div>`:""}
+   ${r&&calm()?`<div class="tip">${calmMsg(r)}</div>`:r?`<div class="tip">${r.score>=85?"<b>Chính xác!</b> Câu này bạn nói rất tốt.":r.score>=60?"<b>Gần đúng.</b> Nghe lại đáp án và nói thêm lần nữa."+(r.added?" Câu này đã vào danh sách ôn.":""):"<b>Chưa đúng.</b> "+(r.added?"Câu này đã vào danh sách <b>Ôn câu nói sai</b>, app sẽ nhắc bạn ôn lại.":"Nghe lại rồi thử lần nữa nhé.")}${r.cleared?" Bạn đã thuộc câu này, đã xóa khỏi danh sách ôn.":""}</div>`:""}
    ${r&&r.fix?`<div class="fb" style="max-width:none"><span class="fix">Câu bạn nói nên sửa:</span> ${esc(r.fix)}</div>`:""}
    ${r&&!tr?tipsFor(r.T,r.ok).slice(0,2).map(t=>`<div class="tip">${esc(t)}</div>`).join(""):""}
    <div class="row">${r?`<button class="btn" id="dagain">Nói lại</button>`:""}<button class="btn primary" id="dnext">${d.i+1<n?(r?"Câu tiếp ›":"Bỏ qua ›"):"Hoàn thành ›"}</button></div>
@@ -748,9 +762,10 @@ function vDrill(){const d=DR;if(!d){learnMode=null;return vLearn()}if(d.i>=d.ite
  const fin=h=>{const reveal=!h;const a=align3(it.t,h||"");const c=h?offCheck(h):{better:""};
   const res={...a,heard:h||"(bạn xem đáp án)",fix:c.better&&a.score<100?c.better:""};const first=!d.scored[d.i];d.scored[d.i]=1;
   if(it.rid){res.cleared=revHit(it.rid,a.score)}
-  else if(a.score<70&&first){revAdd({t:it.t,vi:it.vi,k:it.k,src:d.title});res.added=true}
+  else if(a.score<70&&first&&!d.noRev){revAdd({t:it.t,vi:it.vi,k:it.k,src:d.title});res.added=true}
   if(it.sid){if(tr){S.tr=S.tr||{};S.tr[it.sid]=Math.max(S.tr[it.sid]||0,a.score)}else S.shadow[it.sid]=Math.max(S.shadow[it.sid]||0,a.score)}
   if(it.wid&&a.score>=70){S.words=S.words||{};S.words[it.wid]=1}
+  if(first){d.sum=(d.sum||0)+a.score;d.cnt=(d.cnt||0)+1;if(it.cid){const cc=allCards().find(x=>x.id===it.cid);if(cc)grade(cc,a.score>=85?2:a.score>=60?1:0)}if(it.pbw)pbHit(it.pbw,a.score)}
   if(first&&a.score>=85)d.good++;
   if(!reveal)addXp(Math.max(1,Math.round(a.score/10)),"shadow");else save();
   d.res=res;vDrill();if(reveal||a.score<85)setTimeout(()=>speak(it.t),150)};
@@ -758,14 +773,15 @@ function vDrill(){const d=DR;if(!d){learnMode=null;return vLearn()}if(d.i>=d.ite
  $("#dtype")&&($("#dtype").onsubmit=e=>{e.preventDefault();const v=$("#dtin").value.trim();if(v)fin(v)});
  $("#dagain")&&($("#dagain").onclick=()=>{d.res=null;vDrill()});
  $("#dnext").onclick=()=>{d.i++;d.res=null;d.hint=0;vDrill();window.scrollTo(0,0)};
+ rxArm(d,it,r);
  if(!tr&&!r&&d.autoSpeak!==false&&!d.spoke?.[d.i]){d.spoke=d.spoke||{};d.spoke[d.i]=1;setTimeout(()=>speak(it.t),200)}}
 function drillEnd(){const d=DR;const n=d.items.length;
  $("#view").innerHTML=`<div class="stack">${backBar(d.title)}
-  <div class="panel stack" style="align-items:center;text-align:center"><div class="score" style="color:var(--good)">${d.good}/${n}</div><h2>${d.endTitle||"Hoàn thành lượt luyện!"}</h2>
-   <p class="muted" style="margin:0">${d.good===n?"Tất cả đều chính xác. Tuyệt vời!":"Những câu chưa đúng đã được thêm vào danh sách <b>Ôn câu nói sai</b>."}</p>
-   <div class="row" style="justify-content:center">${d.onEnd?`<button class="btn primary" id="dcont">Tiếp tục bài học ›</button>`:`<button class="btn primary" id="dmore">Luyện lượt mới</button><button class="btn" id="dout">Về trang Học</button>`}</div></div></div>`;
+  <div class="panel stack" style="align-items:center;text-align:center">${calm()?"":`<div class="score" style="color:var(--good)">${d.good}/${n}</div>`}<h2>${d.endTitle||"Hoàn thành lượt luyện!"}</h2>
+   <p class="muted" style="margin:0">${calm()?"Bạn đã nói hết "+n+" câu. Mỗi lần nói là một lần tiến bộ.":d.good===n?"Tất cả đều chính xác. Tuyệt vời!":d.noRev?"Đã ghi nhận kết quả.":"Những câu chưa đúng đã được thêm vào danh sách <b>Ôn câu nói sai</b>."}</p>
+   <div class="row" style="justify-content:center">${d.onEnd?`<button class="btn primary" id="dcont">${d.endBtn||"Tiếp tục bài học"} ›</button>`:`<button class="btn primary" id="dmore">Luyện lượt mới</button><button class="btn" id="dout">Về trang Học</button>`}</div></div></div>`;
  wireBack(drillBack);
- $("#dcont")&&($("#dcont").onclick=()=>{const f=d.onEnd;DR=null;f()});
+ $("#dcont")&&($("#dcont").onclick=()=>{const f=d.onEnd;DR=null;f(d)});
  $("#dmore")&&($("#dmore").onclick=()=>{const m=d.mode;DR=null;openMode(m)});
  $("#dout")&&($("#dout").onclick=()=>{DR=null;learnMode=null;vLearn();window.scrollTo(0,0)})}
 function vReviewList(){const all=revAll().sort((a,b)=>a.due<b.due?-1:1);const due=revDue();
@@ -779,10 +795,10 @@ function vReviewList(){const all=revAll().sort((a,b)=>a.due<b.due?-1:1);const du
  $("#rgo").onclick=()=>{const list=(due.length?due:all).slice(0,10).map(revItem);startDrill({title:"Ôn câu nói sai",items:list,mode:"review",onBack:()=>{learnMode="review";vLearn()}})}}
 // ===== Daily 15-minute lesson =====
 const LV_ORD=["A1","A2","B1","B2","C1","C2"];
-function buildDaily(){const lvMax=LV_ORD.indexOf(S.settings.level||"B1")+1;const vt=VT||loadVTSync()||[];const words=[];S.words=S.words||{};
+function buildDaily(){const lvMax=LV_ORD.indexOf(S.settings.level||"B1")+1;const vt=VT||loadVTSync()||[];const words=[];S.words=S.words||{};const CU=curUnit();unitWords(CU).forEach(w=>{if(words.length<5&&!S.words[w.id])words.push(w.id)});
  const start=dayIndex()%Math.max(1,vt.length);
  for(let k=0;k<vt.length&&words.length<5;k++){const t=vt[(start+k)%vt.length];for(const w of t.words){if(words.length>=5)break;if(!S.words[w.id]&&LV_ORD.indexOf(w.lv)<=lvMax&&!words.includes(w.id))words.push(w.id)}}
- const sents=ALL_SENT.filter(s=>(S.shadow[s.id]||0)<80).slice(0,5).map(s=>s.id);
+ const sents=[...new Set(unitSents(CU).concat(ALL_SENT))].filter(s=>(S.shadow[s.id]||0)<80).slice(0,5).map(s=>s.id);
  const trans=pickTrans(3).map(x=>x.sid);
  S.daily={d:dkey(),step:0,words,sents,trans,conv0:null};save()}
 function dailyStages(){const D=S.daily;return[
@@ -916,7 +932,7 @@ function vReadPrac(){const it=RD.retry?{t:RD.retry.q[RD.retry.k]}:RD.items[RD.i]
    <div class="small" id="rStat" style="min-height:1.2em;font-weight:600;color:var(--ink)"></div>
    <div class="row" style="gap:16px;flex-wrap:nowrap"><button class="mic big" id="rMic" aria-label="Bấm để đọc, bấm lần nữa để dừng">${IC.mic}</button>
     <div style="flex:1;min-width:0" class="stack"><div class="label row" style="justify-content:space-between"><span>Máy nghe được</span><span class="lvl" aria-hidden="true"><i id="rLvl"></i></span></div><div class="heard" id="rHeard">${r?esc(r.heard):'<span class="muted">Bấm micro rồi đọc to, rõ ràng…</span>'}</div></div>
-    ${r?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
+    ${r&&!calm()?`<div style="text-align:center"><div class="score" style="color:${col}">${r.score}</div><div class="label">điểm</div></div>`:""}</div>
    ${DICT?"":`<form id="rType" class="row" style="flex-wrap:nowrap"><input type="text" id="rTin" placeholder="Không có micro? Gõ lại câu bạn đọc" autocomplete="off"><button class="btn">Chấm</button></form>`}
    <label class="row small muted" style="gap:6px"><input type="checkbox" id="rRec" ${RD.rec?"checked":""}> Ghi âm để nghe lại giọng mình${/Android/i.test(navigator.userAgent)?" (trên Android có thể làm micro chấm kém nhạy)":""}</label>
    <p class="muted small" style="margin:0">Mẹo: bấm micro, đợi nút đổi màu rồi mới đọc. Đọc xong cứ im lặng khoảng 2 giây, app tự dừng và chấm.</p>
@@ -969,7 +985,7 @@ function vReadBook(){const all=Object.values(S.pbook||{}).sort((a,b)=>a.due<b.du
  $("#pbGo").onclick=()=>{const list=(due.length?due:all).slice(0,15);RD.items=list.map(o=>({t:o.w,ipa:M[o.w]||""}));RD.i=0;RD.res=null;RD.retry=null;RD.title="Ôn Sổ phát âm";RD.from="book";RD.view="prac";vRead()}}
 // ===== Ghép cặp (tap-to-match) =====
 let MT=null,mtSrc=null;
-function mtPool(src){const vt=VT||loadVTSync()||[];if(src==="learned"){const all=vt.flatMap(t=>t.words);return all.filter(w=>(S.words||{})[w.id])}
+function mtPool(src){if(Array.isArray(src))return src.slice();const vt=VT||loadVTSync()||[];if(src==="learned"){const all=vt.flatMap(t=>t.words);return all.filter(w=>(S.words||{})[w.id])}
  const t=vt[src];return t?t.words.slice():[]}
 function mtStart(src){const pool=mtPool(src).filter(w=>w.en&&w.vi);if(pool.length<4){toast("Chủ đề này chưa đủ từ để ghép. Hãy chọn chủ đề khác.");return}
  S.mt=S.mt||{};const fresh=shuffle(pool.filter(w=>(S.mt[w.id]||0)<2)),known=shuffle(pool.filter(w=>(S.mt[w.id]||0)>=2));
@@ -1090,6 +1106,371 @@ function speakWait(text,rate,onWord){const tok=++rdPlay;return new Promise(res=>
    u.onboundary=e=>{if(tok!==rdPlay||(e.name&&e.name!=="word"))return;gotB=true;let k=0;while(k+1<starts.length&&starts[k+1]<=e.charIndex)k++;onWord&&onWord(k)};
    u.onstart=()=>setTimeout(()=>{if(!gotB)startTimer()},350);u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);setTimeout(fin,estDur(text,rate)*2.5+2500)}catch(e){fin()}}
  else{rdSpeak(text,rate);startTimer();setTimeout(fin,estDur(text,rate)+400)}})}
+// ===== Lộ trình 12 tuần =====
+const STAGES=[["Nền tảng","A1-A2","Tuần 1-4: chào hỏi, giới thiệu, nói về cuộc sống hằng ngày"],["Giao tiếp theo tình huống","A2-B1","Tuần 5-8: đi lại, du lịch, điện thoại, sức khỏe, công việc"],["Nói trôi chảy","B1+","Tuần 9-12: kể chuyện, nêu ý kiến, họp, phỏng vấn, đàm phán"]];
+// [title, stage, can-do[], vocab[topic,start,n], lesson topic ids[], roleplay id, talk topic, talk hint words, patterns]
+const UNITS_RAW=[
+["Chào hỏi",0,["Tôi chào hỏi và hỏi thăm được người khác","Tôi chào tạm biệt lịch sự được"],[0,0,10],["D0t0","D0t1"],"c1","Greet a new friend and ask how they are.","hello, nice to meet you, how are you, see you",
+ [["Nice to meet you, ___.","Rất vui được gặp ___.",[["Rất vui được gặp bạn, Anna.","Nice to meet you, Anna."],["Rất vui được gặp anh, John.","Nice to meet you, John."],["Rất vui được gặp chị, Lisa.","Nice to meet you, Lisa."]]],["How is your ___ going?","___ của bạn thế nào?",[["Ngày của bạn thế nào?","How is your day going?"],["Công việc của bạn thế nào?","How is your work going?"],["Tuần của bạn thế nào?","How is your week going?"]]]]],
+["Giới thiệu bản thân",0,["Tôi nói được tên, tuổi, quê và công việc của mình","Tôi giới thiệu bản thân được trong 1 phút"],[0,10,10],["D1t0","D1t1"],"c1","Introduce yourself: name, age, hometown, job.","my name is, I'm from, I work as, I live in",
+ [["I'm from ___.","Tôi đến từ ___.",[["Tôi đến từ Hà Nội.","I'm from Hanoi."],["Tôi đến từ Việt Nam.","I'm from Vietnam."],["Tôi đến từ một thị trấn nhỏ.","I'm from a small town."]]],["I work as ___.","Tôi làm nghề ___.",[["Tôi làm kế toán.","I work as an accountant."],["Tôi làm giáo viên.","I work as a teacher."],["Tôi làm kỹ sư.","I work as an engineer."]]]]],
+["Gia đình và sở thích",0,["Tôi kể được về gia đình mình","Tôi nói được điều mình thích và không thích"],[1,0,10],["D1t2","L2t1"],"c6","Talk about your family and your hobbies.","there are, my parents, I like, in my free time",
+ [["I really like ___.","Tôi rất thích ___.",[["Tôi rất thích đọc sách.","I really like reading books."],["Tôi rất thích cà phê.","I really like coffee."],["Tôi rất thích đi du lịch.","I really like traveling."]]],["There are ___ people in my family.","Gia đình tôi có ___ người.",[["Gia đình tôi có bốn người.","There are four people in my family."],["Gia đình tôi có năm người.","There are five people in my family."],["Gia đình tôi có ba người.","There are three people in my family."]]]]],
+["Động từ cơ bản hằng ngày",0,["Tôi kể được một ngày bình thường của mình","Tôi dùng được 30 động từ thông dụng"],[32,25,10],["L0t0","L1t0"],"h2","Describe your daily routine from morning to night.","I get up, then, after that, usually",
+ [["I usually ___ at ___.","Tôi thường ___ lúc ___.",[["Tôi thường dậy lúc sáu giờ.","I usually get up at six."],["Tôi thường ăn trưa lúc mười hai giờ.","I usually have lunch at twelve."],["Tôi thường đi ngủ lúc mười một giờ.","I usually go to bed at eleven."]]],["Can you help me ___?","Bạn giúp tôi ___ được không?",[["Bạn giúp tôi việc này được không?","Can you help me with this?"],["Bạn giúp tôi mở cửa được không?","Can you help me open the door?"],["Bạn giúp tôi tìm cái này được không?","Can you help me find this?"]]]]],
+["Thời gian và lịch hẹn",0,["Tôi hỏi và nói giờ, ngày được","Tôi hẹn gặp và đổi lịch được"],[10,0,10],["D9t0","D9t1","D9t2"],"h4","Talk about your schedule this week.","on Monday, at 7 pm, I'm free, how about",
+ [["Are you free on ___?","Bạn có rảnh vào ___ không?",[["Bạn có rảnh vào thứ Bảy không?","Are you free on Saturday?"],["Bạn có rảnh vào tối mai không?","Are you free tomorrow evening?"],["Bạn có rảnh vào thứ Hai không?","Are you free on Monday?"]]],["How about ___?","___ thì sao?",[["Ba giờ thì sao?","How about three o'clock?"],["Ngày mai thì sao?","How about tomorrow?"],["Đi uống cà phê thì sao?","How about a coffee?"]]]]],
+["Thời tiết",0,["Tôi nói được về thời tiết hôm nay","Tôi so sánh được thời tiết các mùa"],[11,0,10],["D6t0","D6t1","D6t2"],"free","Describe the weather in your hometown in different seasons.","hot, rainy, in summer, it's getting",
+ [["It's very ___ today.","Hôm nay trời rất ___.",[["Hôm nay trời rất nóng.","It's very hot today."],["Hôm nay trời rất lạnh.","It's very cold today."],["Hôm nay trời rất nhiều gió.","It's very windy today."]]],["What's the weather like in ___?","Thời tiết ở ___ thế nào?",[["Thời tiết ở Hà Nội thế nào?","What's the weather like in Hanoi?"],["Thời tiết ở Đà Lạt thế nào?","What's the weather like in Da Lat?"],["Thời tiết ở đó thế nào?","What's the weather like there?"]]]]],
+["Ăn uống và gọi món",0,["Tôi gọi đồ ăn uống ở quán được","Tôi nói được món mình thích"],[9,0,10],["D4t0","D4t1","D4t2"],"c2","Talk about your favorite food and a good restaurant.","I'd like, delicious, my favorite, the bill",
+ [["I'd like ___, please.","Cho tôi ___.",[["Cho tôi một cốc cà phê sữa đá.","I'd like an iced milk coffee, please."],["Cho tôi một bát phở bò.","I'd like a bowl of beef pho, please."],["Cho tôi hóa đơn.","I'd like the bill, please."]]],["Could I have ___?","Cho tôi xin ___ được không?",[["Cho tôi xin thực đơn được không?","Could I have the menu?"],["Cho tôi xin ít nước được không?","Could I have some water?"],["Cho tôi xin thêm đá được không?","Could I have more ice?"]]]]],
+["Mua sắm",0,["Tôi hỏi giá và kích cỡ được","Tôi đổi trả hàng lịch sự được"],[5,0,10],["D3t0","D3t1","D3t2"],"c8","Talk about the last thing you bought.","how much, too expensive, I'll take it, size",
+ [["How much is ___?","___ giá bao nhiêu?",[["Cái áo này giá bao nhiêu?","How much is this shirt?"],["Đôi giày đó giá bao nhiêu?","How much are those shoes?"],["Cái này giá bao nhiêu?","How much is this?"]]],["Do you have this in ___?","Cái này có ___ không?",[["Cái này có cỡ lớn hơn không?","Do you have this in a bigger size?"],["Cái này có màu xanh không?","Do you have this in blue?"],["Cái này có cỡ M không?","Do you have this in medium?"]]]]],
+["Hỏi đường",1,["Tôi hỏi đường và hiểu chỉ dẫn được","Tôi chỉ đường đơn giản cho người khác được"],[6,0,10],["D2t0","D2t1","D2t2"],"c5","Explain how to get from your home to your favorite cafe.","go straight, turn left, next to, it takes",
+ [["Excuse me, where is ___?","Xin lỗi, ___ ở đâu?",[["Xin lỗi, ga tàu ở đâu?","Excuse me, where is the train station?"],["Xin lỗi, nhà vệ sinh ở đâu?","Excuse me, where is the restroom?"],["Xin lỗi, bến xe buýt ở đâu?","Excuse me, where is the bus stop?"]]],["Go straight and turn ___.","Đi thẳng rồi rẽ ___.",[["Đi thẳng rồi rẽ trái.","Go straight and turn left."],["Đi thẳng rồi rẽ phải ở ngã tư.","Go straight and turn right at the crossroads."],["Đi thẳng rồi rẽ trái ở đèn giao thông.","Go straight and turn left at the traffic lights."]]]]],
+["Du lịch và khách sạn",1,["Tôi đặt phòng và nhận phòng được","Tôi kể được về một chuyến đi"],[6,10,10],["D8t0","D8t1","D8t2"],"c3","Tell me about your last trip: where, who with, what you did.","last year, we stayed, the best part, I'd love to",
+ [["I have a reservation under ___.","Tôi đã đặt phòng tên ___.",[["Tôi đã đặt phòng tên Thắng.","I have a reservation under Thang."],["Tôi đã đặt phòng tên Vũ.","I have a reservation under Vu."],["Tôi đã đặt phòng tên công ty ABC.","I have a reservation under ABC Company."]]],["Last ___, I went to ___.","___ trước, tôi đã đi ___.",[["Năm ngoái, tôi đã đi Đà Nẵng.","Last year, I went to Da Nang."],["Tháng trước, tôi đã đi Sa Pa.","Last month, I went to Sa Pa."],["Mùa hè năm ngoái, tôi đã đi biển.","Last summer, I went to the beach."]]]]],
+["Gọi điện thoại",1,["Tôi bắt đầu và kết thúc cuộc gọi lịch sự được","Tôi nhờ người khác nói lại khi nghe không rõ"],[28,0,10],["D5t0","D5t1","D5t2"],"h6","Explain on the phone that your order is late and ask for help.","I'm calling about, could you, I'd appreciate",
+ [["I'm calling about ___.","Tôi gọi về việc ___.",[["Tôi gọi về đơn hàng của tôi.","I'm calling about my order."],["Tôi gọi về cuộc hẹn ngày mai.","I'm calling about tomorrow's appointment."],["Tôi gọi về hóa đơn.","I'm calling about the bill."]]],["Could you ___, please?","Bạn có thể ___ được không?",[["Bạn có thể nói lại được không?","Could you say that again, please?"],["Bạn có thể nói chậm hơn được không?","Could you speak more slowly, please?"],["Bạn có thể đánh vần được không?","Could you spell that, please?"]]]]],
+["Sức khỏe và đi khám",1,["Tôi mô tả được triệu chứng với bác sĩ","Tôi hỏi được cách dùng thuốc"],[8,0,10],["D7t0","D7t1","D7t2"],"h3","Describe what you do to stay healthy.","I try to, every morning, I should, enough sleep",
+ [["I have a ___.","Tôi bị ___.",[["Tôi bị đau đầu.","I have a headache."],["Tôi bị sốt.","I have a fever."],["Tôi bị đau họng.","I have a sore throat."]]],["How often should I ___?","Tôi nên ___ bao lâu một lần?",[["Tôi nên uống thuốc này bao lâu một lần?","How often should I take this medicine?"],["Tôi nên tập thể dục bao lâu một lần?","How often should I exercise?"],["Tôi nên quay lại khám bao lâu một lần?","How often should I come back?"]]]]],
+["Nơi làm việc",1,["Tôi nói được về công việc hằng ngày","Tôi nhờ đồng nghiệp giúp đỡ lịch sự được"],[3,0,10],["L4t0","L4t2"],"h1","Describe your job and a normal day at work.","I'm responsible for, I usually, my team, deadline",
+ [["I'm responsible for ___.","Tôi phụ trách ___.",[["Tôi phụ trách mảng bán hàng.","I'm responsible for sales."],["Tôi phụ trách báo cáo hằng tuần.","I'm responsible for the weekly report."],["Tôi phụ trách khách hàng mới.","I'm responsible for new customers."]]],["Would you mind ___?","Bạn có phiền ___ không?",[["Bạn có phiền kiểm tra cái này không?","Would you mind checking this?"],["Bạn có phiền đóng cửa không?","Would you mind closing the door?"],["Bạn có phiền gửi lại email không?","Would you mind sending the email again?"]]]]],
+["Bạn bè và xã giao",1,["Tôi bắt chuyện (small talk) được","Tôi rủ bạn đi chơi và nhận lời, từ chối được"],[2,0,10],["L1t1","L2t2"],"c6","Talk about your best friend and what you do together.","we met, we often, he/she is, I'm glad",
+ [["Do you want to ___?","Bạn có muốn ___ không?",[["Bạn có muốn đi xem phim không?","Do you want to see a movie?"],["Bạn có muốn đi ăn tối không?","Do you want to have dinner?"],["Bạn có muốn chơi cầu lông không?","Do you want to play badminton?"]]],["I'd love to, but ___.","Tôi rất muốn, nhưng ___.",[["Tôi rất muốn, nhưng tôi bận.","I'd love to, but I'm busy."],["Tôi rất muốn, nhưng tôi phải làm việc.","I'd love to, but I have to work."],["Tôi rất muốn, nhưng tôi mệt quá.","I'd love to, but I'm too tired."]]]]],
+["Nhà cửa và cuộc sống",1,["Tôi mô tả được nhà và khu mình ở","Tôi nói được việc nhà mình hay làm"],[7,0,10],["L3t0","L3t1"],"free","Describe your home and your neighborhood.","there is, near my house, my favorite room, quiet",
+ [["There is a ___ near my house.","Gần nhà tôi có một ___.",[["Gần nhà tôi có một công viên.","There is a park near my house."],["Gần nhà tôi có một chợ.","There is a market near my house."],["Gần nhà tôi có một quán cà phê.","There is a cafe near my house."]]],["I have to ___ every day.","Hằng ngày tôi phải ___.",[["Hằng ngày tôi phải nấu cơm.","I have to cook every day."],["Hằng ngày tôi phải dọn nhà.","I have to clean the house every day."],["Hằng ngày tôi phải đưa con đi học.","I have to take my kids to school every day."]]]]],
+["Công nghệ",1,["Tôi nói được cách mình dùng điện thoại, Internet","Tôi nêu được ưu và nhược điểm đơn giản"],[12,0,10],["L2t0"],"d2","Is social media good or bad for you? Give two reasons.","on the one hand, on the other hand, I think, because",
+ [["I use ___ to ___.","Tôi dùng ___ để ___.",[["Tôi dùng điện thoại để học tiếng Anh.","I use my phone to learn English."],["Tôi dùng Zalo để nhắn tin.","I use Zalo to send messages."],["Tôi dùng máy tính để làm việc.","I use my computer to work."]]],["The good thing about ___ is ___.","Điểm tốt của ___ là ___.",[["Điểm tốt của mạng xã hội là kết nối mọi người.","The good thing about social media is that it connects people."],["Điểm tốt của làm ở nhà là tiết kiệm thời gian.","The good thing about working from home is that it saves time."],["Điểm tốt của ứng dụng này là miễn phí.","The good thing about this app is that it's free."]]]]],
+["Kể chuyện đã qua",2,["Tôi kể được một câu chuyện theo thứ tự","Tôi nói được cảm xúc của mình về sự việc"],[21,0,10],["Lst3","Lst2"],"h4","Tell the story of a memorable day in your life.","first, then, after that, in the end, I felt",
+ [["When I was ___, I ___.","Khi tôi ___, tôi đã ___.",[["Khi tôi còn nhỏ, tôi sống ở quê.","When I was a child, I lived in the countryside."],["Khi tôi còn là sinh viên, tôi làm thêm.","When I was a student, I worked part-time."],["Khi tôi mười tám tuổi, tôi chuyển lên Hà Nội.","When I was eighteen, I moved to Hanoi."]]],["I felt ___ because ___.","Tôi cảm thấy ___ vì ___.",[["Tôi cảm thấy vui vì tôi đã đỗ.","I felt happy because I passed."],["Tôi cảm thấy lo vì tôi đến muộn.","I felt nervous because I was late."],["Tôi cảm thấy nhẹ nhõm vì mọi việc ổn.","I felt relieved because everything was okay."]]]]],
+["Nêu ý kiến",2,["Tôi nêu ý kiến và đưa lý do được","Tôi đồng ý và phản đối lịch sự được"],[18,10,10],["L4t0"],"d1","Do you prefer working from home or at the office? Why?","in my opinion, I believe, for example, that's why",
+ [["In my opinion, ___.","Theo tôi, ___.",[["Theo tôi, làm ở nhà hiệu quả hơn.","In my opinion, working from home is more productive."],["Theo tôi, tiếng Anh rất quan trọng.","In my opinion, English is very important."],["Theo tôi, giá này hơi cao.","In my opinion, this price is a bit high."]]],["I see your point, but ___.","Tôi hiểu ý bạn, nhưng ___.",[["Tôi hiểu ý bạn, nhưng tôi không đồng ý.","I see your point, but I don't agree."],["Tôi hiểu ý bạn, nhưng nó tốn thời gian.","I see your point, but it takes time."],["Tôi hiểu ý bạn, nhưng còn chi phí thì sao?","I see your point, but what about the cost?"]]]]],
+["Họp và thảo luận",2,["Tôi phát biểu và đề xuất được trong cuộc họp","Tôi tóm tắt được ý chính"],[24,0,10],["L4t0","L4t1"],"c7","Describe a project you worked on and what you learned.","the goal was, we decided, the main problem, next time",
+ [["I suggest that we ___.","Tôi đề xuất chúng ta ___.",[["Tôi đề xuất chúng ta họp vào thứ Hai.","I suggest that we meet on Monday."],["Tôi đề xuất chúng ta giảm chi phí.","I suggest that we reduce the cost."],["Tôi đề xuất chúng ta hỏi khách hàng.","I suggest that we ask the customer."]]],["To sum up, ___.","Tóm lại, ___.",[["Tóm lại, chúng ta cần thêm thời gian.","To sum up, we need more time."],["Tóm lại, dự án đang đúng tiến độ.","To sum up, the project is on track."],["Tóm lại, đây là kế hoạch tốt nhất.","To sum up, this is the best plan."]]]]],
+["Email và tin nhắn công việc",2,["Tôi giải thích được một vấn đề rõ ràng","Tôi hỏi và cập nhật tiến độ được"],[28,10,10],["L4t1"],"h1","Explain a problem at work and how you plan to fix it.","the problem is, I'm afraid, I will, by Friday",
+ [["I'm afraid that ___.","Tôi e là ___.",[["Tôi e là chúng ta sẽ bị trễ hạn.","I'm afraid that we will miss the deadline."],["Tôi e là tôi không thể đến.","I'm afraid that I can't come."],["Tôi e là có một lỗi nhỏ.","I'm afraid that there is a small mistake."]]],["I'll ___ by ___.","Tôi sẽ ___ trước ___.",[["Tôi sẽ gửi báo cáo trước thứ Sáu.","I'll send the report by Friday."],["Tôi sẽ trả lời bạn trước ngày mai.","I'll reply to you by tomorrow."],["Tôi sẽ sửa xong trước năm giờ.","I'll fix it by five o'clock."]]]]],
+["Đàm phán",2,["Tôi đưa ra và đáp lại đề nghị được","Tôi thương lượng giá lịch sự được"],[29,0,10],["D3t1"],"h6","Negotiate a better price for a service you want to buy.","can you do, if you, that's a deal, the best I can",
+ [["If you ___, we can ___.","Nếu bạn ___, chúng tôi có thể ___.",[["Nếu bạn mua hai cái, chúng tôi có thể giảm giá.","If you buy two, we can give you a discount."],["Nếu bạn trả trước, chúng tôi có thể giao sớm.","If you pay now, we can deliver early."],["Nếu bạn đồng ý, chúng tôi có thể ký hôm nay.","If you agree, we can sign today."]]],["Would you consider ___?","Bạn có cân nhắc ___ không?",[["Bạn có cân nhắc giảm mười phần trăm không?","Would you consider a ten percent discount?"],["Bạn có cân nhắc giao hàng miễn phí không?","Would you consider free delivery?"],["Bạn có cân nhắc thời hạn dài hơn không?","Would you consider a longer deadline?"]]]]],
+["Phỏng vấn xin việc",2,["Tôi trả lời được câu hỏi phỏng vấn thường gặp","Tôi nói được điểm mạnh kèm ví dụ"],[30,0,10],["D1t1"],"c4","Answer: Tell me about yourself and your greatest strength.","I have experience in, one of my strengths, for example, I'm looking for",
+ [["I have ___ years of experience in ___.","Tôi có ___ năm kinh nghiệm về ___.",[["Tôi có ba năm kinh nghiệm về bán hàng.","I have three years of experience in sales."],["Tôi có hai năm kinh nghiệm về kế toán.","I have two years of experience in accounting."],["Tôi có năm năm kinh nghiệm về marketing.","I have five years of experience in marketing."]]],["One of my strengths is ___.","Một điểm mạnh của tôi là ___.",[["Một điểm mạnh của tôi là làm việc nhóm.","One of my strengths is teamwork."],["Một điểm mạnh của tôi là học nhanh.","One of my strengths is learning quickly."],["Một điểm mạnh của tôi là kiên nhẫn.","One of my strengths is patience."]]]]],
+["Tranh luận về xã hội",2,["Tôi tranh luận và phản bác có lý lẽ được","Tôi đưa ví dụ để bảo vệ ý kiến"],[17,0,10],["Lst3"],"d5","Is it better to live in a big city or in the countryside?","however, on the other hand, the main reason, overall",
+ [["The main reason is that ___.","Lý do chính là ___.",[["Lý do chính là thành phố có nhiều việc làm.","The main reason is that cities have more jobs."],["Lý do chính là không khí ở quê sạch hơn.","The main reason is that the air in the countryside is cleaner."],["Lý do chính là chi phí thấp hơn.","The main reason is that the cost is lower."]]],["On the other hand, ___.","Mặt khác, ___.",[["Mặt khác, giao thông rất tệ.","On the other hand, the traffic is terrible."],["Mặt khác, có ít cơ hội hơn.","On the other hand, there are fewer opportunities."],["Mặt khác, cuộc sống yên bình hơn.","On the other hand, life is more peaceful."]]]]],
+["Tổng kết: nói tự tin",2,["Tôi nói liên tục 2 phút về một chủ đề quen","Tôi tự sửa lỗi khi nói"],[18,0,10],["Lst3"],"h5","Describe your English learning journey and your next goal.","when I started, now I can, my goal is, I'm going to",
+ [["Now I can ___.","Bây giờ tôi có thể ___.",[["Bây giờ tôi có thể giới thiệu bản thân.","Now I can introduce myself."],["Bây giờ tôi có thể gọi món bằng tiếng Anh.","Now I can order food in English."],["Bây giờ tôi có thể nói trong cuộc họp.","Now I can speak in meetings."]]],["My goal is to ___.","Mục tiêu của tôi là ___.",[["Mục tiêu của tôi là nói trôi chảy.","My goal is to speak fluently."],["Mục tiêu của tôi là đạt IELTS 6.5.","My goal is to get IELTS 6.5."],["Mục tiêu của tôi là làm việc với người nước ngoài.","My goal is to work with foreigners."]]]]]
+];
+const UNITS=UNITS_RAW.map(([t,st,can,vt,ls,sc,talk,hint,pat],i)=>({id:"U"+(i+1),n:i+1,week:Math.floor(i/2)+1,t,st,can,vt,ls,sc,talk,hint,pat}));
+const MODEL_ANS=[
+"Hi, nice to meet you! I'm Thang. How are you today? I'm doing well, thanks. It's a lovely day, isn't it? Let's grab a coffee sometime. See you later!",
+"Hello, my name is Thang. I'm thirty years old and I'm from Hanoi. I work as an accountant at a small company. In my free time, I like reading and playing badminton. I'm learning English because I want to travel more.",
+"There are four people in my family: my parents, my younger sister and me. My father is a teacher and my mother runs a small shop. In my free time, I really like cooking and watching movies. On weekends, we often have dinner together.",
+"I usually get up at six. First, I have breakfast and drink a cup of coffee. Then I go to work by motorbike. I work from eight to five. After that, I go to the gym. In the evening, I cook dinner and I go to bed at eleven.",
+"This week I'm quite busy. On Monday and Tuesday, I have meetings in the morning. I'm free on Wednesday evening, so I'm going to meet a friend at seven. How about you? Are you free on Saturday?",
+"In my hometown, the summer is very hot and it rains a lot. In winter, it's cold and a bit foggy. My favorite season is autumn because the weather is cool and sunny. It's getting colder now, so I wear a jacket.",
+"My favorite food is beef pho. It's delicious and not expensive. There is a great restaurant near my house. I usually say: I'd like a bowl of pho and an iced tea, please. After the meal, I ask for the bill.",
+"Last weekend, I bought a new pair of shoes. I asked the shop assistant: How much are these? They were a bit too expensive, so I asked for a discount. She gave me ten percent off, so I said: Great, I'll take them.",
+"From my home to my favorite cafe, you go straight for about two hundred meters. Then turn left at the traffic lights. The cafe is next to a bookshop, on the right. It takes about five minutes on foot.",
+"Last year, I went to Da Nang with my family. We stayed in a hotel near the beach for four days. We swam, ate seafood and visited the Marble Mountains. The best part was the sunset. I'd love to go back next summer.",
+"Hello, this is Thang. I'm calling about my order. I placed it last Monday, but it hasn't arrived yet. Could you check it for me, please? I'd appreciate it if you could send it this week. Thank you for your help.",
+"To stay healthy, I try to exercise every morning for thirty minutes. I eat a lot of vegetables and drink enough water. I should sleep more, because I often go to bed late. When I feel stressed, I go for a walk.",
+"I work as an accountant. I'm responsible for the monthly reports and the payments. I usually start work at eight. In the morning, I check emails and talk to my team. The hardest part is the deadline at the end of the month.",
+"My best friend is Nam. We met at university ten years ago. We often play football and go out for coffee on weekends. He is funny and very kind. I'm glad we are still close friends.",
+"I live in a small apartment in Hanoi. There are two bedrooms, a kitchen and a living room. My favorite room is the living room because it's bright. Near my house, there is a park and a market. It's quiet at night.",
+"I think social media has good and bad sides. On the one hand, it helps me keep in touch with friends and learn new things. On the other hand, people spend too much time on it. Because of that, I try to use it less than one hour a day.",
+"I remember the day I got my first job. First, I was very nervous before the interview. Then the manager asked me many questions. After that, she smiled and said: You got the job. In the end, I felt so happy and proud.",
+"In my opinion, working from home is better for me. I believe I can focus more because the office is noisy. For example, last month I finished a big report two days early at home. That's why I prefer working from home two days a week.",
+"Last year, I worked on a project to change our payment system. The goal was to save time. The main problem was that some staff didn't like the new software. We decided to run short training sessions. Next time, I will talk to the users earlier.",
+"The problem is that the client sent the wrong data. I'm afraid we can't finish the report on time. I will call the client today and ask for the correct file. I'll send you the updated report by Friday.",
+"Your price is a bit high for us. Can you do a better price if we sign a one-year contract? If you give us a ten percent discount, we can pay in advance. That's the best I can offer. Do we have a deal?",
+"I have three years of experience in accounting. One of my strengths is attention to detail. For example, I found a big mistake in a report and saved my company money. I'm looking for a job where I can grow in an international team.",
+"Many people think living in a big city is better. The main reason is that there are more jobs and services. However, the traffic and pollution are terrible. On the other hand, the countryside is peaceful but has fewer opportunities. Overall, I prefer a small city.",
+"When I started learning English, I couldn't speak at all. Now I can introduce myself, order food and talk about my job. I still make mistakes, but I can fix them. My goal is to speak confidently in meetings. I'm going to practice fifteen minutes every day."];
+const PLACE_Q=[
+["thank you",["cảm ơn","xin lỗi","tạm biệt","làm ơn"],"A1"],
+["expensive",["đắt","rẻ","đẹp","mới"],"A1"],
+["tomorrow",["ngày mai","hôm qua","hôm nay","tuần sau"],"A1"],
+["borrow",["mượn","trả","mua","bán"],"A2"],
+["appointment",["cuộc hẹn","căn hộ","đơn xin","lời xin lỗi"],"A2"],
+["I've been here ___ two years.",["for","since","in","at"],"A2"],
+["deadline",["hạn chót","đường kẻ","đường tắt","cuộc họp"],"B1"],
+["If I ___ more time, I would travel.",["had","have","will have","am having"],"B1"],
+["reliable",["đáng tin cậy","có thể sửa","dễ thương","sẵn sàng"],"B1"],
+["negotiate",["đàm phán","bỏ qua","từ chối","điều tra"],"B2"],
+["It's high time we ___ a decision.",["made","make","will make","making"],"B2"],
+["thoroughly",["một cách kỹ lưỡng","thỉnh thoảng","vội vàng","gần như"],"B2"]];
+const PLACE_SAY=[["Tôi đến từ Việt Nam.","I'm from Vietnam."],["Bạn có rảnh vào thứ Bảy không?","Are you free on Saturday?"],["Tôi đã sống ở đây được ba năm.","I have lived here for three years."],["Theo tôi, làm ở nhà hiệu quả hơn.","In my opinion, working from home is more productive."]];
+// ===== Lộ trình: trạng thái chung =====
+function road(){S.road=S.road||{u:0,st:{},can:{},place:null,start:dkey()};S.road.st=S.road.st||{};S.road.can=S.road.can||{};return S.road}
+function unitAt(i){return UNITS[Math.max(0,Math.min(UNITS.length-1,i|0))]}
+function curUnit(){return unitAt(road().u)}
+const U_STEPS=[["w","Từ vựng","10 từ của bài: nghe, nói theo, ghép cặp"],["p","Mẫu câu phản xạ","Nhìn tiếng Việt, nói tiếng Anh trong 5 giây"],["s","Câu nói theo","Shadowing các câu mẫu của bài"],["r","Nhập vai 3 vòng","Nói theo mẫu, nói có gợi ý, rồi tự nói"],["t","Nói 3 lần","Cùng một chủ đề trong 90, 60, 45 giây"],["c","Tự kiểm tra","Đánh dấu những điều bạn đã làm được"]];
+function uSt(U){const R=road();return R.st[U.id]||(R.st[U.id]={})}
+function uDoneN(U){const s=road().st[U.id]||{};return U_STEPS.filter(([k])=>s[k]).length}
+function uDone(U){return uDoneN(U)>=U_STEPS.length}
+function unitsDone(){return UNITS.filter(uDone).length}
+function uMark(U,k){if(!U)return;const s=uSt(U);if(!s[k]){s[k]=dkey();addXp(5,null)}
+ if(uDone(U)&&road().u===U.n-1&&U.n<UNITS.length){road().u=U.n;setTimeout(()=>toast("Xong bài "+U.n+"! Đã mở bài "+(U.n+1)+": "+UNITS[U.n].t),300)}save()}
+function unitWords(U){const t=(VT||loadVTSync()||[])[U.vt[0]];return t?t.words.slice(U.vt[1],U.vt[1]+U.vt[2]):[]}
+function unitSents(U){const all=LESSONS.flatMap(l=>l.topics);return U.ls.flatMap(id=>(all.find(t=>t.id===id)||{items:[]}).items)}
+function unitCues(U){return U.pat.flatMap(([en,vi,cues])=>cues.map(([v,e])=>({t:e,vi:v,k:"tr",tag:"Phản xạ",pat:en})))}
+function scenById(id){return id==="free"?TUTOR:SCEN.concat(CHARS,DEBATES).find(s=>s.id===id)||TUTOR}
+function stageOf(U){return STAGES[U.st]}
+function calm(){return!!S.settings.calm}
+function calmHtml(){return`<button class="panel row calmT" id="calmT" aria-pressed="${calm()}" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left;flex-wrap:nowrap"><span><b>Luyện nhẹ nhàng: ${calm()?"Đang bật":"Đang tắt"}</b><br><span class="muted small">${calm()?"Ẩn điểm số, có thêm thời gian. Cứ nói, sai cũng không sao.":"Bật nếu bạn ngại sai: ẩn điểm, thêm thời gian suy nghĩ."}</span></span><span class="sw ${calm()?"on":""}" aria-hidden="true"><i></i></span></button>`}
+function wireCalm(re){$("#calmT")&&($("#calmT").onclick=()=>{S.settings.calm=!calm();save();toast(calm()?"Đã bật luyện nhẹ nhàng: không hiện điểm":"Đã tắt luyện nhẹ nhàng");re()})}
+function calmMsg(r){return r.score>=85?"<b>Tốt lắm!</b> Bạn nói rất rõ.":r.score>=60?"<b>Gần rồi.</b> Nghe lại mẫu và nói thêm một lần nữa nhé.":"<b>Không sao cả.</b> Nghe mẫu thật chậm rồi thử lại, mỗi lần một chút."}
+function backRoad(){DR=null;RP=null;T3=null;learnMode=null;if(TAB!=="road")go("road");else{vRoad();window.scrollTo(0,0)}}
+function stepRow(U,[k,t,s],i){const d=(road().st[U.id]||{})[k];return`<li data-k="${k}" class="${d?"done":""}" tabindex="0"><span class="chk">${d?"✓":i+1}</span><span class="t"><b>${esc(t)}</b><br><span class="muted small">${esc(s)}</span></span><span class="muted">›</span></li>`}
+function nextStep(U){const s=road().st[U.id]||{};return U_STEPS.find(([k])=>!s[k])}
+let UNIT=null;
+// ===== Tab Lộ trình =====
+function vRoad(){if(learnMode)return vLearn();if(UNIT!=null)return vUnit(unitAt(UNIT));
+ const R=road(),U=curUnit(),nd=unitsDone(),ns=nextStep(U);const wk=weekDue();
+ $("#view").innerHTML=`<div class="stack">
+  <div class="row" style="justify-content:space-between"><h1>Lộ trình 12 tuần</h1><span class="pill">${nd}/24 bài</span></div>
+  <p class="muted" style="margin:0">Mỗi tuần 2 bài, mỗi bài khoảng 20 đến 30 phút (chia làm nhiều ngày cũng được). Mục tiêu của mỗi bài là những việc <b>bạn làm được</b> bằng tiếng Anh, theo khung CEFR.</p>
+  ${progBar(Math.round(nd/24*100))}
+  ${R.place?"":`<div class="panel stack" style="gap:8px;border:2px solid var(--ink)"><b>Bạn mới bắt đầu lộ trình?</b><span class="muted small">Làm bài kiểm tra đầu vào khoảng 5 phút (12 câu chọn nghĩa và 4 câu nói). App sẽ chọn bài phù hợp với trình độ của bạn.</span><div class="row"><button class="btn primary" id="rPlace">Làm bài kiểm tra</button><button class="btn ghost" id="rSkip">Bỏ qua, học từ bài 1</button></div></div>`}
+  <button class="panel stack" id="rCur" style="text-align:left;gap:8px;cursor:pointer;font:inherit;color:inherit;border:2px solid var(--ink)">
+   <div class="row" style="justify-content:space-between"><span class="label">Tuần ${U.week}/12 · Bài ${U.n} · ${esc(stageOf(U)[1])}</span><span class="pill ${uDone(U)?"good":""}">${uDoneN(U)}/6 phần</span></div>
+   <b style="font-size:1.2rem">${esc(U.t)}</b>
+   <ul class="cando">${U.can.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>
+   <span class="btn primary" style="align-self:flex-start">${ns?(uDoneN(U)?"Học tiếp":"Bắt đầu")+": "+esc(ns[1])+" ›":"Xem lại bài ›"}</span></button>
+  ${wk?`<button class="panel row" id="rWeek" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left;flex-wrap:nowrap"><span><b>Kiểm tra cuối tuần</b><br><span class="muted small">10 phút: phản xạ mẫu câu, nói 1 phút, tự đánh giá. So sánh với tuần trước.</span></span><span class="pill">Đến hạn</span></button>`:""}
+  ${STAGES.map((st,si)=>`<section class="stack" style="gap:8px"><div><span class="lno">Giai đoạn ${si+1} · ${esc(st[1])}</span><h2>${esc(st[0])}</h2><span class="muted small">${esc(st[2])}</span></div>
+   <div class="path">${UNITS.filter(u=>u.st===si).map(u=>{const dn=uDoneN(u),lock=u.n-1>R.u;return`<button class="lesson ${lock?"locked":""}" data-u="${u.n-1}"><span class="ring" style="--p:${Math.round(dn/6*100)}"><span>${uDone(u)?"✓":lock?"🔒":u.n}</span></span><span class="t"><b>${esc(u.t)}</b><span class="muted small">Tuần ${u.week} · ${esc(u.can[0])}</span></span><span class="muted">›</span></button>`}).join("")}</div></section>`).join("")}
+  <div class="row"><button class="btn ghost small" id="rPlace2">${R.place?"Làm lại bài kiểm tra đầu vào":""}</button><button class="btn ghost small" id="rWeek2">Kiểm tra tuần ngay</button></div>
+ </div>`;
+ $("#rPlace2").textContent||$("#rPlace2").remove();
+ $("#rPlace")&&($("#rPlace").onclick=startPlace);$("#rPlace2")&&($("#rPlace2").onclick=startPlace);
+ $("#rSkip")&&($("#rSkip").onclick=()=>{R.place={d:dkey(),skip:1,u:0};save();vRoad()});
+ $("#rCur").onclick=()=>{UNIT=R.u;vRoad();window.scrollTo(0,0)};
+ $("#rWeek")&&($("#rWeek").onclick=startWeek);$("#rWeek2").onclick=startWeek;
+ document.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{const i=+b.dataset.u;if(i>R.u)toast("Bài này chưa mở. Bạn vẫn xem được, nhưng nên học các bài trước.");UNIT=i;vRoad();window.scrollTo(0,0)})}
+function vUnit(U){const i=U.n-1,R=road();
+ $("#view").innerHTML=`<div class="stack">${backBar("Bài "+U.n+" · "+U.t)}
+  <div class="muted small">Tuần ${U.week}/12 · Giai đoạn ${U.st+1}: ${esc(stageOf(U)[0])} (${esc(stageOf(U)[1])})</div>
+  <div class="panel stack" style="gap:6px"><div class="label">Sau bài này</div><ul class="cando">${U.can.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
+  ${progBar(Math.round(uDoneN(U)/6*100))}
+  <ul class="plan" id="uSteps">${U_STEPS.map((x,k)=>stepRow(U,x,k)).join("")}</ul>
+  <div class="panel stack" style="gap:8px"><div class="label">Mẫu câu của bài</div>${U.pat.map(p=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span><b>${esc(p[0])}</b><br><span class="muted small">${esc(p[1])}</span></span><button class="iconbtn" data-say="${esc(p[2][0][1])}" aria-label="Nghe ví dụ">${IC.spk}</button></div>`).join("")}</div>
+  <div class="panel stack" style="gap:8px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="label">Bài nói mẫu · ${esc(U.talk)}</div><button class="iconbtn" data-say="${esc(MODEL_ANS[i])}" aria-label="Nghe bài mẫu">${IC.spk}</button></div>
+   <div class="muted">${esc(MODEL_ANS[i])}</div><button class="btn small" id="uModel" style="align-self:flex-start">Đọc theo bài mẫu</button></div>
+  <div class="row" style="justify-content:space-between">${i>0?`<button class="btn ghost" id="uPrev">‹ Bài ${i}</button>`:"<span></span>"}${i<23?`<button class="btn ghost" id="uNext">Bài ${i+2} ›</button>`:""}</div>
+ </div>`;
+ wireBack(()=>{UNIT=null;vRoad();window.scrollTo(0,0)});
+ document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+ $("#uPrev")&&($("#uPrev").onclick=()=>{UNIT=i-1;vRoad();window.scrollTo(0,0)});$("#uNext")&&($("#uNext").onclick=()=>{UNIT=i+1;vRoad();window.scrollTo(0,0)});
+ $("#uModel").onclick=()=>startDrill({title:"Bài "+U.n+" · Bài nói mẫu",items:splitSent(MODEL_ANS[i]).map(t=>({t,k:"say",tag:"Bài mẫu"})),onBack:backRoad,onEnd:backRoad,endBtn:"Về bài học"});
+ document.querySelectorAll("#uSteps li").forEach(li=>{const f=()=>runUStep(U,li.dataset.k);li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}})}
+function runUStep(U,k){const i=U.n-1;const com={onBack:backRoad,onEnd:()=>{uMark(U,k);backRoad()},endBtn:"Về bài học",sub:`Bài ${U.n} · ${U.t}`};
+ if(k==="w"){const ws=unitWords(U);if(!ws.length){toast("Chưa tải được từ vựng");return}
+  const items=ws.map(w=>({t:w.en,vi:w.vi,ipa:w.ipa,ex:w.ctx,k:"say",wid:w.id,tag:"Từ vựng · "+w.lv}));
+  return vUWords(U,ws,()=>startDrill({title:"Bài "+U.n+" · Từ vựng",items,...com}))}
+ if(k==="p")return startDrill({title:"Bài "+U.n+" · Mẫu câu phản xạ",items:shuffle(unitCues(U)),timed:true,...com,sub:`Nhìn câu tiếng Việt và nói bằng tiếng Anh theo mẫu câu. Bạn có ${calm()?10:5} giây để bắt đầu nói, hết giờ app đọc đáp án để bạn nói theo.`});
+ if(k==="s"){const items=unitSents(U).slice(0,8).map(s=>({t:s.t,vi:s.vi,k:"say",sid:s.id,tag:"Nói theo · "+s.f}));return startDrill({title:"Bài "+U.n+" · Câu nói theo",items,...com})}
+ if(k==="r"){RPV={id:U.sc,U};learnMode="rp3";return vLearn()}
+ if(k==="t")return t3Start({topic:U.talk,hint:U.hint,model:MODEL_ANS[i],title:"Bài "+U.n+" · Nói 3 lần",onDone:()=>uMark(U,"t"),back:backRoad,fixed:true});
+ if(k==="c")return vUCheck(U)}
+function vUWords(U,ws,go1){$("#view").innerHTML=`<div class="stack">${backBar("Bài "+U.n+" · Từ vựng")}
+  <p class="muted" style="margin:0">Xem 10 từ, bấm loa để nghe. Sau đó <b>nói theo từng từ</b> để được chấm, hoặc chơi <b>Ghép cặp</b> cho nhớ nghĩa.</p>
+  <div class="panel"><div class="list">${ws.map(w=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;padding:6px 0;border-bottom:1px solid var(--line)"><span style="min-width:0"><b>${esc(w.en)}</b> <span class="muted small">${esc(w.ipa||"")}</span><br><span class="vline small">Đọc: ${w.ipa?viFromIPA(w.ipa):viLine(w.en)}</span> · ${esc(w.vi)}</span><button class="iconbtn" data-say="${esc(w.en)}" aria-label="Nghe">${IC.spk}</button></div>`).join("")}</div></div>
+  <div class="row"><button class="btn primary" id="uw1">Nói theo 10 từ ›</button><button class="btn" id="uw2">Ghép cặp</button></div></div>`;
+ wireBack(backRoad);document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+ $("#uw1").onclick=go1;$("#uw2").onclick=()=>mtStart(ws)}
+function vUCheck(U){const R=road();const all=()=>U.can.every((c,j)=>R.can[U.id+"_"+j]);
+ $("#view").innerHTML=`<div class="stack">${backBar("Bài "+U.n+" · Tự kiểm tra")}
+  <p class="muted" style="margin:0">Hãy thật lòng: thử nói to từng việc dưới đây (không nhìn gợi ý). Làm được thì đánh dấu. Chưa được thì quay lại luyện phần đó, không sao cả.</p>
+  <div class="panel stack">${U.can.map((c,j)=>`<label class="row cchk" style="flex-wrap:nowrap;gap:10px;cursor:pointer"><input type="checkbox" data-j="${j}" ${R.can[U.id+"_"+j]?"checked":""}><span><b>${esc(c)}</b></span></label>`).join("")}</div>
+  <div class="tip">Gợi ý nói thử: ${esc(U.talk)} Dùng: <b>${esc(U.hint)}</b></div>
+  <button class="btn primary" id="ucOk" ${all()?"":"disabled"}>Hoàn thành bài ${U.n} ›</button></div>`;
+ wireBack(backRoad);
+ document.querySelectorAll("[data-j]").forEach(x=>x.onchange=()=>{R.can[U.id+"_"+x.dataset.j]=x.checked?1:0;save();$("#ucOk").disabled=!all()});
+ $("#ucOk").onclick=()=>{uMark(U,"c");if(uDone(U))toast("Tuyệt! Bạn đã hoàn thành bài "+U.n);else toast("Đã ghi nhận. Còn "+(6-uDoneN(U))+" phần chưa học trong bài này");backRoad()}}
+// ===== Nhập vai 3 vòng =====
+let RP=null,RPV=null;
+function rpLines(s,U){return s.sample?s.sample.slice():U?unitCues(U).filter((c,j)=>j%3===0||j%3===1).map(c=>c.t).slice(0,4):[]}
+function rpDone(id,r){S.rp=S.rp||{};S.rp[id]=Math.max(S.rp[id]||0,r);if(r>=3&&RPV&&RPV.U&&RPV.id===id)uMark(RPV.U,"r");save()}
+function rpBack(){if(RPV&&RPV.U)return backRoad();RPV=null;learnMode=null;vLearn();window.scrollTo(0,0)}
+function vRP3(){if(!RPV){$("#view").innerHTML=`<div class="stack">${backBar("Nhập vai 3 vòng")}
+  <p class="muted" style="margin:0">Mỗi tình huống luyện 3 vòng: <b>1.</b> nói theo câu mẫu, <b>2.</b> hội thoại có gợi ý hiện sẵn, <b>3.</b> tự nói không gợi ý. Đây là cách giáo viên dùng để bạn nói được thật.</p>
+  <div class="scen">${SCEN.map(s=>`<button data-id="${s.id}"><b>${esc(s.title)}</b><span class="muted small">${esc(s.vi)}</span><span class="pill ${(S.rp||{})[s.id]>=3?"good":""}" style="align-self:flex-start">${(S.rp||{})[s.id]||0}/3 vòng</span></button>`).join("")}</div></div>`;
+  wireBack();document.querySelectorAll(".scen button").forEach(b=>b.onclick=()=>{RPV={id:b.dataset.id};vRP3()});return}
+ const s=scenById(RPV.id),done=(S.rp||{})[RPV.id]||0;const R3=[["Vòng 1 · Nói theo mẫu","Nghe và nói theo "+rpLines(s,RPV.U).length+" câu mẫu của tình huống"],["Vòng 2 · Hội thoại có gợi ý","Hội thoại: "+esc(s.title)+". Câu gợi ý hiện sẵn, trả lời 4 lượt"],["Vòng 3 · Tự nói","Không có gợi ý và câu mẫu, trả lời 4 lượt bằng lời của bạn"]];
+ $("#view").innerHTML=`<div class="stack">${backBar("Nhập vai: "+s.title)}
+  <p class="muted" style="margin:0">${esc(s.vi||"")}</p>${progBar(Math.round(done/3*100))}
+  <ul class="plan">${R3.map((x,j)=>`<li data-r="${j+1}" class="${done>j?"done":""}" tabindex="0"><span class="chk">${done>j?"✓":j+1}</span><span class="t"><b>${x[0]}</b><br><span class="muted small">${x[1]}</span></span>${done===j?`<span class="pill">Tiếp theo</span>`:`<span class="muted">›</span>`}</li>`).join("")}</ul>
+  ${done>=3?`<div class="tip"><b>Xong 3 vòng!</b> Làm lại vòng 3 vào ngày khác để nói tự nhiên hơn.</div>`:""}</div>`;
+ wireBack(()=>{if(RPV.U)return rpBack();RPV=null;vRP3()});
+ document.querySelectorAll("[data-r]").forEach(li=>{const f=()=>rpRound(s,+li.dataset.r);li.onclick=f;li.onkeydown=e=>{if(e.key==="Enter")f()}})}
+function rpRound(s,r){const back=()=>{learnMode="rp3";vLearn();window.scrollTo(0,0)};
+ if(r===1){const items=rpLines(s,RPV.U).map(t=>({t,k:"say",tag:"Vòng 1"}));if(!items.length)return rpDone(s.id,1),back();
+  return startDrill({title:"Vòng 1 · Nói theo mẫu",sub:"Nghe từng câu rồi nói theo. Đây là những câu bạn sẽ dùng ở vòng 2 và 3.",items,onBack:back,onEnd:()=>{rpDone(s.id,1);back()},endBtn:"Sang vòng 2"})}
+ RP={id:s.id,round:r,conv0:today().conv||0,ok:0};callMode=false;chatScen=s;chatMsgs=null;summary=null;learnMode=s.kind==="free"?"chat":"role";vLearn();window.scrollTo(0,0)}
+function rpAfter(){if(!RP)return;const n=(today().conv||0)-RP.conv0;
+ if(RP.round===2){const b=$("#hint");if(b&&!$("#hintBox").innerHTML)b.click()}
+ if(RP.round===3){document.querySelectorAll("#hint,.chips").forEach(x=>x.remove())}
+ const bar=$("#rpBar");if(!bar){const v=$("#view .stack");v&&v.insertAdjacentHTML("afterbegin",`<div class="tip" id="rpBar"></div>`)}
+ $("#rpBar").innerHTML=`<b>Vòng ${RP.round}/3</b> · ${RP.round===2?"gợi ý hiện sẵn, bạn có thể nói theo hoặc tự đổi ý":"tự nói, không có gợi ý"} · ${Math.min(n,4)}/4 lượt${n>=4?" · <b>Xong! Bấm ← để tiếp tục</b>":""}`;
+ if(n>=4&&!RP.ok){RP.ok=1;rpDone(RP.id,RP.round);toast("Xong vòng "+RP.round+"! Bấm ← để tiếp tục")}}
+// ===== Nói 3 lần (4/3/2) =====
+let T3=null,t3Int=null;
+const FILLERS=/\b(um+|uh+|uhm|erm?|ah+|hmm+|you know|i mean)\b/gi;
+function t3Start(o){clearInterval(t3Int);T3={rounds:[90,60,45],k:0,phase:"prep",res:[],left:30,txt:"",chunks:[],ui:road().u,...o};learnMode="talk3";if(TAB==="today")go("learn");else vLearn();window.scrollTo(0,0)}
+function t3Hub(){const U=curUnit();t3Start({topic:U.talk,hint:U.hint,model:MODEL_ANS[U.n-1],title:"Nói 3 lần",back:()=>{T3=null;learnMode=null;vLearn()}})}
+function t3Stats(text,sec){const ws=norm(text);return{n:ws.length,uniq:new Set(ws).size,fill:(text.match(FILLERS)||[]).length,wpm:Math.round(ws.length/Math.max(10,sec)*60),sec,txt:text}}
+function t3Tick(fn){clearInterval(t3Int);t3Int=setInterval(()=>{if(!T3||learnMode!=="talk3"){clearInterval(t3Int);return}T3.left--;const el=$("#t3left");if(el)el.textContent=fmtSec(T3.left);if(T3.left<=0){clearInterval(t3Int);fn()}},1000)}
+function fmtSec(s){s=Math.max(0,s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function t3Listen(){if(!T3||T3.phase!=="rec"||!DICT)return;if(DICT.active())return;
+ startMic({partial:t=>{const el=$("#t3live");if(el)el.textContent=(T3.txt+" "+t).trim()},
+  done:h=>{if(!T3)return;if(h){T3.chunks.push(h);T3.txt=T3.chunks.join(" ")}const el=$("#t3live");if(el)el.textContent=T3.txt;
+   if(T3.phase==="rec"&&T3.left>0)setTimeout(t3Listen,150);else if(T3.phase==="stopping")t3Finish()}},$("#t3mic"))}
+function t3Begin(){T3.phase="rec";T3.left=T3.rounds[T3.k];T3.txt="";T3.chunks=[];T3.t0=Date.now();vT3();t3Tick(t3Stop);t3Listen()}
+function t3Stop(){if(!T3||T3.phase!=="rec")return;clearInterval(t3Int);T3.phase="stopping";T3.used=Math.round((Date.now()-T3.t0)/1000);
+ const ta=$("#t3type");if(ta&&ta.value.trim()){T3.chunks=[ta.value.trim()];T3.txt=ta.value.trim()}
+ if(DICT&&DICT.active()){DICT.stop().catch(()=>{});setTimeout(t3Finish,2500)}else t3Finish()}
+function t3Finish(){if(!T3||T3.phase!=="stopping")return;const st=t3Stats(T3.txt,Math.min(T3.used||T3.rounds[T3.k],T3.rounds[T3.k]));
+ const fixes=[];T3.chunks.flatMap(c=>splitSent(c)).forEach(c=>{const o=offCheck(c);if(o.better&&fixes.length<3){fixes.push({you:c,better:o.better,why:o.notes.join(" ")});revAdd({t:o.better,k:"say",src:"Nói 3 lần",note:"Bạn đã nói: "+c})}});
+ st.fixes=fixes;st.miss=T3.hint.split(/,\s*/).filter(h=>!(" "+norm(T3.txt).join(" ")+" ").includes(" "+norm(h).join(" ")+" "));
+ T3.res[T3.k]=st;T3.phase="fb";if(st.n)addXp(Math.min(15,4+Math.round(st.n/10)),"shadow");save();vT3();window.scrollTo(0,0)}
+function t3End(){T3.phase="end";S.t3=S.t3||[];S.t3.push({d:dkey(),topic:T3.topic,r:T3.res.map(x=>({n:x.n,uniq:x.uniq,fill:x.fill,wpm:x.wpm}))});if(S.t3.length>60)S.t3=S.t3.slice(-60);save();if(T3.onDone)T3.onDone(T3.res);vT3();window.scrollTo(0,0)}
+function t3StatHtml(x){return calm()?`<div class="t3s"><span><b>${x.n}</b><i>từ đã nói</i></span><span><b>${x.uniq}</b><i>từ khác nhau</i></span></div>`:`<div class="t3s"><span><b>${x.n}</b><i>từ</i></span><span><b>${x.wpm}</b><i>từ/phút</i></span><span><b>${x.uniq}</b><i>từ khác nhau</i></span><span><b>${x.fill}</b><i>từ đệm (um, uh)</i></span></div>`}
+function vT3(){const T=T3;if(!T){learnMode=null;return vLearn()}const back=()=>{clearInterval(t3Int);if(DICT&&DICT.active())DICT.stop().catch(()=>{});const f=T.back;T3=null;f?f():(learnMode=null,vLearn())};
+ const R=T.rounds,k=T.k,many=R.length>1;let body="";
+ if(T.phase==="prep")body=`<div class="panel stack"><div class="label">Chủ đề</div><div class="phrase">${esc(T.topic)}</div>
+   <div class="label">Từ gợi ý nên dùng</div><div class="chips">${T.hint.split(/,\s*/).map(h=>`<span class="chip">${esc(h)}</span>`).join("")}</div>
+   <div class="tip">${many?`Bạn sẽ nói <b>cùng một chủ đề 3 lần</b>: ${R.join(", ")} giây. Lần sau ngắn hơn nên bạn phải nói gọn và trôi hơn. Giữa các lần, app chỉ ra lỗi để bạn sửa.`:`Nói liên tục ${R[0]} giây về chủ đề trên.`} Bây giờ có <b>30 giây chuẩn bị</b>: nghĩ 3 ý chính, không cần viết ra.</div>
+   <div class="t3clock" id="t3left">${fmtSec(T.left)}</div>
+   <div class="row"><button class="btn primary big" id="t3go">Bắt đầu nói ngay ›</button>${T.fixed?"":`<button class="btn ghost" id="t3sw">Đổi chủ đề</button>`}</div></div>`;
+ else if(T.phase==="rec"||T.phase==="stopping")body=`<div class="panel stack"><div class="row" style="justify-content:space-between"><span class="label">${many?"Lần "+(k+1)+"/3":"Nói"} · ${R[k]} giây</span><span class="pill">${esc(T.topic.slice(0,40))}${T.topic.length>40?"…":""}</span></div>
+   <div class="t3clock" id="t3left">${fmtSec(T.left)}</div>
+   ${DICT?`<div class="row" style="gap:12px;flex-wrap:nowrap"><span class="mic on" id="t3mic" aria-hidden="true">${IC.mic}</span><div class="heard" id="t3live" style="flex:1;min-height:90px">${esc(T.txt)||'<span class="muted">Đang nghe… cứ nói liên tục, ngập ngừng cũng không sao.</span>'}</div></div>`
+    :`<textarea id="t3type" rows="5" placeholder="Không có micro? Gõ những gì bạn nói vào đây"></textarea>`}
+   <div class="chips">${T.hint.split(/,\s*/).map(h=>`<span class="chip">${esc(h)}</span>`).join("")}</div>
+   <button class="btn" id="t3stop">${T.phase==="stopping"?"Đang xử lý…":"Xong, dừng lại"}</button></div>`;
+ else if(T.phase==="fb"){const x=T.res[k],p=T.res[k-1];body=`<div class="panel stack"><div class="label">${many?"Kết quả lần "+(k+1)+"/3":"Kết quả"}</div>${t3StatHtml(x)}
+   ${p&&!calm()?`<div class="small muted">So với lần trước: ${x.wpm>=p.wpm?"nhanh hơn "+(x.wpm-p.wpm):"chậm hơn "+(p.wpm-x.wpm)} từ/phút${x.fill<p.fill?", ít từ đệm hơn":""}.</div>`:""}
+   <div class="label">Bạn đã nói</div><div class="heard">${esc(x.txt)||'<span class="muted">Chưa nghe được gì. Thử nói to, gần micro hơn.</span>'}</div>
+   ${x.fixes.length?`<div class="label">Sửa trước lần sau</div>${x.fixes.map(f=>`<div class="fb" style="max-width:none">Bạn nói: <i>${esc(f.you)}</i><br><span class="fix">Nên nói:</span> ${esc(f.better)}${f.why?`<br><span class="small">${esc(f.why)}</span>`:""}</div>`).join("")}`:x.n?`<div class="tip">Không thấy lỗi ngữ pháp thường gặp. Tốt lắm!</div>`:""}
+   ${x.miss.length?`<div class="tip">Thử thêm các cụm: <b>${esc(x.miss.join(", "))}</b></div>`:""}
+   ${k+1<R.length?`<div class="tip">Lần ${k+2} chỉ có <b>${R[k+1]} giây</b>. Nói lại đúng nội dung đó, sửa các lỗi trên, bỏ bớt ngập ngừng.</div><button class="btn primary big" id="t3nx">Nói lần ${k+2}: ${R[k+1]} giây ›</button>`:`<button class="btn primary big" id="t3fin">Xem tổng kết ›</button>`}
+   <button class="btn ghost small" id="t3re">Nói lại lần này</button></div>`}
+ else{body=`<div class="panel stack" style="text-align:center;align-items:center"><div class="score" style="color:var(--good)">✓</div><h2>${many?"Xong 3 lần nói!":"Xong!"}</h2>
+   ${many?`<table class="t3t"><tr><th></th>${T.res.map((x,j)=>`<th>Lần ${j+1}</th>`).join("")}</tr><tr><td>Số từ</td>${T.res.map(x=>`<td>${x.n}</td>`).join("")}</tr>${calm()?"":`<tr><td>Từ/phút</td>${T.res.map(x=>`<td>${x.wpm}</td>`).join("")}</tr><tr><td>Từ đệm</td>${T.res.map(x=>`<td>${x.fill}</td>`).join("")}</tr>`}<tr><td>Lỗi</td>${T.res.map(x=>`<td>${x.fixes.length}</td>`).join("")}</tr></table>
+   <p class="muted" style="margin:0">${T.res[2]&&T.res[0]&&T.res[2].wpm>T.res[0].wpm?"Bạn nói nhanh và trôi hơn ở lần cuối. Đây chính là cách luyện nói lưu loát.":"Lần sau thử giữ đủ ý trong thời gian ngắn hơn nhé."} Các câu đã sửa nằm trong <b>Ôn tập</b>.</p>`:""}</div>
+   ${T.model?`<div class="panel stack" style="gap:8px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="label">Bài nói mẫu để tham khảo</div><button class="iconbtn" id="t3ms" aria-label="Nghe bài mẫu">${IC.spk}</button></div><div class="muted">${esc(T.model)}</div></div>`:""}
+   <div class="row"><button class="btn primary" id="t3out">${T.back?"Xong":"Về Luyện tập"}</button><button class="btn" id="t3again">Nói lại chủ đề này</button></div>`}
+ $("#view").innerHTML=`<div class="stack">${backBar(T.title||"Nói 3 lần")}${many?progBar(Math.round((T.phase==="end"?3:k+(T.phase==="fb"?1:0))/3*100)):""}${body}</div>`;
+ wireBack(back);
+ $("#t3go")&&($("#t3go").onclick=()=>{clearInterval(t3Int);t3Begin()});
+ $("#t3sw")&&($("#t3sw").onclick=()=>{T.ui=(T.ui+1)%UNITS.length;const U=UNITS[T.ui];T.topic=U.talk;T.hint=U.hint;T.model=MODEL_ANS[T.ui];vT3()});
+ $("#t3stop")&&($("#t3stop").onclick=t3Stop);
+ $("#t3nx")&&($("#t3nx").onclick=()=>{T.k++;t3Begin();window.scrollTo(0,0)});
+ $("#t3re")&&($("#t3re").onclick=()=>t3Begin());
+ $("#t3fin")&&($("#t3fin").onclick=t3End);
+ $("#t3ms")&&($("#t3ms").onclick=()=>speak(T.model));
+ $("#t3out")&&($("#t3out").onclick=back);
+ $("#t3again")&&($("#t3again").onclick=()=>{T.k=0;T.res=[];T.phase="prep";T.left=30;vT3();t3Tick(t3Begin)});
+ if(T.phase==="prep"&&!T.ticking){T.ticking=1;t3Tick(t3Begin)}}
+// ===== Mẫu câu phản xạ =====
+let rxT=null;
+function rxArm(d,it,r){clearTimeout(rxT);const bar=$("#rxi");if(!d.timed||r||it.k!=="tr"||!bar)return;const sec=calm()?10:5,i=d.i;
+ bar.style.transition="none";bar.style.width="100%";bar.offsetWidth;bar.style.transition=`width ${sec}s linear`;bar.style.width="0%";
+ rxT=setTimeout(()=>{if(DR!==d||d.i!==i||d.res||learnMode!=="drill")return;if(DICT&&DICT.active())return;toast("Hết "+sec+" giây. Nghe đáp án rồi nói theo nhé");$("#dshow")&&$("#dshow").click()},sec*1000)}
+function startReflex(){const upto=Math.max(4,road().u+1);const pool=UNITS.slice(0,upto).flatMap(unitCues);
+ startDrill({title:"Mẫu câu phản xạ",sub:`Nhìn câu tiếng Việt, dùng mẫu câu để nói tiếng Anh. Bạn có ${calm()?10:5} giây để bắt đầu nói. Lấy từ ${upto} bài đầu của lộ trình.`,items:shuffle(pool).slice(0,10),timed:true,mode:"reflex"})}
+// ===== Kiểm tra đầu vào =====
+let PLC=null;
+function startPlace(){PLC={i:0,ok:0,lv:{},pick:null,opts:PLACE_Q.map(q=>shuffle(q[1])),say:null};learnMode="place";UNIT=null;if(TAB!=="road")go("road");else{vLearn();window.scrollTo(0,0)}}
+function placeResult(){const mc=PLC.ok/PLACE_Q.length,sy=(PLC.say||0)/100,tot=.6*mc+.4*sy;
+ const [lv,u]=tot<.35?["A1",0]:tot<.55?["A2",4]:tot<.75?["B1",8]:["B1+",16];return{lv,u,tot:Math.round(tot*100),mc:PLC.ok,say:PLC.say||0}}
+function vPlace(){const back=()=>{PLC=null;learnMode=null;vRoad();window.scrollTo(0,0)};const n=PLACE_Q.length;
+ if(!PLC)return back();
+ if(PLC.i<n){const q=PLACE_Q[PLC.i],opts=PLC.opts[PLC.i],gap=q[0].includes("___");
+  $("#view").innerHTML=`<div class="stack">${backBar("Kiểm tra đầu vào")}<p class="muted small" style="margin:0">Phần 1/2 · Câu ${PLC.i+1}/${n}. Không biết thì chọn "Tôi chưa biết", đừng đoán bừa.</p>${progBar(Math.round(PLC.i/(n+1)*100))}
+   <div class="panel stack"><div class="label">${gap?"Chọn từ đúng điền vào chỗ trống":"Từ này nghĩa là gì?"}</div><div class="phrase">${esc(q[0])}</div>${gap?"":`<button class="btn ghost small" id="plS" style="align-self:flex-start">${IC.spk}Nghe</button>`}
+   <div class="stack" style="gap:8px">${opts.map(o=>{const c=PLC.pick!=null?(o===q[1][0]?"good":o===PLC.pick?"bad":""):"";return`<button class="btn plo ${c}" data-o="${esc(o)}" ${PLC.pick!=null?"disabled":""}>${esc(o)}</button>`}).join("")}
+   <button class="btn ghost" data-o="" ${PLC.pick!=null?"disabled":""}>Tôi chưa biết</button></div></div></div>`;
+  wireBack(back);$("#plS")&&($("#plS").onclick=()=>speak(q[0]));
+  document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{PLC.pick=b.dataset.o;if(PLC.pick===q[1][0]){PLC.ok++;PLC.lv[q[2]]=(PLC.lv[q[2]]||0)+1}vPlace();setTimeout(()=>{if(!PLC)return;PLC.i++;PLC.pick=null;vPlace()},800)});return}
+ if(PLC.say==null){$("#view").innerHTML=`<div class="stack">${backBar("Kiểm tra đầu vào")}${progBar(Math.round(n/(n+1)*100))}
+   <div class="panel stack"><b>Phần 2/2: Nói 4 câu</b><p class="muted" style="margin:0">Bạn đúng ${PLC.ok}/${n} câu ở phần 1. Bây giờ nhìn câu tiếng Việt và nói bằng tiếng Anh. Câu khó dần, cứ nói những gì bạn nói được.</p>
+   <button class="btn primary big" id="plGo">Bắt đầu phần nói ›</button><button class="btn ghost" id="plNo">Không nói được lúc này, bỏ qua</button></div></div>`;
+  wireBack(back);$("#plNo").onclick=()=>{PLC.say=0;PLC.nosay=1;vPlace()};
+  $("#plGo").onclick=()=>startDrill({title:"Kiểm tra đầu vào · Nói",items:PLACE_SAY.map(([vi,t])=>({t,vi,k:"tr",tag:"Phần 2"})),noRev:true,endBtn:"Xem kết quả",
+   onBack:()=>{learnMode="place";vLearn()},onEnd:d=>{PLC.say=Math.round((d.sum||0)/PLACE_SAY.length);learnMode="place";vLearn()}});return}
+ const r=placeResult(),U=UNITS[r.u];
+ $("#view").innerHTML=`<div class="stack">${backBar("Kết quả kiểm tra")}
+  <div class="panel stack" style="align-items:center;text-align:center"><div class="label">Trình độ ước tính</div><div class="score" style="color:var(--ink)">${r.lv}</div>
+   <p class="muted" style="margin:0">Chọn nghĩa đúng ${r.mc}/${n} câu${PLC.nosay?"":" · Nói: "+r.say+" điểm"}</p></div>
+  <div class="panel stack" style="gap:6px"><div class="label">Gợi ý bắt đầu</div><b>Bài ${U.n}: ${esc(U.t)} (tuần ${U.week})</b><span class="muted small">Các bài trước vẫn mở để bạn ôn khi cần. Bạn có thể đổi điểm bắt đầu bất cứ lúc nào.</span></div>
+  <div class="row"><button class="btn primary" id="plOk">Bắt đầu từ bài ${U.n} ›</button>${r.u?`<button class="btn ghost" id="plOne">Học từ bài 1</button>`:""}</div></div>`;
+ wireBack(back);const set=u=>{const R=road();R.place={d:dkey(),lv:r.lv,mc:r.mc,say:r.say,u};R.u=Math.max(R.u,u);S.settings.level=r.lv==="B1+"?"B2":r.lv;PLC=null;learnMode=null;save();UNIT=R.u;vRoad();window.scrollTo(0,0)};
+ $("#plOk").onclick=()=>set(r.u);$("#plOne")&&($("#plOne").onclick=()=>set(0))}
+// ===== Kiểm tra cuối tuần =====
+let WK=null;
+function weekDue(){const L=(S.wk||[]).slice(-1)[0];if(!UNITS.some(u=>uDoneN(u)>0))return false;if(!L)return true;const days=Math.round((new Date(dkey())-new Date(L.d))/DAY);return days>=7||(new Date().getDay()===0&&days>=1)}
+function startWeek(){WK={step:0,rx:null,t:null,can:{}};learnMode="week";UNIT=null;if(TAB!=="road")go("road");else{vLearn();window.scrollTo(0,0)}}
+function weekUnits(){const u=road().u;return UNITS.slice(Math.max(0,u-1),u+1)}
+function vWeek(){const back=()=>{WK=null;learnMode=null;vRoad();window.scrollTo(0,0)};if(!WK)return back();const us=weekUnits(),U=us[us.length-1],prev=(S.wk||[]).slice(-1)[0];
+ const st=[["Phản xạ mẫu câu","Mẫu câu từ bài "+us.map(u=>u.n).join(" và "),WK.rx!=null?(calm()?"Đã xong":WK.rx+" điểm"):""],["Nói 1 phút",U.talk,WK.t?WK.t.n+" từ"+(calm()?"":" · "+WK.t.wpm+" từ/phút"):""],["Tự đánh giá","Bạn làm được những việc này chưa?",""]];
+ $("#view").innerHTML=`<div class="stack">${backBar("Kiểm tra cuối tuần")}
+  <p class="muted" style="margin:0">Khoảng 10 phút. Không phải để chấm đỗ trượt: app lưu lại để bạn thấy mình tiến bộ qua từng tuần.</p>
+  <ul class="plan">${st.map((x,j)=>`<li data-s="${j}" class="${WK.step>j?"done":""}" tabindex="0"><span class="chk">${WK.step>j?"✓":j+1}</span><span class="t"><b>${x[0]}</b><br><span class="muted small">${esc(x[1])}</span></span>${x[2]?`<span class="pill good">${esc(x[2])}</span>`:WK.step===j?`<span class="pill">Tiếp theo</span>`:""}</li>`).join("")}</ul>
+  ${WK.step>=2?`<div class="panel stack">${us.flatMap(u=>u.can.map((c,j)=>`<label class="row cchk" style="flex-wrap:nowrap;gap:10px;cursor:pointer"><input type="checkbox" data-c="${u.id}_${j}" ${WK.can[u.id+"_"+j]?"checked":""}><span>${esc(c)}</span></label>`)).join("")}
+   <button class="btn primary" id="wkSave">Lưu kết quả tuần</button></div>`:""}
+  ${prev?`<div class="panel stack" style="gap:6px"><div class="label">Lần kiểm tra trước · ${prev.d.slice(5).split("-").reverse().join("/")}</div><span class="small">${calm()?"":"Phản xạ "+prev.rx+" điểm · "}Nói ${prev.n} từ${calm()?"":" · "+prev.wpm+" từ/phút"} · Tự tin ${prev.can}/${prev.cant} việc</span></div>`:""}</div>`;
+ wireBack(back);
+ document.querySelectorAll("[data-c]").forEach(x=>x.onchange=()=>{WK.can[x.dataset.c]=x.checked?1:0});
+ $("#wkSave")&&($("#wkSave").onclick=()=>{const cant=us.reduce((a,u)=>a+u.can.length,0),can=Object.values(WK.can).filter(Boolean).length;S.wk=S.wk||[];
+  S.wk.push({d:dkey(),u:road().u,rx:WK.rx||0,n:WK.t?WK.t.n:0,wpm:WK.t?WK.t.wpm:0,uniq:WK.t?WK.t.uniq:0,can,cant});if(S.wk.length>60)S.wk=S.wk.slice(-60);addXp(10,null);save();
+  toast(prev&&WK.t&&WK.t.n>prev.n?"Đã lưu. Tuần này bạn nói nhiều hơn tuần trước!":"Đã lưu kết quả tuần. Xem ở mục Tiến độ");back()});
+ document.querySelectorAll("[data-s]").forEach(li=>li.onclick=()=>{const j=+li.dataset.s;const re=()=>{learnMode="week";vLearn();window.scrollTo(0,0)};
+  if(j===0)startDrill({title:"Kiểm tra tuần · Phản xạ",items:shuffle(us.flatMap(unitCues)).slice(0,8),timed:true,endBtn:"Tiếp tục kiểm tra",onBack:re,onEnd:d=>{WK.rx=Math.round((d.sum||0)/Math.max(1,d.cnt||0));WK.step=Math.max(WK.step,1);re()}});
+  else if(j===1)t3Start({rounds:[60],topic:U.talk,hint:U.hint,model:MODEL_ANS[U.n-1],title:"Kiểm tra tuần · Nói 1 phút",fixed:true,onDone:res=>{WK.t=res[0];WK.step=Math.max(WK.step,2)},back:re});
+  else{WK.step=Math.max(WK.step,2);vWeek()}})}
+// ===== Tab Ôn tập =====
+function revTodayItems(){const items=[];revDue().slice(0,8).forEach(o=>items.push(revItem(o)));let M={};try{M=IPA_MAP()}catch(e){}
+ pbDue().slice(0,6).forEach(o=>items.push({t:o.w,ipa:M[o.w]||"",k:"say",pbw:o.w,tag:"Sổ phát âm"}));
+ due().slice(0,10).forEach(c=>items.push({t:c.en,vi:c.vi,k:"tr",cid:c.id,tag:"Thẻ nhớ"}));return items}
+function vReview(){if(learnMode)return vLearn();const nc=due().length,nr=revDue().length,np=pbDue().length,tot=Math.min(nr,8)+Math.min(np,6)+Math.min(nc,10);const nq=queue().length;
+ $("#view").innerHTML=`<div class="stack"><h1>Ôn tập</h1>
+  <div class="panel stack" style="gap:10px;border:2px solid var(--ink)"><div class="row" style="justify-content:space-between"><span class="label">Ôn hôm nay</span><span class="pill ${tot?"":"good"}">${tot?tot+" mục":"Đã xong"}</span></div>
+   <b style="font-size:1.15rem">${tot?"Một lượt ôn gộp tất cả, nói to từng mục":"Hôm nay không còn mục nào đến hạn"}</b>
+   <div class="t3s"><span><b>${nc}</b><i>thẻ nhớ đến hạn</i></span><span><b>${nr}</b><i>câu nói sai</i></span><span><b>${np}</b><i>từ phát âm khó</i></span></div>
+   <span class="muted small">Thẻ nhớ: nhìn nghĩa tiếng Việt và nói tiếng Anh, app tự xếp lịch ôn theo điểm. Câu nói sai và từ phát âm khó: nghe rồi nói lại cho đúng.</span>
+   <button class="btn primary big" id="rvGo" ${tot?"":"disabled"}>Bắt đầu ôn ›</button></div>
+  <div class="path">
+   <button class="lesson" id="rvCards"><span class="ring" style="--p:0"><span>${nq}</span></span><span class="t"><b>Thẻ nhớ (lật thẻ)</b><span class="muted small">${nq} thẻ đang chờ · cách ôn cũ: tự chấm Quên, Khó, Được, Dễ</span></span><span class="muted">›</span></button>
+   <button class="lesson" id="rvRev"><span class="ring" style="--p:0"><span>${revAll().length}</span></span><span class="t"><b>Danh sách câu nói sai</b><span class="muted small">Câu chưa đúng ở mọi chế độ, tự xóa khi nói đúng 2 lần</span></span><span class="muted">›</span></button>
+   <button class="lesson" id="rvPb"><span class="ring" style="--p:0"><span>${Object.keys(S.pbook||{}).length}</span></span><span class="t"><b>Sổ phát âm</b><span class="muted small">Những từ bạn hay đọc sai trong Luyện đọc</span></span><span class="muted">›</span></button>
+   <button class="lesson" id="rvMt"><span class="ring" style="--p:0"><span>✦</span></span><span class="t"><b>Ghép cặp từ đã học</b><span class="muted small">Ôn nghĩa các từ đã thuộc bằng trò chơi ghép cặp</span></span><span class="muted">›</span></button>
+  </div></div>`;
+ $("#rvGo").onclick=()=>{const items=revTodayItems();if(!items.length)return;const re=()=>{learnMode=null;vReview();window.scrollTo(0,0)};startDrill({title:"Ôn hôm nay",sub:"Mỗi mục nói to một lần. Thẻ nhớ: nhìn tiếng Việt, nói tiếng Anh (bấm Gợi ý nếu quên).",items,mode:"revtoday",onBack:re,onEnd:re,endBtn:"Về Ôn tập"})};
+ $("#rvCards").onclick=()=>go("vocab");$("#rvRev").onclick=()=>{learnMode="review";vLearn()};
+ $("#rvPb").onclick=()=>{learnMode="read";RD.view="book";RD.res=null;RD.retry=null;vLearn()};
+ $("#rvMt").onclick=()=>{const n=Object.keys(S.words||{}).filter(k=>k[0]==="T").length;if(n<4){toast("Cần ít nhất 4 từ đã thuộc. Học vài từ trong Lộ trình trước nhé");return}mtStart("learned")}}
+// ===== Trang chủ: thẻ Lộ trình + Ôn hôm nay =====
+function homeRoad(){const U=curUnit(),ns=nextStep(U),tot=Math.min(revDue().length,8)+Math.min(pbDue().length,6)+Math.min(due().length,10);
+ return`<button class="panel stack" id="hRoad" style="text-align:left;gap:8px;cursor:pointer;font:inherit;color:inherit">
+  <div class="row" style="justify-content:space-between"><span class="label">Lộ trình · Tuần ${U.week}/12 · Bài ${U.n}</span><span class="pill">${unitsDone()}/24 bài</span></div>
+  <b style="font-size:1.1rem">${esc(U.t)}</b><span class="muted small">Mục tiêu: ${esc(U.can[0])}</span>
+  <span class="muted small">${ns?"Phần tiếp theo: <b>"+esc(ns[1])+"</b>":"Đã xong bài này"}${road().place?"":" · Chưa làm bài kiểm tra đầu vào"}</span>${progBar(Math.round(uDoneN(U)/6*100))}</button>
+  ${weekDue()?`<button class="panel row" id="hWeek" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>Kiểm tra cuối tuần đến hạn</b><br><span class="muted small">10 phút để xem bạn tiến bộ thế nào</span></span><span class="muted">›</span></button>`:""}
+  ${tot?`<button class="panel row" id="hRev" style="justify-content:space-between;cursor:pointer;font:inherit;color:inherit;text-align:left"><span><b>Ôn hôm nay: ${tot} mục</b><br><span class="muted small">Thẻ nhớ, câu nói sai và từ phát âm khó trong một lượt</span></span><span class="muted">›</span></button>`:""}`}
+function wireHomeRoad(){$("#hRoad")&&($("#hRoad").onclick=()=>{UNIT=road().u;learnMode=null;go("road")});$("#hWeek")&&($("#hWeek").onclick=startWeek);$("#hRev")&&($("#hRev").onclick=()=>{learnMode=null;go("review")})}
+// ===== Tiến độ: lộ trình, tuần, nói 3 lần =====
+function statsRoadHtml(){const wk=(S.wk||[]).slice(-6),t3=(S.t3||[]).slice(-5).reverse(),R=road();
+ return`<div class="panel stack" style="gap:8px"><div class="label">Lộ trình 12 tuần</div><b>${unitsDone()}/24 bài · đang ở bài ${R.u+1} (tuần ${curUnit().week})</b>${progBar(Math.round(unitsDone()/24*100))}
+  ${R.place&&R.place.lv?`<span class="muted small">Kiểm tra đầu vào ngày ${R.place.d.slice(5).split("-").reverse().join("/")}: ${R.place.lv}</span>`:""}</div>
+  ${wk.length?`<div class="panel stack" style="gap:8px"><div class="label">Kiểm tra cuối tuần</div><table class="t3t"><tr><th>Ngày</th>${calm()?"":"<th>Phản xạ</th>"}<th>Số từ/1 phút</th><th>Tự tin</th></tr>${wk.map(w=>`<tr><td>${w.d.slice(5).split("-").reverse().join("/")}</td>${calm()?"":`<td>${w.rx}</td>`}<td>${w.n}</td><td>${w.can}/${w.cant}</td></tr>`).join("")}</table></div>`:""}
+  ${t3.length?`<div class="panel stack" style="gap:8px"><div class="label">Nói 3 lần gần đây (số từ mỗi lần)</div>${t3.map(x=>`<div class="small"><b>${x.d.slice(5).split("-").reverse().join("/")}</b> · ${esc(x.topic.slice(0,48))}${x.topic.length>48?"…":""}<br><span class="muted">${x.r.map(r=>r.n+" từ"+(calm()?"":" ("+r.wpm+"/phút)")).join(" → ")}</span></div>`).join("")}</div>`:""}`}
+
+{const _vv=vVocab;vVocab=function(){_vv();const v=$("#view");if(v&&!$("#bkRv"))v.insertAdjacentHTML("afterbegin",`<div class="row" style="flex-wrap:nowrap;margin-bottom:10px"><button class="iconbtn" id="bkRv" aria-label="Về Ôn tập">${IC.back}</button><span class="label">Ôn tập · Thẻ nhớ</span></div>`);$("#bkRv")&&($("#bkRv").onclick=()=>go("review"))}}
+{const _vs=vStats;vStats=function(){_vs();const h1=$("#view h1");if(h1)h1.insertAdjacentHTML("afterend",statsRoadHtml())}}
+{const _vc=vChat;vChat=function(){_vc();try{rpAfter()}catch(e){}}}
+{const _wh=wireHead;wireHead=function(){_wh();if(RP){const b=$("#back");if(b)b.onclick=()=>{RP=null;summary=null;chatScen=null;chatMsgs=null;learnMode="rp3";vLearn();window.scrollTo(0,0)}}}}
+
 let learnMode=null,sentTopic=null,wordSel=null,lsn=null;
 function pct(a,b){return b?Math.round(a/b*100):0}
 function sentDone(items){return items.filter(s=>(S.shadow[s.id]||0)>=80).length}
@@ -1103,18 +1484,26 @@ function vLearn(){
  if(learnMode==="abc")return vABC();
  if(learnMode==="num")return vNum();
  if(learnMode==="drill")return vDrill();
+ if(learnMode==="talk3")return vT3();
+ if(learnMode==="rp3")return vRP3();
+ if(learnMode==="place")return vPlace();
+ if(learnMode==="week")return vWeek();
  if(learnMode==="match")return vMatch();
  if(learnMode==="read")return vRead();
  if(learnMode==="review")return vReviewList();
  if(learnMode==="daily")return vDaily();
+ learnMode=null;if(TAB==="road")return vRoad();if(TAB==="review")return vReview();
  const card=m=>`<button class="mode-card" data-m="${m.id}"><div class="art c-${m.c}"><svg viewBox="0 0 96 76" aria-hidden="true">${m.svg}</svg></div><b>${m.t}</b><span class="muted small">${m.d}</span></button>`;
- $("#view").innerHTML=`<div class="stack"><h1>Chế độ học</h1>
-  <div class="modes">${MODES.filter(m=>!m.g).map(card).join("")}</div>
-  <h2 style="margin-top:8px">Nền tảng</h2>
-  <div class="modes">${MODES.filter(m=>m.g).map(card).join("")}</div>
+ const GR=[["Nói","Nói nhiều nhất có thể, đây là phần quan trọng nhất",["chat","call","rp3","talk3","reflex","trans","role","photo"]],["Nghe và phát âm","",["sent","read","listen","ipa"]],["Từ vựng","",["words","match"]],["Nền tảng","",["abc","num"]]];
+ $("#view").innerHTML=`<div class="stack"><h1>Luyện tập</h1>${calmHtml()}
+  ${GR.map(([g,s,ids])=>`<h2 style="margin-top:8px">${g}</h2>${s?`<p class="muted small" style="margin:-6px 0 0">${s}</p>`:""}<div class="modes">${ids.map(id=>MODES.find(m=>m.id===id)).filter(Boolean).map(card).join("")}</div>`).join("")}
   </div>`;
+ wireCalm(vLearn);
  document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>openMode(b.dataset.m))}
 function openMode(m){
+ if(m==="reflex")return startReflex();
+ if(m==="talk3"){if(TAB!=="learn")go("learn");return t3Hub()}
+ if(m==="rp3"){RPV=null;learnMode="rp3";if(TAB!=="learn")go("learn");else{vLearn();window.scrollTo(0,0)}return}
  if(m==="trans")return startDrill({title:"Dịch nói",sub:"Đọc câu tiếng Việt, bấm micro và nói bằng tiếng Anh. Có nhiều cách nói đúng, app so với câu mẫu nên hãy nghe đáp án để học cách nói tự nhiên.",items:pickTrans(10),mode:"trans"});
  if(m!=="chat")dailyChat=false;
  if(m==="read"){RD.view="home";RD.res=null;RD.retry=null}
@@ -1504,6 +1893,7 @@ const PAST={go:"went",eat:"ate",have:"had",see:"saw",do:"did",buy:"bought",meet:
 const BASEV="go|do|have|like|love|want|work|live|play|eat|watch|need|think|study|get|make|take|come|drink|sleep|read|know|say|try|teach|finish|feel|look|cook|walk|drive|ride|speak";
 // [regex, replacer, Vietnamese note]
 const OFF_RULES=[
+ [/\b(I|you|we|they)\s+(goes|does|has|likes|wants|works|lives|needs|gets|makes|thinks|knows|comes|watches|plays|usually goes)\b/i,(m,s,v)=>`${s} ${({goes:"go",does:"do",has:"have",watches:"watch","usually goes":"usually go"})[v.toLowerCase()]||v.replace(/s$/,"")}`,"Với I/you/we/they, động từ giữ nguyên, không thêm -s: I go, I have."],
  [/\b(i|you|we|they|he|she)\s+(am|is|are|was|were)\s+agree\b/i,(m,s)=>`${s} agree`,"“agree” đã là động từ, không cần am/is/are: I agree."],
  [/\b(he|she|it|my (?:mother|father|mom|dad|wife|husband|brother|sister|boss|friend|son|daughter))\s+(don't|do not)\b/i,(m,s)=>`${s} doesn't`,"Ngôi he/she/it dùng doesn't, không dùng don't."],
  [new RegExp(`(?<!\\b(?:did|does|do|will|would|can|could|should|must|may|might|let|make|makes|help|helps|to|and|or|when|if)\\s)\\b(he|she|it|my (?:mother|father|mom|dad|wife|husband|brother|sister|boss|friend|son|daughter))\\s+(${BASEV})\\b`,"i"),(m,s,v)=>`${s} ${V3[v.toLowerCase()]||v+"s"}`,"Với he/she/it ở thì hiện tại đơn, động từ thêm -s/-es (goes, has, works)."],
@@ -1651,7 +2041,7 @@ async function send(text){if(chatBusy)return;const s=chatScen;chatMsgs.push({r:"
    OFS.sample=o.sample;chatMsgs.push({r:"ai",t:o.t,vi:o.vi,sug:o.sug});vChat();if(S.settings.autoSpeak!==false||callMode)speak(o.t);return}
   const sc=s.script||[];const reply=scriptStep<sc.length?sc[scriptStep]:"It was great talking with you! Want to try another situation?";
   const model=s.sample?s.sample[Math.min(scriptStep,s.sample.length-1)]:"";scriptStep++;
-  if(model)chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply,sug:s.sample&&s.sample[scriptStep]?[s.sample[scriptStep]]:[]});vChat();if(S.settings.autoSpeak!==false)speak(reply);return}
+  if(model&&!(RP&&RP.round===3))chatMsgs.push({r:"fb",h:`Câu mẫu để tham khảo: <b>${esc(model)}</b>`});chatMsgs.push({r:"ai",t:reply,sug:s.sample&&s.sample[scriptStep]?[s.sample[scriptStep]]:[]});vChat();if(S.settings.autoSpeak!==false)speak(reply);return}
  chatBusy=true;vChat();
  const hist=chatMsgs.filter(m=>m.r!=="fb").map(m=>(m.r==="ai"?"Partner: ":"Learner: ")+m.t).join("\n");
  const prompt=`You are an English conversation partner for a Vietnamese adult learning spoken English at CEFR level ${S.settings.level||"B1"}. Match your vocabulary and sentence length to that level.
@@ -1760,9 +2150,9 @@ if(!(window.claude&&window.claude.use)){DICT=nativeDict();if(DICT)wireDict();
  syncMsg="Dữ liệu lưu ngay trên máy này và dùng được khi không có mạng. Thỉnh thoảng hãy sao chép bản sao lưu bên dưới để phòng khi xoá dữ liệu trình duyệt.";}
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------------- BOOT ---------------- */
-const h0=location.hash.slice(1);if(["today","vocab","learn","stats"].includes(h0))TAB=h0;else if(h0==="speak"||h0==="chat")TAB="learn";
+const h0=location.hash.slice(1);if(["today","road","review","vocab","learn","stats"].includes(h0))TAB=h0;else if(h0==="speak"||h0==="chat")TAB="learn";
 go(TAB);
-window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h!==TAB&&["today","vocab","learn","stats"].includes(h))go(h)});
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h!==TAB&&["today","road","review","vocab","learn","stats"].includes(h))go(h)});
 (async()=>{const c=window.claude;if(!c||!c.use)return;
  c.use("tts").then(t=>{TTS=t}).catch(()=>{});
  c.use("dictation").then(d=>{if(d){DICT=d;wireDict();if(TAB==="learn")render()}}).catch(()=>{});
